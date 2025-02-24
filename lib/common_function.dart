@@ -1,29 +1,23 @@
+import 'dart:io';
 import 'package:app_tracking_transparency/app_tracking_transparency.dart';
+import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:games_services/games_services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'constant.dart';
 import 'extension.dart';
 import 'main.dart';
 
-/// App Tracking Transparency
-Future<void> initPlugin(BuildContext context) async {
-  final status = await AppTrackingTransparency.trackingAuthorizationStatus;
-  if (status == TrackingStatus.notDetermined && context.mounted) {
-    await showCupertinoDialog(context: context, builder: (context) => CupertinoAlertDialog(
-      title: Text(context.letsElevator()),
-      content: Text(context.thisApp()),
-      actions: [
-        CupertinoDialogAction(
-          child: const Text('OK', style: TextStyle(color: Colors.blue)),
-          onPressed: () => Navigator.pop(context),
-        )
-      ],
-    ));
-    await Future.delayed(const Duration(milliseconds: 200));
-    await AppTrackingTransparency.requestTrackingAuthorization();
+///App Tracking Transparency
+Future<void> initATTPlugin() async {
+  if (Platform.isIOS || Platform.isMacOS) {
+    final status = await AppTrackingTransparency.trackingAuthorizationStatus;
+    if (status == TrackingStatus.notDetermined) {
+      await AppTrackingTransparency.requestTrackingAuthorization();
+    }
   }
 }
 
@@ -125,5 +119,35 @@ Future<int> getBestScore() async {
     if (!isTest) await "pointKey".setSharedPrefInt(prefs, gamesBestScore);
     "bestScore: $gamesBestScore".debugPrint();
     return gamesBestScore;
+  }
+}
+
+class AudioPlayerManager {
+  // シングルトンインスタンス
+  static final AudioPlayerManager _instance = AudioPlayerManager._internal();
+  factory AudioPlayerManager() => _instance;
+  final List<AudioPlayer> audioPlayers = [];
+  // 4つの AudioPlayer インスタンスを初期化
+  AudioPlayerManager._internal() {
+    for (int i = 0; i < audioPlayerNumber; i++) {
+      audioPlayers.add(AudioPlayer());
+    }
+  }
+  /// 全ての AudioPlayer を dispose する
+  Future<void> disposeAll() async {
+    for (var player in audioPlayers) {
+      try {
+        await player.dispose();
+      } catch (e) {
+        'Error disposing AudioPlayer: $e'.debugPrint();
+      }
+    }
+  }
+}
+
+// アプリが終了する際に disposeAll を呼び出す
+void handleLifecycleChange(AppLifecycleState state) {
+  if (state == AppLifecycleState.detached) {
+    AudioPlayerManager().disposeAll();
   }
 }

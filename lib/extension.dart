@@ -22,13 +22,14 @@ extension StringExt on String {
     if (isSoundOn) {
       debugPrint();
       await audioPlayer.stop();
-      await AudioPlayer().play(AssetSource(this));
+      await audioPlayer.play(AssetSource(this));
     }
   }
 
   Future<void> speakText(FlutterTts flutterTts, bool isSoundOn) async {
     if (isSoundOn) {
       debugPrint();
+      await flutterTts.stop();
       await flutterTts.speak(this);
     }
   }
