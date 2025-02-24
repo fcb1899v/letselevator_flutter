@@ -31,13 +31,18 @@ class ManyButtonsPage extends HookConsumerWidget {
     final bestScore = useState(0);
 
     final isMenu = ref.watch(isMenuProvider);
-    final AudioPlayer audioPlayer = AudioPlayer();
+    final audioPlayers = AudioPlayerManager();
+    final lifecycle = useAppLifecycleState();
+
+    initAudio() async {
+      await audioPlayers.audioPlayers[0].setReleaseMode(ReleaseMode.release);
+      await audioPlayers.audioPlayers[0].setVolume(0.5);
+    }
 
     useEffect(() {
       WidgetsBinding.instance.addPostFrameCallback((_) async {
         isSelectedButtonsList.value = panelMax.listListAllFalse(rowMax, columnMax);
-        await audioPlayer.setReleaseMode(ReleaseMode.loop);
-        await audioPlayer.setVolume(0.5);
+        await initAudio();
         await gamesSignIn();
         bestScore.value = await getBestScore();
         final timer = Timer.periodic(const Duration(seconds: 1), (Timer timer) {
@@ -46,7 +51,7 @@ class ManyButtonsPage extends HookConsumerWidget {
             isChallengeStart.value = false;
             isChallengeFinish.value = true;
             bestScore.value = (counter.value > bestScore.value) ? counter.value: bestScore.value;
-            if (counter.value >= bestScore.value) bestScoreSound.playAudio(audioPlayer, isSoundOn.value);
+            if (counter.value >= bestScore.value) bestScoreSound.playAudio(audioPlayers.audioPlayers[0], isSoundOn.value);
             if (!isTest) bestScore.value.setSharedPrefInt(bestScoreKey);
             if (!isTest) gamesSubmitScore(bestScore.value);
             "Your Score: ${counter.value}".debugPrint();
@@ -54,8 +59,8 @@ class ManyButtonsPage extends HookConsumerWidget {
             timer.cancel;
           } else if (isChallengeStart.value) {
             currentSeconds.value = currentSeconds.value - 1;
-            if (currentSeconds.value < 4) countdown.playAudio(audioPlayer, isSoundOn.value);
-            if (currentSeconds.value == 0) countdownFinish.playAudio(audioPlayer, isSoundOn.value);
+            if (currentSeconds.value < 4) countdown.playAudio(audioPlayers.audioPlayers[0], isSoundOn.value);
+            if (currentSeconds.value == 0) countdownFinish.playAudio(audioPlayers.audioPlayers[0], isSoundOn.value);
           }
         });
         timer.cancel;
@@ -63,11 +68,31 @@ class ManyButtonsPage extends HookConsumerWidget {
       return null;
     }, const []);
 
+    useEffect(() {
+      Future<void> handleLifecycleChange() async {
+        // ウィジェットが破棄されていたら何もしない
+        if (!context.mounted) return;
+        // アプリがバックグラウンドに移行する直前
+        if (lifecycle == AppLifecycleState.inactive || lifecycle == AppLifecycleState.paused) {
+          for (int i = 0; i < audioPlayers.audioPlayers.length; i++) {
+            final player = audioPlayers.audioPlayers[i];
+            try {
+              if (player.state == PlayerState.playing) await player.stop();
+            } catch (e) {
+              'Error handling stop for player $i: $e'.debugPrint();
+            }
+          }
+        }
+      }
+      handleLifecycleChange();
+      return null;
+    }, [lifecycle, context.mounted, audioPlayers.audioPlayers.length]);
+
     //ボタンを選択する
     buttonSelected(int p, i, j) async {
       if (!isSelectedButtonsList.value[p][i][j] && !p.isTranspButton(i, j)) {
         if (!isChallengeStart.value) {
-          selectButton.playAudio(audioPlayer, isSoundOn.value);
+          selectButton.playAudio(audioPlayers.audioPlayers[0], isSoundOn.value);
           Vibration.vibrate(duration: vibTime, amplitude: vibAmp);
         }
         counter.value = counter.value + 1;
@@ -79,7 +104,7 @@ class ManyButtonsPage extends HookConsumerWidget {
     buttonDeSelected(int p, i, j) async {
       if (isSelectedButtonsList.value[p][i][j] && !p.isTranspButton(i, j)) {
         if (!isChallengeStart.value) {
-          cancelButton.playAudio(audioPlayer, isSoundOn.value);
+          cancelButton.playAudio(audioPlayers.audioPlayers[0], isSoundOn.value);
           Vibration.vibrate(duration: vibTime, amplitude: vibAmp);
         }
         counter.value = counter.value - 1;
@@ -89,14 +114,14 @@ class ManyButtonsPage extends HookConsumerWidget {
 
     //30秒チャレンジスタート前のカウントダウン表示
     beforeCountdown(int i) {
-      countdown.playAudio(audioPlayer, isSoundOn.value);
+      countdown.playAudio(audioPlayers.audioPlayers[0], isSoundOn.value);
       isBeforeCount.value = true;
       beforeCount.value = i;
     }
 
     //30秒チャレンジスタート前のカウントダウン表示終了
     finishBeforeCountdown() {
-      countdownFinish.playAudio(audioPlayer, isSoundOn.value);
+      countdownFinish.playAudio(audioPlayers.audioPlayers[0], isSoundOn.value);
       isDarkBack.value= false;
       isChallengeStart.value = true;
       currentSeconds.value = 30;
@@ -132,7 +157,7 @@ class ManyButtonsPage extends HookConsumerWidget {
 
     //　メニューボタンを押した時の操作
     pressedMenu() async {
-      selectButton.playAudio(audioPlayer, isSoundOn.value);
+      selectButton.playAudio(audioPlayers.audioPlayers[0], isSoundOn.value);
       Vibration.vibrate(duration: vibTime, amplitude: vibAmp);
       ref.read(isMenuProvider.notifier).state = true;
     }

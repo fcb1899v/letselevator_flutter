@@ -20,19 +20,42 @@ class MyMenuPage extends HookConsumerWidget {
     final isShimada = ref.watch(isShimadaProvider);
     final isMenu = ref.watch(isMenuProvider);
     final isSoundOn = useState(true);
-    final AudioPlayer audioPlayer = AudioPlayer();
+    final audioPlayers = AudioPlayerManager();
+    final lifecycle = useAppLifecycleState();
+
+    initAudio() async {
+      await audioPlayers.audioPlayers[0].setReleaseMode(ReleaseMode.release);
+      await audioPlayers.audioPlayers[0].setVolume(0.5);
+    }
 
     useEffect(() {
-      WidgetsBinding.instance.addPostFrameCallback((_) async {
-        await audioPlayer.setReleaseMode(ReleaseMode.loop);
-        await audioPlayer.setVolume(0.5);
-      });
+      WidgetsBinding.instance.addPostFrameCallback((_) async => await initAudio());
       return null;
     }, []);
 
+    useEffect(() {
+      Future<void> handleLifecycleChange() async {
+        // ウィジェットが破棄されていたら何もしない
+        if (!context.mounted) return;
+        // アプリがバックグラウンドに移行する直前
+        if (lifecycle == AppLifecycleState.inactive || lifecycle == AppLifecycleState.paused) {
+          for (int i = 0; i < audioPlayers.audioPlayers.length; i++) {
+            final player = audioPlayers.audioPlayers[i];
+            try {
+              if (player.state == PlayerState.playing) await player.stop();
+            } catch (e) {
+              'Error handling stop for player $i: $e'.debugPrint();
+            }
+          }
+        }
+      }
+      handleLifecycleChange();
+      return null;
+    }, [lifecycle, context.mounted, audioPlayers.audioPlayers.length]);
+
     ///Pressed menu button action
     pressedMenu() async {
-      selectButton.playAudio(audioPlayer, isSoundOn.value);
+      selectButton.playAudio(audioPlayers.audioPlayers[0], isSoundOn.value);
       Vibration.vibrate(duration: vibTime, amplitude: vibAmp);
       ref.read(isMenuProvider.notifier).state = false;
     }

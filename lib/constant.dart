@@ -1,7 +1,13 @@
+import 'package:firebase_app_check/firebase_app_check.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 ///アプリ名
 const String appTitle = "LETS ELEVATOR";
+
+///App Check
+final androidProvider = kDebugMode ? AndroidProvider.debug: AndroidProvider.playIntegrity;
+final appleProvider = kDebugMode ? AppleProvider.debug: AppleProvider.deviceCheck;
 
 ///最高階と最低階
 const int min = -4;
@@ -63,6 +69,7 @@ const List<List<int>> rowMinus = [
 const String lBID30Sec = "bestscore.30sec";
 
 ///Audio
+const int audioPlayerNumber = 1;
 const String countdown = "audios/pon.mp3";
 const String countdownFinish = "audios/chan.mp3";
 const String bestScoreSound = "audios/jajan.mp3";
