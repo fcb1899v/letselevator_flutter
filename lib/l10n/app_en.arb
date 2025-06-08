@@ -19,9 +19,16 @@
   "pushNumber" : "Please press the button for the desired floor", "@pushNumber" : {"description": "Press button"},
   "upFloor" : "Going up. ", "@upFloor" : {"description": "Going up. "},
   "downFloor" : "Going down. ", "@downFloor" : {"description": "Going down. "},
-  "notStop" : "Sorry, the floor selected is a restricted floor. ", "@notStop" : {"description": "Restricted floor. "},
+  "notStop" : "Sorry, this floor is restricted. ",
   "emergency" : "Emergency stop to check the status of the elevator. ", "@emergency" : {"description": "Emergency stop. "},
   "return1st" : "Elevator status check completed. Return to the first floor. ", "@return1st" : {"description": "Return 1st floor. "},
+  "settings" : "Settings",
+  "changeNumber" : "Change floor number",
+  "changeBasementNumber" : "Change basement floor number",
+  "ok" : "OK",
+  "cancel" : "CANCEL",
+  "bypass" : "Bypass",
+  "stop" : "Stop",
   "menu" : "MENU", "@menu" : {"description": "Menu"},
   "normalMode" : "Normal\nmode", "@normalMode" : {"description": "Normal mode"},
   "elevatorMode" : "Elevator\nmode", "@elevatorMode" : {"description": "Elevator mode"},
@@ -41,5 +48,9 @@
   "ranking" : "RANKING", "@ranking" : {"description": "ranking"},
   "yourScore" : "SCORE", "@yourScore" : {"description": "your score"},
   "back" : "BACK", "@back" : {"description": "back"},
-  "newRecord" : "NEW RECORD!!", "@newRecord" : {"description": "new record"}
+  "newRecord" : "NEW RECORD!!", "@newRecord" : {"description": "new record"},
+  "unlock" : "Unlock",
+  "unlockTitle" : "Watch to unlock\nthe new button!",
+  "unlockDesc" : "\nWatch until the end\nto use the new button.\nPlease Tap OK!",
+  "unlockAll" : "     <Unlock Conditions: 1. or 2.>\n1. Score 100+ in 30 sec challenge.\n2. Unlock all button shapes."
 }

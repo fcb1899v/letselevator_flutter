@@ -17,9 +17,16 @@
   "pushNumber" : "行き先階ボタンを押してください。　",
   "upFloor" : "うえにまいります。　",
   "downFloor" : "したにまいります。　",
-  "notStop" : "ランプが点灯しない階には止まりません。　",
+  "notStop" : "ただいま押されたかいにはとまりません。　",
   "emergency" : "エレベーターの状態を確認するため、緊急停止します。 ",
   "return1st" : "確認が完了しました。一階に戻ります。 ",
+  "settings" : "各種設定",
+  "changeNumber" : "行き先階数の変更",
+  "changeBasementNumber" : "地下階数の変更",
+  "ok" : "OK",
+  "cancel" : "キャンセル",
+  "bypass" : "通過階",
+  "stop" : "停止階",
   "menu" : "メニュー",
   "normalMode" : "ノーマル\nモード",
   "elevatorMode" : "エレベーター\nモード",
@@ -40,5 +47,10 @@
   "ranking" : "ランキング",
   "yourScore" : "スコア",
   "back" : "戻る",
-  "newRecord" : "ベストスコア更新！"
+  "newRecord" : "ベストスコア更新！",
+  "unlock" : "解放",
+  "unlockTitle" : "動画を見て\n新ボタンを解放！",
+  "unlockDesc" : "\nこの動画を最後まで見ると\n新しいボタンが使えます。\nOKをタップしてね！",
+  "unlockAll" : "          ＜解放条件：1.または2.＞\n1. 30秒チャレンジで100個以上達成！\n2. 全てのボタン形状を解放!!"
+
 }

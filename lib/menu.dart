@@ -1,0 +1,199 @@
+import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:vibration/vibration.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'common_widget.dart';
+import 'games_manager.dart';
+import 'sound_manager.dart';
+import 'buttons.dart';
+import 'extension.dart';
+import 'constant.dart';
+import 'main.dart';
+import 'homepage.dart';
+import 'settings.dart';
+
+class MenuPage extends HookConsumerWidget {
+  final bool isHome;
+  const MenuPage({super.key, required this.isHome});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+
+    final isShimada = ref.watch(isShimadaProvider);
+    final isGamesSignIn = ref.watch(gamesSignInProvider);
+
+    final isLoadingData = useState(false);
+    final lifecycle = useAppLifecycleState();
+
+    //Manager
+    final audioManager = useMemoized(() => AudioManager());
+
+    //Class
+    final common = CommonWidget(context: context);
+    final menu = MenuWidget(context: context);
+
+    initState() async {
+      isLoadingData.value = true;
+      try {
+        ref.read(gamesSignInProvider.notifier).state = await gamesSignIn(isGamesSignIn);
+        isLoadingData.value = false;
+      } catch (e) {
+        "Error: $e".debugPrint();
+        isLoadingData.value = false;
+      }
+    }
+
+    useEffect(() {
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
+        await initState();
+      });
+      return null;
+    }, []);
+
+    useEffect(() {
+      if (lifecycle == AppLifecycleState.inactive || lifecycle == AppLifecycleState.paused) {
+        if (context.mounted) audioManager.stopAll();
+      }
+      return null;
+    }, [lifecycle]);
+
+    getSavedData(bool isShimada) async {
+      final prefs = await SharedPreferences.getInstance();
+      final savedFloorNumbers = "numbersKey".getSharedPrefListInt(prefs, initialFloorNumbers);
+      final savedFloorStops = "stopsKey".getSharedPrefListBool(prefs, initialFloorStops);
+      final savedButtonStyle = "buttonStyleKey".getSharedPrefInt(prefs, initialButtonStyle);
+      ref.read(floorNumbersProvider.notifier).update((state) => isShimada ? initialFloorNumbers: savedFloorNumbers);
+      ref.read(floorStopsProvider.notifier).update((state) => isShimada ? initialFloorStops: savedFloorStops);
+      ref.read(buttonStyleProvider.notifier).update((state) => isShimada ? 0: savedButtonStyle);
+    }
+
+    ///Pressed menu links action
+    pressedMenuLink(int i) async {
+      audioManager.playEffectSound(index: 0, asset: selectButton, volume: 1.0);
+      Vibration.vibrate(duration: vibTime, amplitude: vibAmp);
+      if (i == 0) {
+        await getSavedData(!isShimada);
+        ref.read(isShimadaProvider.notifier).update((state) => !state);
+        if (context.mounted) context.pushFadeReplacement(HomePage());
+      } else if (i == 1) {
+        await getSavedData(false);
+        ref.read(isShimadaProvider.notifier).update((state) => true);
+        (!isHome && isGamesSignIn) ? await gamesShowLeaderboard(isGamesSignIn):
+        (context.mounted) ? context.pushFadeReplacement(ButtonsPage()): null;
+      } else if (i == 2) {
+        await getSavedData(false);
+        ref.read(isShimadaProvider.notifier).update((state) => true);
+        if (context.mounted) context.pushFadeReplacement(SettingsPage());
+      } else if (i == 3) {
+        await getSavedData(false);
+        ref.read(isShimadaProvider.notifier).update((state) => false);
+        if (context.mounted) context.pushFadeReplacement(HomePage());
+        if (context.mounted) launchUrl(Uri.parse(context.shimaxLink()));
+      }
+      ref.read(isMenuProvider.notifier).state = false;
+    }
+
+    ///Menu
+    return Scaffold(
+      appBar: menu.menuAppBar(),
+      body: Stack(alignment: Alignment.topCenter,
+        children: [
+          common.commonBackground(
+            width: context.width(),
+            image: backgroundStyleList[0].backGroundImage(),
+          ),
+          Column(children: [
+            const Spacer(flex: 1),
+            ///Menu  Button
+            ...context.menuButtons(isHome, isShimada, isGamesSignIn).asMap().entries.map((row) => Column(children: [
+              Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: row.value.asMap().entries.map((col) => Row(children: [
+                  GestureDetector(
+                    onTap: () =>  pressedMenuLink(2 * row.key + col.key),
+                    child: SizedBox(
+                      width: context.menuButtonSize(),
+                      height: context.menuButtonSize(),
+                      child: Image.asset(col.value),
+                    ),
+                  ),
+                ])).toList(),
+              ),
+              if (row.key == 0) SizedBox(height: context.menuButtonMargin()),
+            ])),
+            const Spacer(flex: 1),
+            ///Menu Links
+            menu.menuBottomLinks(),
+            Container(
+              color: blackColor,
+              height: context.admobHeight(),
+            ),
+          ]),
+          ///Progress Indicator
+          if (isLoadingData.value) common.commonCircularProgressIndicator(),
+        ]
+      ),
+    );
+  }
+}
+
+class MenuWidget {
+
+  final BuildContext context;
+
+  MenuWidget({
+    required this.context,
+  });
+
+  ///AppBar
+  AppBar menuAppBar() => AppBar(
+    backgroundColor: blackColor,
+    shadowColor: Colors.transparent,
+    iconTheme: IconThemeData(color: whiteColor),
+    title: Row(children: [
+      Spacer(flex: 1),
+      Container(
+        alignment: Alignment.center,
+        height: 50,
+        child: Text(context.menu(),
+          style: TextStyle(
+            color: whiteColor,
+            fontSize: context.lang() == "en" ? 40: 28,
+            fontFamily: context.lang() == "en" ? elevatorFont: normalFont,
+            fontWeight: context.lang() == "en" ? FontWeight.normal: FontWeight.bold
+          ),
+        ),
+      ),
+      Spacer(flex: 1),
+    ]),
+  );
+
+  ///Bottom Links
+  BottomNavigationBar menuBottomLinks() => BottomNavigationBar(
+    items: List<BottomNavigationBarItem>.generate(context.linkLogos().length, (i) =>
+      BottomNavigationBarItem(
+        icon: Container(
+          margin: EdgeInsets.only(
+              top: context.menuLinksMargin(),
+              bottom: context.menuLinksTitleMargin()
+          ),
+          width: context.menuLinksLogoSize(),
+          child: Image.asset(context.linkLogos()[i]),
+        ),
+        label: context.linkTitles()[i],
+      ),
+    ),
+    currentIndex: 0,
+    type: BottomNavigationBarType.fixed,
+    onTap: (i) => launchUrl(Uri.parse(context.linkLinks()[i])),
+    elevation: 0,
+    selectedItemColor: lampColor,
+    unselectedItemColor: lampColor,
+    selectedFontSize: context.menuLinksTitleSize(),
+    selectedLabelStyle: const TextStyle(fontWeight: FontWeight.bold),
+    unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.bold),
+    unselectedFontSize: context.menuLinksTitleSize(),
+    backgroundColor: blackColor,
+  );
+}

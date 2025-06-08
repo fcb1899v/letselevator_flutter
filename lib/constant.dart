@@ -10,33 +10,18 @@ final androidProvider = kDebugMode ? AndroidProvider.debug: AndroidProvider.play
 final appleProvider = kDebugMode ? AppleProvider.debug: AppleProvider.deviceCheck;
 
 ///最高階と最低階
-const int min = -4;
+const int min = -6;
 const int max = 163;
-
-/// ボタンの階数
-const List<List<int>> floorNumbers = [
-  [14, 100, 154, max],
-  [5, 6, 7, 8],
-  [1, 2, 3, 4],
-  [-1, -2, -3, min]
-];
-
-/// 停止する：true・しない：false
-const List<List<bool>> isFloors = [
-  [true, true, true, true],
-  [false, true, true, true],
-  [true, true, true, true],
-  [true, true, true, true]
-];
 
 /// バイブレーション
 const int vibTime = 200;
 const int vibAmp = 128;
 
 /// エレベータードアの開閉時間
-const int openTime = 10;   //[sec]
-const int waitTime = 3;    //[sec]
-const int flashTime = 500; //[msec]
+const int initialOpenTime = 10; //[sec]
+const int initialWaitTime = 2;  //[sec]
+const int flashTime = 500;      //[msec]
+const int snackBarTime = 3;     //[sec]
 
 /// エレベータードアの状態
 final List<bool> openedState = [true, false, false, false];
@@ -50,6 +35,21 @@ final List<bool> pressedOpen = [true, false, false];
 final List<bool> pressedClose = [false, true, false];
 final List<bool> pressedCall = [false, false, true];
 final List<bool> allPressed = [true, true, true];
+
+/// Button Index
+bool isBasement(int row, int col) => (row == 3);
+int buttonCol(int row, int col) => isBasement(row, col) ? (1 - col) : col;
+int buttonIndex(int row, int col) => 2 * (4 - row) + buttonCol(row, col);
+bool isNotSelectFloor(int row, int col) =>
+    (col == 0 && row == 2) || (col == 3 && row == 0);
+
+
+const List<List<int>> reversedButtonIndex = [
+  [12, 13, 14, 15],
+  [8, 9, 10, 11],
+  [4, 5, 6, 7],
+  [3, 2, 1, 0],
+];
 
 /// 1000のボタン
 const int panelMax = 9;
@@ -81,8 +81,9 @@ const String callSound = "audios/call.mp3";
 
 ///Font
 const String elevatorFont = "cornerstone";
-const String menuFont = "noto";
-const String numberFont = "teleIndicators";
+const String normalFont = "roboto";
+const List<String> numberFont = ["lcd", "dseg", "dseg"];
+const List<String> alphabetFont = ["lcd", "letsgo", "letsgo"];
 
 ///Image Folder
 const String assetsCommon = "assets/images/common/";
@@ -93,21 +94,22 @@ const String assetsRealOn = "assets/images/realOn/";
 const String assetsRealOff = "assets/images/realOff/";
 const String assetsReal1000On = "assets/images/real1000On/";
 const String assetsReal1000Off = "assets/images/real1000Off/";
+const String assetsButton = "assets/images/button/";
+const String assetsSettings = "assets/images/settings/";
 
 ///Image File
-const String upArrow = "${assetsCommon}up.png";
-const String downArrow = "${assetsCommon}down.png";
+const String silver = "${assetsCommon}metal.png";
+const String wood = "${assetsCommon}wood.png";
+const String matte = "${assetsCommon}marble.png";
 const String buttonChan = "${assetsCommon}button.png";
 const String pressedButtonChan = "${assetsCommon}pButton.png";
 const String shimadaImage = "${assetsCommon}shimada.png";
 const String transpImage = "${assetsCommon}transparent.png";
 const String realTitleImage = "${assetsCommon}title1000Buttons.png";
-
 const String beforeCountImage = "${assetsNormal}circle.png";
 const String circleButton = "${assetsNormal}circle.png";
 const String pressedCircle = "${assetsNormal}pressedCircle.png";
 const String squareButton = "${assetsMenu}square.png";
-// const String pressedSquare = "${assetsMenu}pressedSquare.png";
 const String openButton = "${assetsNormal}open.png";
 const String pressedOpenButton = "${assetsNormal}pressedOpen.png";
 const String closeButton = "${assetsNormal}close.png";
@@ -130,112 +132,75 @@ const String twitterLogo = "${assetsMenu}x.png";
 const String instagramLogo = "${assetsMenu}instagram.png";
 const String youtubeLogo = "${assetsMenu}youtube.png";
 const String privacyPolicyLogo = "${assetsMenu}privacyPolicy.png";
-// const String squareButton = "${assetsMenu}square.png";
+const String modeNormalButton = "${assetsMenu}modeNormal.png";
+const String modeShimadaButton = "${assetsMenu}modeShimada.png";
+const String mode1000Button = "${assetsMenu}mode1000.png";
+const String rankingButton = "${assetsMenu}ranking.png";
+const String settingsButton = "${assetsMenu}settings.png";
+const String aboutShimadaButton = "${assetsMenu}aboutShimada.png";
 
-///String
-const String bestScoreKey = 'bestScore';
-const String nextString = "Next Floor: ";
+///Button Settings
+const List<int> initialFloorNumbers = [
+  -4, -3, -2, -1, 1, 2, 3, 4, 5, 6, 7, 8, 14, 100, 154, max,
+];
+List<bool> initialFloorStops = List.generate(initialFloorNumbers.length, (i) => (i != 8));
+const int initialButtonStyle = 0;
+String initialBackgroundStyle = backgroundStyleList[0];
+String initialButtonShape = buttonShapeList[1];
+const List<Color> displayBackgroundColor = [darkBlackColor, darkBlackColor, lightBlueColor];
+const List<Color> displayNumberColor = [lampColor, whiteColor, whiteColor];
+const List<String> settingsItemList = ["button", "number", "style"];
+const List<String> buttonShapeList = [
+  "normal", "circle", "square",
+  "diamond", "hexagon", "clover",
+  "star", "heart", "cat",
+];
+const List<String> backgroundStyleList = ["metal", "dark", "plastic", "wood", "marble", "old"];
+const List<Color> numberColorList = [
+  lampColor, lampColor, blueLightColor,
+  redLightColor, purpleLightColor, greenLightColor,
+  yellowColor, pinkLightColor, goldLightColor,
+];
+const List<double> floorButtonNumberMarginFactor = [
+  0.0, 0.0, 0.0,
+  0.0, 0.0, 0.0,
+  0.02, -0.016, 0.004,
+];
+List<bool> initialButtonLock = List.generate(buttonShapeList.length, (i) => (i > 2));
+
 
 ///Web Page
 const String landingPageJa = "https://nakajimamasao-appstudio.web.app/elevator/ja/";
 const String landingPageEn = "https://nakajimamasao-appstudio.web.app/elevator/";
 const String privacyPolicyJa = "https://nakajimamasao-appstudio.web.app/terms/ja/";
 const String privacyPolicyEn = "https://nakajimamasao-appstudio.web.app/terms/";
+const String youtubeJa = "https://www.youtube.com/watch?v=CQuYL0wG47E";
+const String youtubeEn = "https://www.youtube.com/watch?v=oMhqBiNHAtA";
 const String shopLink = "https://letselevator.designstore.jp";
 const String twitterLink = "https://twitter.com/letselevator";
 const String instagramLink = "https://www.instagram.com/letselevator/";
-const String youtubeChannel = "https://www.youtube.com/channel/UCIEVfzFOhUTMOXos1zaZrQQ";
-const String youtubeJa = "https://www.youtube.com/watch?v=CQuYL0wG47E";
-const String youtubeEn = "https://www.youtube.com/watch?v=oMhqBiNHAtA";
-const String shimadaJa = "https://www.shimada.cc/";
-const String shimadaCn = "http://www.shanghai-shimada.cn/";
-const String shimadaEn = "http://www.shanghai-shimada.cn/en/index.aspx";
-const String timeoutArticle = "https://www.timeout.com/tokyo/things-to-do/shimada-electric-manufacturing-company";
-const String twitterPage = "https://twitter.com/shimax_hachioji/status/1450698944393007107";
-
-///Size Display
-const double displayHeightRate = 0.15;
-const double displayFontSizeRate = 0.12;
-const double displayArrowHeightRate = 0.08;
-const double displayArrowWidthRate = 0.08;
-const double displayArrowPaddingRate = 0.015;
-const double displayNumberWidthRate = 0.25;
-const double displayNumberHeightRate = 0.15;
-const double shimadaLogoHeightRate = 0.10;
-
-///Menu
-const double menuButtonSizeRate = 0.36;
-const double menuTitleWidthRate = 0.8;
-const double menuTitleFontSizeRate = 0.06;
-const double menuListEnFontSizeRate = 0.04;
-const double menuListJaFontSizeRate = 0.05;
-const double menuListIconSizeRate = 0.08;
-const double menuListIconMarginRate = 0.04;
-const double menuListMarginRate = 0.018;
-const double menuSnsJaLogoSizeRate = 0.04;
-const double menuSnsEnLogoSizeRate = 0.06;
-const double menuSnsJaLogoMarginRate = 0.015;
-const double menuSnsEnLogoMarginRate = 0.05;
-const double menuButtonMarginRate = 0.04;
-
-///Menu Bottom Navigation Link
-const double linksLogoWidthRate = 0.1;
-const double linksLogoHeightRate = 0.12;
-const double linksTitleJaFontSizeRate = 0.025;
-const double linksTitleEnFontSizeRate = 0.03;
-const double linksTitleMarginRate = 0.02;
-const double linksMarginRate = 0.04;
-
-///Size Button
-const double floorButtonSizeRate = 0.075;
-const double operationButtonSizeRate = 0.065;
-const double operationButtonPaddingRate = 0.005;
-const double buttonNumberFontSizeRate = 0.025;
-const double buttonMarginRate = 0.025;
-const double buttonBorderWidthRate = 0.008;
-const double buttonBorderRadiusRate = 0.015;
-
-///Size 1000 Buttons
-const double logo1000ButtonsWidthRate = 0.5;
-const double logo1000ButtonsPaddingRate = 0.01;
-const double startButtonWidthRate = 0.2;
-const double startButtonHeightRate = 0.125;
-const double challengeButtonEnFontSizeRate = 0.022;
-const double challengeStartEnFontSizeRate = 0.04;
-const double challengeButtonCnFontSizeRate = 0.03;
-const double challengeStartCnFontSizeRate = 0.06;
-const double countdownPaddingTopRate = 0.008;
-const double countdownPaddingLeftRate = 0.01;
-const double countdownFontSizeRate = 0.09;
-const double countDisplayWidthRate = 0.28;
-const double countDisplayHeightRate = 0.12;
-const double countDisplayPaddingTopRate = 0.015;
-const double countDisplayPaddingLeftRate = 0.02;
-const double countDisplayPaddingRightRate = 0.01;
-const double beforeCountdownCircleSizeRate = 0.4;
-const double beforeCountdownNumberSizeRate = 0.2;
-const double yourScoreFontSizeRate = 0.3;
-const double bestScoreFontSizeRate = 0.16;
-const double scoreTitleEnFontSizeRate = 0.14;
-const double scoreTitleJaFontSizeRate = 0.09;
-const double bestEnFontSizeRate = 0.14;
-const double bestJaFontSizeRate = 0.09;
-const double backButtonEnFontSizeRate = 0.065;
-const double backButtonJaFontSizeRate = 0.045;
-const double backButtonWidthRate = 0.3;
-const double backButtonHeightRate = 0.1;
-const double backButtonBorderRadiusRate = 0.02;
-const double dividerHeightRate = 0.72;
-const double dividerMarginRate = 0.03;
+const String shimadaJa = "https://www.shimada.cc/oseba/";
+const String shimadaZh = "https://www.gltjp.com/zh-hans/article/item/20908/";
+const String shimadaEn = "https://www.gltjp.com/en/article/item/20908/";
+const String shimadaKo = "https://www.gltjp.com/ko/article/item/20908/";
 
 /// Color
 const Color lampColor = Color.fromRGBO(247, 178, 73, 1);  //
-const Color yellowColor = Color.fromRGBO(255, 234, 0, 1);
-const Color greenColor = Color.fromRGBO(105, 184, 0, 1);
+const Color transpLampColor = Color.fromRGBO(247, 178, 73, 0.7);
+const Color lightBlueColor = Colors.lightBlue;
+const Color goldLightColor = Color.fromRGBO(212, 175, 55, 1);
+const Color pinkLightColor = Color.fromRGBO(255, 128, 192, 1);
+const Color redLightColor = Color.fromRGBO(255, 64, 64, 1);
+const Color blueLightColor = Color.fromRGBO(16, 192, 255, 1); //#10c0ff
+const Color purpleLightColor = Color.fromRGBO(192, 128, 255, 1);
+const Color greenLightColor = Color.fromRGBO(64, 255, 64, 1);
+const Color yellowColor = Color.fromRGBO(255, 234, 0, 1); //#ffea00
+const Color greenColor = Color.fromRGBO(105, 184, 0, 1); //#69b800
 const Color redColor = Color.fromRGBO(255, 0, 0, 1);
 const Color blackColor = Color.fromRGBO(56, 54, 53, 1);
 const Color grayColor = Colors.grey;
 const Color transpBlackColor = Color.fromRGBO(0, 0, 0, 0.8);
+const Color transpDarkColor = Color.fromRGBO(0, 0, 0, 0.6);
 const Color darkBlackColor = Colors.black;
 const Color transpWhiteColor = Color.fromRGBO(255, 255, 255, 0.95);
 const Color whiteColor = Colors.white;

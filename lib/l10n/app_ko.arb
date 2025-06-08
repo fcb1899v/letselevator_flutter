@@ -17,9 +17,16 @@
   "pushNumber" : "가고싶은 층 버튼을 누르십시오. ",
   "upFloor" : "올라갑니다. ",
   "downFloor" : "내려갑니다. ",
-  "notStop" : "그 층에는 멈추지 않습니다. ",
+  "notStop" : "해당 층에는 정차하지 않습니다. ",
   "emergency" : "엘리베이터의 상태를 확인하기 위해 긴급 정지합니다. ",
   "return1st" : "확인이 완료되었습니다. 1층으로 돌아갑니다.  ",
+  "settings" : "각종 설정",
+  "changeNumber" : "목적지 층수 변경",
+  "changeBasementNumber" : "지하 층수 변경",
+  "ok" : "확인",
+  "cancel" : "취소",
+  "bypass" : "통과 층",
+  "stop" : "정지 층",
   "menu" : "메뉴",
   "normalMode" : "정상\n모드",
   "elevatorMode" : "엘리베이터\n모드",
@@ -39,5 +46,9 @@
   "ranking" : "랭킹",
   "yourScore" : "점수",
   "back" : "뒤로",
-  "newRecord" : "최고의 점수 경신하다!!"
+  "newRecord" : "최고의 점수 경신하다!!",
+  "unlock" : "해제",
+  "unlockTitle" : "동영상을 보고\n새 버튼 잠금 해제!",
+  "unlockDesc" : "\n동영상을 끝까지 보면\n새 버튼을 사용할 수 있어요.\n확인을 눌러주세요!",
+  "unlockAll" : "         ＜해방 조건: 1. 또는 2.＞\n1. 30초 챌린지에서 100개 이상 달성!\n2. 모든 버튼 모양 해방!!"
 }
