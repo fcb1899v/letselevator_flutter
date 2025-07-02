@@ -74,3 +74,6 @@ android/app/src/profile/
 
 # Arduino ESP32 library (excluded from language statistics)
 arduino-esp32-master/
+
+# Build directories (excluded from language statistics)
+build/
