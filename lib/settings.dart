@@ -23,7 +23,7 @@ class SettingsPage extends HookConsumerWidget {
 
     final isMenu = ref.watch(isMenuProvider);
     final isGamesSignIn = ref.watch(gamesSignInProvider);
-    final bestScore = ref.watch(pointProvider);
+    final bestScore = ref.watch(bestScoreProvider);
 
     final floorNumbers = ref.watch(floorNumbersProvider);
     final floorStops = ref.watch(floorStopsProvider);
@@ -68,7 +68,7 @@ class SettingsPage extends HookConsumerWidget {
       isLoadingData.value = true;
       try {
         ref.read(gamesSignInProvider.notifier).state = await gamesSignIn(isGamesSignIn);
-        ref.read(pointProvider.notifier).state = await getBestScore(isGamesSignIn);
+        ref.read(bestScoreProvider.notifier).state = await getBestScore(isGamesSignIn);
         buttonLockList.value = await getButtonLockList();
         isLoadingData.value = false;
       } catch (e) {
@@ -311,35 +311,26 @@ class SettingsWidget {
     required AnimationController animation,
     required void Function() onPressed,
   }) => AppBar(
+    toolbarHeight: context.settingsAppBarHeight(),
     backgroundColor: blackColor,
-    shadowColor: Colors.transparent,
+    centerTitle: true,
+    shadowColor: darkBlackColor,
     iconTheme: IconThemeData(color: whiteColor),
-    title: Row(children: [
-      Spacer(flex: 1),
-      Container(
-        alignment: Alignment.center,
-        height: 50,
-        margin: EdgeInsets.only(right: 50),
-        child: Text(context.settings(),
-          style: TextStyle(
-              color: whiteColor,
-              fontSize: context.lang() == "en" ? 40: 28,
-              fontFamily: elevatorFont,
-              fontWeight: context.lang() == "en" ? FontWeight.normal: FontWeight.bold
-          ),
-        ),
+    title: Text(context.settings(),
+      style: TextStyle(
+        color: whiteColor,
+        fontSize: context.settingsAppBarFontSize(),
+        fontFamily: context.lang() == "en" ? elevatorFont: normalFont,
+        fontWeight: context.lang() == "en" ? FontWeight.normal: FontWeight.bold
       ),
-      Spacer(flex: 1),
-    ]),
+    ),
     leading: FadeTransition(
       opacity: animation,
       child: Container(
-        margin: EdgeInsets.only(left: 10),
+        margin: EdgeInsets.only(left: context.settingsAppBarBackButtonMargin()),
         child: IconButton(
-          iconSize: 40, // 大きめ
-          icon: const Icon(CupertinoIcons.arrow_left_circle_fill,
-              color: whiteColor
-          ),
+          iconSize: context.settingsAppBarBackButtonSize(),
+          icon: Icon(CupertinoIcons.arrow_left_circle_fill),
           onPressed: onPressed,
         ),
       ),
@@ -396,20 +387,10 @@ class SettingsWidget {
     margin: EdgeInsets.only(top: top),
     width: width,
     height: height,
-    child: Column(
-      mainAxisAlignment: MainAxisAlignment.center,
+    child: Stack(alignment: Alignment.center,
       children: [
         lockIcon(context.settingsAllLockIconSize()),
-        SizedBox(height: context.settingsAllLockIconMargin()),
-        Text(context.unlockAll(),
-          textAlign: TextAlign.left,
-          style: TextStyle(
-            color: whiteColor,
-            fontSize: context.settingsAllLockFontSize(),
-            fontWeight: FontWeight.bold,
-            fontFamily: normalFont,
-          ),
-        ),
+        settingsTooltip()
       ],
     ),
   );
@@ -495,6 +476,65 @@ class SettingsWidget {
     ),
   );
 
+  //Tooltip for EV Mileage
+  Container settingsTooltip() => Container(
+    height: context.settingsTooltipHeight(),
+    alignment: Alignment.topCenter,
+    margin: EdgeInsets.only(top: context.settingsTooltipMargin()),
+    child: Tooltip(
+      richMessage: TextSpan(
+        children: <InlineSpan>[
+          TextSpan(
+            text: "${context.unlockAllTitle()}\n",
+            style: TextStyle(
+              color: lampColor,
+              fontWeight: FontWeight.bold,
+              fontFamily: normalFont,
+              decorationColor: whiteColor,
+              fontSize: context.settingsTooltipTitleFontSize(),
+            ),
+          ),
+          TextSpan(
+            text: "${context.unlockAll()[0]}\n",
+            style: TextStyle(
+              color: blackColor,
+              fontStyle: FontStyle.normal,
+              fontFamily: normalFont,
+              decoration: TextDecoration.none,
+              fontSize: context.settingsTooltipDescFontSize(),
+            ),
+          ),
+          TextSpan(
+            text: context.unlockAll()[1],
+            style: TextStyle(
+              color: blackColor,
+              fontStyle: FontStyle.normal,
+              fontFamily: normalFont,
+              decoration: TextDecoration.none,
+              fontSize: context.settingsTooltipDescFontSize(),
+            ),
+          ),
+        ],
+      ),
+      padding: EdgeInsets.all(context.settingsTooltipPaddingSize()),
+      margin: EdgeInsets.all(context.settingsTooltipMarginSize()),
+      verticalOffset: context.settingsTooltipOffsetSize(),
+      preferBelow: true, //isBelow for tooltip position
+      decoration: BoxDecoration(
+        color: transpWhiteColor,
+        borderRadius: BorderRadius.all(Radius.circular(context.settingsTooltipBorderRadius()))
+      ),
+      showDuration: const Duration(milliseconds: toolTipTime),
+      triggerMode: TooltipTriggerMode.tap,
+      enableFeedback: true,
+      child: Icon(CupertinoIcons.question_circle,
+        color: Colors.white,
+        size: context.settingsTooltipIconSize(),
+      ),
+    ),
+  );
+
+
   ///Change button number
   void floorNumberSelectDialog(int row, col, {
     required void Function(int) select,
@@ -530,30 +570,35 @@ class SettingsWidget {
       Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: row.value.asMap().entries.map((col) => Container(
           alignment: Alignment.center,
-          margin: EdgeInsets.only(top: context.settingsNumberButtonMargin()),
+          margin: EdgeInsets.only(top: (row.key == 0) ? context.settingsNumberButtonMargin(): 0.0),
           child: Stack(alignment: Alignment.center,
             children: [
-              Column(children: [
-                GestureDetector(
-                  child: CommonWidget(context: context).floorButtonImage(
-                    image: isButtonOn[row.key][col.key].numberBackground(1, "normal"),
-                    size: context.settingsButtonSize(),
-                    number: col.value.buttonNumber(),
-                    fontSize: context.settingsNumberButtonFontSize(),
-                    color: blackColor,
-                    marginTop: 0.0,
-                    marginBottom: 0.0
+              Container(
+                width: context.settingsNumberButtonHideWidth(),
+                height: context.settingsNumberButtonHideHeight(),
+                margin: EdgeInsets.only(top: context.settingsNumberButtonHideMargin()),
+                child: Column(children: [
+                  GestureDetector(
+                    child: CommonWidget(context: context).floorButtonImage(
+                      image: isButtonOn[row.key][col.key].numberBackground(1, "normal"),
+                      size: context.settingsButtonSize(),
+                      number: col.value.buttonNumber(),
+                      fontSize: context.settingsNumberButtonFontSize(),
+                      color: blackColor,
+                      marginTop: 0.0,
+                      marginBottom: 0.0
+                    ),
+                    onTap: () => changeButtonNumber(row.key, col.key) ,
                   ),
-                  onTap: () => changeButtonNumber(row.key, col.key) ,
-                ),
-                settingsFloorStopToggleWidget(row.key, col.key,
-                  changeFloorStopFlag: changeFloorStopFlag
-                )
-              ]),
+                  settingsFloorStopToggleWidget(row.key, col.key,
+                    changeFloorStopFlag: changeFloorStopFlag
+                  )
+                ]),
+              ),
               if (isNotSelectFloor(row.key, col.key)) Container(
                 alignment: Alignment.center,
-                width: context.settingsButtonSize(),
-                height: context.settingsNumberButtonHeight(),
+                width: context.settingsNumberButtonHideWidth(),
+                height: context.settingsNumberButtonHideHeight(),
                 color: transpBlackColor,
               ),
             ])
@@ -604,12 +649,15 @@ class SettingsWidget {
             fontWeight: FontWeight.bold,
           ),
         ),
-        CupertinoSwitch(
-          activeTrackColor: lampColor,
-          inactiveTrackColor: blackColor,
-          thumbColor: whiteColor,
-          value: floorStops[reversedButtonIndex[row][col]],
-          onChanged: (value) => changeFloorStopFlag(value, row, col),
+        Transform.scale(
+          scale: context.settingsFloorStopToggleScale(),
+          child: CupertinoSwitch(
+            activeTrackColor: lampColor,
+            inactiveTrackColor: blackColor,
+            thumbColor: whiteColor,
+            value: floorStops[reversedButtonIndex[row][col]],
+            onChanged: (value) => changeFloorStopFlag(value, row, col),
+          ),
         ),
       ]
     ),

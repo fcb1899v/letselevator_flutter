@@ -22,6 +22,7 @@ const int initialOpenTime = 10; //[sec]
 const int initialWaitTime = 2;  //[sec]
 const int flashTime = 500;      //[msec]
 const int snackBarTime = 3;     //[sec]
+const int toolTipTime = 10000;  //[msec]
 
 /// エレベータードアの状態
 final List<bool> openedState = [true, false, false, false];

@@ -38,6 +38,7 @@ class MenuPage extends HookConsumerWidget {
       isLoadingData.value = true;
       try {
         ref.read(gamesSignInProvider.notifier).state = await gamesSignIn(isGamesSignIn);
+        ref.read(bestScoreProvider.notifier).state = await getBestScore(isGamesSignIn);
         isLoadingData.value = false;
       } catch (e) {
         "Error: $e".debugPrint();
@@ -148,25 +149,19 @@ class MenuWidget {
 
   ///AppBar
   AppBar menuAppBar() => AppBar(
+    toolbarHeight: context.menuAppBarHeight(),
     backgroundColor: blackColor,
-    shadowColor: Colors.transparent,
+    centerTitle: true,
+    shadowColor: darkBlackColor,
     iconTheme: IconThemeData(color: whiteColor),
-    title: Row(children: [
-      Spacer(flex: 1),
-      Container(
-        alignment: Alignment.center,
-        height: 50,
-        child: Text(context.menu(),
-          style: TextStyle(
-            color: whiteColor,
-            fontSize: context.lang() == "en" ? 40: 28,
-            fontFamily: context.lang() == "en" ? elevatorFont: normalFont,
-            fontWeight: context.lang() == "en" ? FontWeight.normal: FontWeight.bold
-          ),
-        ),
+    title: Text(context.menu(),
+      style: TextStyle(
+        color: whiteColor,
+        fontSize: context.menuAppBarFontSize(),
+        fontFamily: context.lang() == "en" ? elevatorFont: normalFont,
+        fontWeight: context.lang() == "en" ? FontWeight.normal: FontWeight.bold
       ),
-      Spacer(flex: 1),
-    ]),
+    ),
   );
 
   ///Bottom Links

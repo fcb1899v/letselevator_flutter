@@ -16,51 +16,51 @@ extension StringExt on String {
 
   //SharedPreferences this is key
   void setSharedPrefString(SharedPreferences prefs, String value) {
-    "${replaceAll("Key", "")}: $value".debugPrint();
+    "Saved ${replaceAll("Key", "")}: $value".debugPrint();
     prefs.setString(this, value);
   }
   void setSharedPrefInt(SharedPreferences prefs, int value) {
-    "${replaceAll("Key", "")}: $value".debugPrint();
+    "Saved ${replaceAll("Key", "")}: $value".debugPrint();
     prefs.setInt(this, value);
   }
   void setSharedPrefBool(SharedPreferences prefs, bool value) {
-    "${replaceAll("Key", "")}: $value".debugPrint();
+    "Saved ${replaceAll("Key", "")}: $value".debugPrint();
     prefs.setBool(this, value);
   }
   void setSharedPrefListString(SharedPreferences prefs, List<String> value) {
-    "${replaceAll("Key", "")}: $value".debugPrint();
+    "Saved ${replaceAll("Key", "")}: $value".debugPrint();
     prefs.setStringList(this, value);
   }
   void setSharedPrefListInt(SharedPreferences prefs, List<int> value) {
     for (int i = 0; i < value.length; i++) {
       prefs.setInt("$this$i", value[i]);
     }
-    "${replaceAll("Key", "")}: $value".debugPrint();
+    "Saved ${replaceAll("Key", "")}: $value".debugPrint();
   }
   void setSharedPrefListBool(SharedPreferences prefs, List<bool> value) {
     for (int i = 0; i < value.length; i++) {
       prefs.setBool("$this$i", value[i]);
     }
-    "${replaceAll("Key", "")}: $value".debugPrint();
+    "Saved ${replaceAll("Key", "")}: $value".debugPrint();
   }
   String getSharedPrefString(SharedPreferences prefs, String defaultString) {
     String value = prefs.getString(this) ?? defaultString;
-    "${replaceAll("Key", "")}: $value".debugPrint();
+    "Get ${replaceAll("Key", "")}: $value".debugPrint();
     return value;
   }
   int getSharedPrefInt(SharedPreferences prefs, int defaultInt) {
     int value = prefs.getInt(this) ?? defaultInt;
-    "${replaceAll("Key", "")}: $value".debugPrint();
+    "Get ${replaceAll("Key", "")}: $value".debugPrint();
     return value;
   }
   bool getSharedPrefBool(SharedPreferences prefs, bool defaultBool) {
     bool value = prefs.getBool(this) ?? defaultBool;
-    "${replaceAll("Key", "")}: $value".debugPrint();
+    "Get ${replaceAll("Key", "")}: $value".debugPrint();
     return value;
   }
   List<String> getSharedPrefListString(SharedPreferences prefs, List<String> defaultList) {
     List<String> values = prefs.getStringList(this) ?? defaultList;
-    "${replaceAll("Key", "")}: $values".debugPrint();
+    "Get ${replaceAll("Key", "")}: $values".debugPrint();
     return values;
   }
   List<int> getSharedPrefListInt(SharedPreferences prefs, List<int> defaultList) {
@@ -69,7 +69,7 @@ extension StringExt on String {
       int v = prefs.getInt("$this$i") ?? defaultList[i];
       values.add(v);
     }
-    "${replaceAll("Key", "")}: $values".debugPrint();
+    "Get ${replaceAll("Key", "")}: $values".debugPrint();
     return (values == []) ? defaultList: values;
   }
   List<bool> getSharedPrefListBool(SharedPreferences prefs, List<bool> defaultList) {
@@ -78,7 +78,7 @@ extension StringExt on String {
       bool v = prefs.getBool("$this$i") ?? defaultList[i];
       values.add(v);
     }
-    "${replaceAll("Key", "")}: $values".debugPrint();
+    "Get ${replaceAll("Key", "")}: $values".debugPrint();
     return (values == []) ? defaultList: values;
   }
 
@@ -193,7 +193,11 @@ extension ContextExt on BuildContext {
   String unlock() => AppLocalizations.of(this)!.unlock;
   String unlockTitle() => AppLocalizations.of(this)!.unlockTitle;
   String unlockDesc() => AppLocalizations.of(this)!.unlockDesc;
-  String unlockAll() => AppLocalizations.of(this)!.unlockAll;
+  String unlockAllTitle() => AppLocalizations.of(this)!.unlockAllTitle;
+  List<String> unlockAll() => [
+    AppLocalizations.of(this)!.unlockAll1,
+    AppLocalizations.of(this)!.unlockAll2
+  ];
 
   ///Menu
   String menu() => AppLocalizations.of(this)!.menu;
@@ -287,6 +291,8 @@ extension ContextExt on BuildContext {
   double admobWidth() => width() - 100;
 
   ///Menu
+  double menuAppBarHeight() => height() * 0.07;
+  double menuAppBarFontSize() => height() * (lang() == "en" ? 0.045: 0.032);
   double menuTitleFontSize() => height() * (lang() == "en" ? 0.05: 0.032);
   double menuButtonSize() => widthResponsible() * 0.33;
   double menuButtonMargin() => responsible() * 0.05;
@@ -299,18 +305,37 @@ extension ContextExt on BuildContext {
   //Divider
   double settingsDividerHeight() => height() * 0.015;
   double settingsDividerThickness() => height() * 0.001;
+  //AppBar
+  double settingsAppBarHeight() => height() * 0.07;
+  double settingsAppBarFontSize() => height() * (lang() == "en" ? 0.045: 0.032);
+  double settingsAppBarBackButtonSize() => height() * 0.05;
+  double settingsAppBarBackButtonMargin() => height() * 0.01;
   //Lock
   double settingsLockSize() => height() * 0.10;
   double settingsLockFontSize() => height() * 0.01;
   double settingsLockIconSize() => height() * 0.035;
   double settingsLockMargin() => height() * 0.01;
-  double settingsAllLockIconSize() => height() * 0.05;
+  double settingsAllLockIconSize() => height() * 0.1;
   double settingsAllLockIconMargin() => height() * 0.01;
   double settingsAllLockFontSize() => height() * 0.022;
   double settingsLockFreeButtonWidth() => height() * 0.08;
   double settingsLockFreeButtonHeight() => height() * 0.03;
   double settingsLockFreeBorderRadius() => height() * 0.015;
   double settingsLockFreeFontSize() => height() * 0.018;
+  //Tooltip
+  ///Tooltip
+  double settingsTooltipIconSize() => widthResponsible() * 0.08;
+  double settingsTooltipHeight() => widthResponsible() * 0.2;
+  double settingsTooltipMargin() => widthResponsible() * 0.185;
+  double settingsTooltipTitleFontSize() => widthResponsible() * 0.05;
+  double settingsTooltipDescFontSize() => widthResponsible() *0.04;
+  double settingsTooltipTitleMargin() => widthResponsible() * 0.01;
+  double settingsTooltipPaddingSize() => widthResponsible() * 0.04;
+  double settingsTooltipMarginSize() => widthResponsible() * 0.02;
+  double settingsTooltipBorderRadius() => widthResponsible() * 0.04;
+  double settingsTooltipOffsetSize() => widthResponsible() * 0.02;
+
+
   //Select button
   double settingsSelectButtonSize() => height() * 0.06;
   double settingsSelectButtonIconSize() => height() * 0.03;
@@ -318,13 +343,17 @@ extension ContextExt on BuildContext {
   double settingsSelectButtonMarginBottom() => height() * 0.007;
   //Change button number
   double settingsButtonSize() => height() * 0.07;
-  double settingsNumberButtonHeight() => height() * 0.142;
   double settingsNumberButtonWidth() => height() * 0.07;
+  double settingsNumberButtonHeight() => height() * 0.142;
   double settingsNumberButtonFontSize() => height() * 0.03;
-  double settingsNumberButtonMargin() => height() * 0.02;
+  double settingsNumberButtonMargin() => height() * 0.015;
+  double settingsNumberButtonHideWidth() => height() * 0.08;
+  double settingsNumberButtonHideHeight() => height() * 0.145;
+  double settingsNumberButtonHideMargin() => height() * 0.01;
   //Change floor stop
   double settingsFloorStopFontSize() => height() * 0.015;
   double settingsFloorStopMargin() => height() * 0.005;
+  double settingsFloorStopToggleScale() => height() * 0.001;
   //Change button style
   double settingsButtonStyleSize() => height() * 0.07;
   double settingsButtonStyleMargin() => height() * 0.03;
@@ -337,10 +366,10 @@ extension ContextExt on BuildContext {
   double settingsButtonShapeMargin() => height() * 0.005;
   //Change background image
   double settingsBackgroundSize() => height() * 0.17;
-  double settingsBackgroundMargin() => height() * 0.04;
+  double settingsBackgroundMargin() => height() * 0.035;
   double settingsBackgroundSelectBorderWidth() =>  height() * 0.007;
   double settingsBackgroundStyleLockWidth() => width() * 0.90;
-  double settingsBackgroundStyleLockHeight() => height() * 0.42;
+  double settingsBackgroundStyleLockHeight() => height() * 0.4;
   double settingsBackgroundStyleLockMargin() => height() * 0.23;
   //Settings Alert Dialog
   double settingsAlertTitleFontSize() => widthResponsible() * 0.05;
@@ -851,7 +880,7 @@ extension IntExt on int {
       "000$this";
 
   String countDownNumber() =>
-      (this > 9) ? "$this": "0$this";
+      (this > 9) ? "$this": (this < 0 || this > 99) ? "00": "0$this";
 
   Color startButtonColor() =>
       (this == 0) ? redColor:

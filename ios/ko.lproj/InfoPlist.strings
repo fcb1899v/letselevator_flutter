@@ -1,0 +1,13 @@
+/* 
+  InfoPlist.strings
+  Runner
+
+  Created by 中島正雄 on 2021/07/17.
+  
+*/
+
+CFBundleName = "렛츠 엘리베이터";
+CFBundleDisplayName = "렛츠 엘리베이터";
+NSUserTrackingUsageDescription = "이 앱은 개인이 개발하여 광고 수익에만 의존하여 운영됩니다. 동의하신다면 '허용'을 눌러주세요. 사용자의 선호에 맞는 광고가 표시됩니다.";
+NSLocalNetworkUsageDescription = "오디오를 성공적으로 가져오기 위해 이 앱은 로컬 네트워크 연결이 필요합니다. '허용'을 눌러주세요.";
+

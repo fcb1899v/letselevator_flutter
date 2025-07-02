@@ -52,5 +52,7 @@
   "unlock" : "Unlock",
   "unlockTitle" : "Watch to unlock\nthe new button!",
   "unlockDesc" : "\nWatch until the end\nto use the new button.\nPlease Tap OK!",
-  "unlockAll" : "     <Unlock Conditions: 1. or 2.>\n1. Score 100+ in 30 sec challenge.\n2. Unlock all button shapes."
+  "unlockAllTitle" : "Unlock Conditions: 1. or 2.",
+  "unlockAll1" : "1. Score 100+ in 30 sec challenge.",
+  "unlockAll2" : "2. Unlock all button shapes."
 }

@@ -9,6 +9,7 @@ import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:letselevator/games_manager.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'l10n/app_localizations.dart' show AppLocalizations;
 import 'firebase_options.dart';
@@ -27,7 +28,7 @@ final buttonShapeProvider = StateProvider<String>((ref) => initialButtonShape);
 final buttonStyleProvider = StateProvider<int>((ref) => initialButtonStyle);
 final backgroundStyleProvider = StateProvider<String>((ref) => initialBackgroundStyle);
 final gamesSignInProvider =  StateProvider<bool>((ref) => false);
-final pointProvider = StateProvider<int>((ref) => 0);
+final bestScoreProvider = StateProvider<int>((ref) => 0);
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -46,6 +47,9 @@ Future<void> main() async {
   final savedButtonShape = "buttonShapeKey".getSharedPrefString(prefs, initialButtonShape);
   final savedButtonStyle = "buttonStyleKey".getSharedPrefInt(prefs, initialButtonStyle);
   final savedBackgroundStyle = "backgroundStyleKey".getSharedPrefString(prefs, initialBackgroundStyle);
+  final isGamesSignIn = await gamesSignIn(false);
+  final savedBestScore = await getBestScore(isGamesSignIn);
+
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   await FirebaseAppCheck.instance.activate(
     androidProvider: androidProvider,
@@ -60,6 +64,8 @@ Future<void> main() async {
       buttonStyleProvider.overrideWith((ref) => savedButtonStyle),
       buttonShapeProvider.overrideWith((ref) => savedButtonShape),
       backgroundStyleProvider.overrideWith((ref) => savedBackgroundStyle),
+      gamesSignInProvider.overrideWith((ref) => isGamesSignIn),
+      bestScoreProvider.overrideWith((ref) => savedBestScore),
     ],
     child: const MyApp())
   );

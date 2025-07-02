@@ -402,11 +402,23 @@ abstract class AppLocalizations {
   /// **'\nWatch until the end\nto use the new button.\nPlease Tap OK!'**
   String get unlockDesc;
 
-  /// No description provided for @unlockAll.
+  /// No description provided for @unlockAllTitle.
   ///
   /// In en, this message translates to:
-  /// **'     <Unlock Conditions: 1. or 2.>\n1. Score 100+ in 30 sec challenge.\n2. Unlock all button shapes.'**
-  String get unlockAll;
+  /// **'Unlock Conditions: 1. or 2.'**
+  String get unlockAllTitle;
+
+  /// No description provided for @unlockAll1.
+  ///
+  /// In en, this message translates to:
+  /// **'1. Score 100+ in 30 sec challenge.'**
+  String get unlockAll1;
+
+  /// No description provided for @unlockAll2.
+  ///
+  /// In en, this message translates to:
+  /// **'2. Unlock all button shapes.'**
+  String get unlockAll2;
 }
 
 class _AppLocalizationsDelegate

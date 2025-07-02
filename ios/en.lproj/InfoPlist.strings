@@ -1,0 +1,13 @@
+/* 
+  InfoPlist.strings
+  Runner
+
+  Created by 中島正雄 on 2021/07/17.
+  
+*/
+
+CFBundleName = "LETS ELEVATOR";
+CFBundleDisplayName = "LETS ELEVATOR";
+NSUserTrackingUsageDescription = "This app is operated solely based on advertising revenue as it is developed by an individual. If you agree, please tap 'Allow'. You will see ads that suit your preferences.";
+NSLocalNetworkUsageDescription = "To successfully retrieve audio, this app requires a local network connection. Please tap 'Allow'.";
+

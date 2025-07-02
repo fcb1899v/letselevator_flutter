@@ -1,0 +1,13 @@
+/* 
+  InfoPlist.strings
+  Runner
+
+  Created by 中島正雄 on 2021/07/17.
+  
+*/
+
+CFBundleName = "操作乐趣电梯";
+CFBundleDisplayName = "操作乐趣电梯";
+NSUserTrackingUsageDescription = "此应用完全依赖广告收入运营，因为它是由个人开发的。如果您同意，请点击‘允许’。您将看到符合您偏好的广告。";
+NSLocalNetworkUsageDescription = "为了成功检索音频，此应用需要本地网络连接。请点击‘允许’。";
+

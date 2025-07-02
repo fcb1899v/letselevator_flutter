@@ -5,6 +5,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'common_widget.dart';
 import 'extension.dart';
 import 'constant.dart';
+import 'games_manager.dart';
 import 'main.dart';
 import 'menu.dart';
 import 'sound_manager.dart';
@@ -15,6 +16,7 @@ class HomePage extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
 
+    final isGamesSignIn = ref.watch(gamesSignInProvider);
     final isShimada = ref.watch(isShimadaProvider);
     final isMenu = ref.watch(isMenuProvider);
     final floorNumbers = ref.watch(floorNumbersProvider);
@@ -55,6 +57,8 @@ class HomePage extends HookConsumerWidget {
       isLoadingData.value = true;
       try {
         await ttsManager.initTts();
+        ref.read(gamesSignInProvider.notifier).state = await gamesSignIn(isGamesSignIn);
+        ref.read(bestScoreProvider.notifier).state = await getBestScore(isGamesSignIn);
         isLoadingData.value = false;
       } catch (e) {
         "Error: $e".debugPrint();

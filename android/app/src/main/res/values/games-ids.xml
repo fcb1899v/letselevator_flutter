@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--Google Play game services IDs. Save this file as res/values/games-ids.xml in your project.-->
+<resources>
+  <!--app_id-->
+  <string name="app_id" translatable="false">265404624074</string>
+  <!--package_name-->
+  <string name="package_name" translatable="false">com.nakajimamasaoappstudio.letselevator</string>
+  <!--leaderboard bestscore_30sec_challenge-->
+  <string name="leaderboard_best_score_in_30_sec_challenge" translatable="false">CgkIytnk2twHEAIQAg</string>
+</resources>

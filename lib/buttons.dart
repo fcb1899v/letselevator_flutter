@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:vibration/vibration.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -30,7 +31,7 @@ class ButtonsPage extends HookConsumerWidget {
 
     final isMenu = ref.watch(isMenuProvider);
     final isGamesSignIn = ref.watch(gamesSignInProvider);
-    final bestScore = ref.watch(pointProvider);
+    final bestScore = ref.watch(bestScoreProvider);
 
     final lifecycle = useAppLifecycleState();
 
@@ -46,7 +47,7 @@ class ButtonsPage extends HookConsumerWidget {
       try {
         isSelectedButtonsList.value = panelMax.listListAllFalse(rowMax, columnMax);
         ref.read(gamesSignInProvider.notifier).state = await gamesSignIn(isGamesSignIn);
-        ref.read(pointProvider.notifier).state = await getBestScore(isGamesSignIn);
+        ref.read(bestScoreProvider.notifier).state = await getBestScore(isGamesSignIn);
         isLoadingData.value = false;
       } catch (e) {
         "Error: $e".debugPrint();
@@ -64,14 +65,18 @@ class ButtonsPage extends HookConsumerWidget {
     useEffect(() {
       WidgetsBinding.instance.addPostFrameCallback((_) async {
         initState();
-        final timer = Timer.periodic(const Duration(seconds: 1), (Timer timer) {
-          if (currentSeconds.value < 1 && isChallengeStart.value) {
+        final timer = Timer.periodic(const Duration(seconds: 1), (Timer timer) async {
+          if (currentSeconds.value < 0 && isChallengeStart.value) {
             isDarkBack.value = true;
             isChallengeStart.value = false;
             isChallengeFinish.value = true;
-            ref.read(pointProvider.notifier).state = (counter.value > bestScore) ? counter.value: bestScore;
-            if (counter.value >= bestScore) audioManager.playEffectSound(index: 0, asset: bestScoreSound, volume: 1.0);
-            if (!isTest) gamesSubmitScore(bestScore, isGamesSignIn);
+            if (counter.value > bestScore) {
+              audioManager.playEffectSound(index: 0, asset: bestScoreSound, volume: 1.0);
+              ref.read(bestScoreProvider.notifier).state = counter.value;
+              await gamesSubmitScore(bestScore, isGamesSignIn);
+              final SharedPreferences prefs = await SharedPreferences.getInstance();
+              'bestScore'.setSharedPrefInt(prefs, bestScore);
+            }
             "Your Score: ${counter.value}, Best score: $bestScore".debugPrint();
             timer.cancel;
           } else if (isChallengeStart.value) {
