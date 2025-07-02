@@ -71,3 +71,6 @@ devtools_options.yaml
 android/app/.cxx/
 android/app/src/debug/
 android/app/src/profile/
+
+# Arduino ESP32 library (excluded from language statistics)
+arduino-esp32-master/
