@@ -92,19 +92,6 @@ Future<void> main() async {
   // --- Firebase Configuration ---
   // Initialize Firebase with platform-specific options
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  // Activate Firebase App Check for security
-  await FirebaseAppCheck.instance.activate(
-    androidProvider: androidProvider,
-    appleProvider: appleProvider,
-  );
-  
-  // --- Mobile Ads Initialization ---
-  // Initialize Google Mobile Ads for monetization
-  await MobileAds.instance.initialize();
-  
-  // --- Privacy Configuration ---
-  // Initialize App Tracking Transparency for iOS
-  await initATTPlugin();
   
   // --- App Launch ---
   // Launch app with provider overrides for saved state
@@ -120,6 +107,21 @@ Future<void> main() async {
     ],
     child: const MyApp())
   );
+
+  // Activate Firebase App Check for security
+  await FirebaseAppCheck.instance.activate(
+    androidProvider: androidProvider,
+    appleProvider: appleProvider,
+  );
+  
+  // --- Mobile Ads Initialization ---
+  // Initialize Google Mobile Ads for monetization
+  await MobileAds.instance.initialize();
+  
+  // --- Privacy Configuration ---
+  // Initialize App Tracking Transparency for iOS
+  await initATTPlugin();
+
 }
 
 // --- Main Application Widget ---

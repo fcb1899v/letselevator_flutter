@@ -86,18 +86,11 @@ class CommonWidget {
     child: Stack(alignment: Alignment.center,
       children: [
         Image.asset(image),
-        Container(
-          margin: EdgeInsets.only(
-            top: marginTop,
-            bottom: marginBottom,
-          ),
-          child: Text(number,
-            style: TextStyle(
-              color: color,
-              fontSize: fontSize,
-              fontWeight: FontWeight.bold,
-              fontFamily: normalFont
-            ),
+        Text(number,
+          style: TextStyle(
+            color: color,
+            fontSize: fontSize,
+            fontFamily: "roboto"
           ),
         ),
       ],

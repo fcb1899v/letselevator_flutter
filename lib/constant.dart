@@ -111,8 +111,6 @@ const String callSound = "audios/call.mp3";
 
 /// Font family definitions for different UI elements
 /// Provides consistent typography across the application
-const String elevatorFont = "cornerstone";
-const String normalFont = "roboto";
 const List<String> numberFont = ["lcd", "dseg", "dseg"];
 const List<String> alphabetFont = ["lcd", "letsgo", "letsgo"];
 

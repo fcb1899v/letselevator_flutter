@@ -1,0 +1,55 @@
+{
+  "@@locale": "es",
+
+  "letsElevator": "LETS ELEVATOR",
+
+  "menu": "Menú",
+  "settings": "Configuración",
+  "start": "INICIAR",
+  "back": "ATRÁS",
+  "ok": "OK",
+  "cancel": "CANCELAR",
+
+  "basement": "Sótano ",
+  "floor": "Piso {NUMBER}, ",
+  "ground": "Planta baja, ",
+  "openDoor": "Abriendo puertas.",
+  "closeDoor": "Cerrando puertas.",
+  "pushNumber": "Seleccione piso.",
+  "upFloor": "Subiendo.",
+  "downFloor": "Bajando.",
+  "notStop": "No se detiene en este piso.",
+  "emergency": "Parada de emergencia para revisión.",
+  "return1st": "Verificación completada. Regresando al primer piso.",
+  "bypass": "Omitir",
+  "stop": "Detener",
+
+  "changeNumber": "Cambiar piso",
+  "changeBasementNumber": "Cambiar piso del sótano",
+
+  "rooftop": "El piso superior, ",
+  "vip": "Piso VIP, ",
+  "spa": "Piso de spa, ",
+  "parking": "Piso de estacionamiento, ",
+  "platform": "Piso de plataforma, ",
+  "paradise": "Piso paraíso, ",
+  "dog": "Piso mascotas, ",
+
+  "unlock": "Desbloquear",
+  "unlockTitle": "¡Mira el video para\ndesbloquear el nuevo botón!",
+  "unlockDesc": "\nMira hasta el final\npara usar el nuevo botón.\n¡Pulsa OK!",
+  "unlockAllTitle": "Condiciones de desbloqueo: 1. o 2.",
+  "unlockAll1": "1. Consigue más de 100 puntos en el reto de 30s.",
+  "unlockAll2": "2. Desbloquea todas las formas de botones.",
+
+  "challenge": "Reto de 30s",
+  "best": "MEJOR",
+  "yourScore": "PUNTUACIÓN",
+  "newRecord": "¡NUEVO RÉCORD!",
+
+  "termsAndPrivacyPolicy": "Términos y política de privacidad",
+  "terms": "Términos",
+  "officialPage": "Página Oficial",
+  "officialShop": "Tienda Oficial",
+  "ranking": "Clasificación"
+}

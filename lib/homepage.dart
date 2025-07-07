@@ -8,12 +8,14 @@
 // 4. Door Control: Opening/closing door operations
 // 5. Button Interactions: Floor and operation button handling
 // 6. UI Layout: Display, buttons, and responsive design
+// 7. Performance: ANR and crash prevention measures
 // =============================
 
 import 'package:flutter/material.dart';
 import 'package:vibration/vibration.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'dart:async';
 import 'common_widget.dart';
 import 'extension.dart';
 import 'constant.dart';
@@ -56,6 +58,11 @@ class HomePage extends HookConsumerWidget {
     final openTime = useState(initialOpenTime);
     final lifecycle = useAppLifecycleState();
 
+    // --- Performance Optimization ---
+    // Timer management for preventing memory leaks
+    final activeTimers = useState<List<Timer>>([]);
+    final isInitialized = useState(false);
+
     // --- Manager Instances ---
     // Audio and text-to-speech managers for sound effects
     final ttsManager = useMemoized(() => TtsManager(context: context));
@@ -72,18 +79,50 @@ class HomePage extends HookConsumerWidget {
         buttonShape: buttonShape
     );
 
+    // --- Timer Management ---
+    // Safe timer creation and cleanup
+    void addTimer(Timer timer) {
+      activeTimers.value = [...activeTimers.value, timer];
+    }
+
+    void clearAllTimers() {
+      for (final timer in activeTimers.value) {
+        if (timer.isActive) {
+          timer.cancel();
+        }
+      }
+      activeTimers.value = [];
+    }
+
+    // --- Safe Async Operations ---
+    // Wrapper for safe async operations with error handling
+    Future<void> safeAsync(Future<void> Function() operation) async {
+      try {
+        if (context.mounted) {
+          await operation();
+        }
+      } catch (e) {
+        "Error in async operation: $e".debugPrint();
+      }
+    }
+
     // --- Initialization Functions ---
     // App initialization and lifecycle management
     // Initialize app data including TTS, games sign-in, and best score
-    initState() async {
+    Future<void> initState() async {
+      if (isInitialized.value) return;
+      
       isLoadingData.value = true;
       try {
-        await ttsManager.initTts();
-        ref.read(gamesSignInProvider.notifier).state = await gamesSignIn(isGamesSignIn);
-        ref.read(bestScoreProvider.notifier).state = await getBestScore(isGamesSignIn);
-        isLoadingData.value = false;
+        await safeAsync(() async {
+          await ttsManager.initTts();
+          ref.read(gamesSignInProvider.notifier).state = await gamesSignIn(isGamesSignIn);
+          ref.read(bestScoreProvider.notifier).state = await getBestScore(isGamesSignIn);
+        });
+        isInitialized.value = true;
       } catch (e) {
-        "Error: $e".debugPrint();
+        "Error in initState: $e".debugPrint();
+      } finally {
         isLoadingData.value = false;
       }
     }
@@ -94,15 +133,23 @@ class HomePage extends HookConsumerWidget {
       WidgetsBinding.instance.addPostFrameCallback((_) async {
         await initState();
       });
-      return null;
+      return () {
+        clearAllTimers();
+        safeAsync(() async {
+          await audioManager.stopAll();
+          await ttsManager.stopTts();
+        });
+      };
     }, []);
 
     // Handle app lifecycle changes (pause/inactive states)
     useEffect(() {
       if (lifecycle == AppLifecycleState.inactive || lifecycle == AppLifecycleState.paused) {
         if (context.mounted) {
-          audioManager.stopAll();
-          ttsManager.stopTts();
+          safeAsync(() async {
+            await audioManager.stopAll();
+            await ttsManager.stopTts();
+          });
         }
       }
       return null;
@@ -111,19 +158,37 @@ class HomePage extends HookConsumerWidget {
     // --- Elevator Movement Logic ---
     // Core elevator movement functions for up and down travel
     // Move elevator upward to target floor with speed calculation
-    counterUp() async {
-      ttsManager.speakText(context.upFloor(), true);
+    Future<void> counterUp() async {
+      if (!context.mounted || isMoving.value) return;
+      
+      await safeAsync(() async {
+        await ttsManager.speakText(context.upFloor(), true);
+      });
+      
       int count = 0;
       isMoving.value = true;
       if (isDoorState.value != closedState) isDoorState.value = closedState;
-      await Future.delayed(Duration(seconds: waitTime.value)).then((_) {
-        Future.forEach(counter.value.upFromToNumber(nextFloor.value), (int i) async {
-          await Future.delayed(Duration(milliseconds: i.elevatorSpeed(count, nextFloor.value))).then((_) async {
+      
+      final timer = Timer(Duration(seconds: waitTime.value), () async {
+        if (!context.mounted || !isMoving.value) return;
+        
+        for (int i in counter.value.upFromToNumber(nextFloor.value)) {
+          if (!context.mounted || !isMoving.value) break;
+          
+          final speedTimer = Timer(Duration(milliseconds: i.elevatorSpeed(count, nextFloor.value)), () {
+            if (!context.mounted) return;
+            
             if (isMoving.value) count++;
-            if (isMoving.value && counter.value < nextFloor.value && nextFloor.value < max + 1) counter.value = counter.value + 1;
+            if (isMoving.value && counter.value < nextFloor.value && nextFloor.value < max + 1) {
+              counter.value = counter.value + 1;
+            }
             if (counter.value == 0) counter.value = 1;
+            
             if (isMoving.value && (counter.value == nextFloor.value || counter.value == max)) {
-              if (context.mounted) ttsManager.speakText(context.openingSound(counter.value, isShimada), true);
+              safeAsync(() async {
+                if (context.mounted) await ttsManager.speakText(context.openingSound(counter.value, isShimada), true);
+              });
+              
               counter.value.clearLowerFloor(isAboveSelectedList.value, isUnderSelectedList.value);
               nextFloor.value = counter.value.upNextFloor(up: isAboveSelectedList.value, down: isUnderSelectedList.value);
               currentFloor.value = counter.value;
@@ -134,24 +199,47 @@ class HomePage extends HookConsumerWidget {
               "isDoorState: ${isDoorState.value}".debugPrint();
             }
           });
-        });
+          addTimer(speedTimer);
+          
+          // Add small delay to prevent UI blocking
+          await Future.delayed(const Duration(milliseconds: 10));
+        }
       });
+      addTimer(timer);
     }
 
     // Move elevator downward to target floor with speed calculation
-    counterDown() async {
-      ttsManager.speakText(context.downFloor(), true);
+    Future<void> counterDown() async {
+      if (!context.mounted || isMoving.value) return;
+      
+      await safeAsync(() async {
+        await ttsManager.speakText(context.downFloor(), true);
+      });
+      
       int count = 0;
       isMoving.value = true;
       if (isDoorState.value != closedState) isDoorState.value = closedState;
-      await Future.delayed(Duration(seconds: waitTime.value)).then((_) {
-        Future.forEach(counter.value.downFromToNumber(nextFloor.value), (int i) async {
-          await Future.delayed(Duration(milliseconds: i.elevatorSpeed(count, nextFloor.value))).then((_) async {
+      
+      final timer = Timer(Duration(seconds: waitTime.value), () async {
+        if (!context.mounted || !isMoving.value) return;
+        
+        for (int i in counter.value.downFromToNumber(nextFloor.value)) {
+          if (!context.mounted || !isMoving.value) break;
+          
+          final speedTimer = Timer(Duration(milliseconds: i.elevatorSpeed(count, nextFloor.value)), () {
+            if (!context.mounted) return;
+            
             if (isMoving.value) count++;
-            if (isMoving.value && min - 1 < nextFloor.value && nextFloor.value < counter.value) counter.value = counter.value - 1;
+            if (isMoving.value && min - 1 < nextFloor.value && nextFloor.value < counter.value) {
+              counter.value = counter.value - 1;
+            }
             if (counter.value == 0) counter.value = -1;
+            
             if (isMoving.value && (counter.value == nextFloor.value || counter.value == min)) {
-              if (context.mounted) ttsManager.speakText(context.openingSound(counter.value, isShimada), true);
+              safeAsync(() async {
+                if (context.mounted) await ttsManager.speakText(context.openingSound(counter.value, isShimada), true);
+              });
+              
               counter.value.clearUpperFloor(isAboveSelectedList.value, isUnderSelectedList.value);
               nextFloor.value = counter.value.downNextFloor(up: isAboveSelectedList.value, down: isUnderSelectedList.value);
               currentFloor.value = counter.value;
@@ -162,153 +250,273 @@ class HomePage extends HookConsumerWidget {
               "isDoorState: ${isDoorState.value}".debugPrint();
             }
           });
-        });
+          addTimer(speedTimer);
+          
+          // Add small delay to prevent UI blocking
+          await Future.delayed(const Duration(milliseconds: 10));
+        }
       });
+      addTimer(timer);
     }
 
     // --- Floor Selection Logic ---
     // Floor button selection and deselection handling
     // Handle floor button selection with validation and movement logic
-    floorSelected(int i, bool selectFlag) async {
-      if (!isEmergency.value) {
+    Future<void> floorSelected(int i, bool selectFlag) async {
+      if (!context.mounted || isEmergency.value) return;
+      
+      try {
         if (i == counter.value) {
-          if (!isMoving.value && i == nextFloor.value) ttsManager.speakText(context.pushNumber(), true);
+          if (!isMoving.value && i == nextFloor.value) {
+            await safeAsync(() async {
+              await ttsManager.speakText(context.pushNumber(), true);
+            });
+          }
         } else if (!selectFlag) {
-          ttsManager.speakText(context.notStop(), true);
+          await safeAsync(() async {
+            await ttsManager.speakText(context.notStop(), true);
+          });
         } else if (!i.isSelected(up: isAboveSelectedList.value, down: isUnderSelectedList.value)) {
-          await audioManager.playEffectSound(index: 0, asset: selectButton, volume: 1.0);
-          await Vibration.vibrate(duration: vibTime, amplitude: vibAmp);
+          await safeAsync(() async {
+            await audioManager.playEffectSound(index: 0, asset: selectButton, volume: 1.0);
+            await Vibration.vibrate(duration: vibTime, amplitude: vibAmp);
+          });
+          
           i.trueSelected(up: isAboveSelectedList.value, down: isUnderSelectedList.value);
           if (counter.value < i && i < nextFloor.value) nextFloor.value = i;
           if (counter.value > i && i > nextFloor.value) nextFloor.value = i;
           if (i.onlyTrue(up: isAboveSelectedList.value, down: isUnderSelectedList.value)) nextFloor.value = i;
           "nextFloor: ${nextFloor.value}".debugPrint();
-          await Future.delayed(Duration(seconds: waitTime.value)).then((_) async {
+          
+          final timer = Timer(Duration(seconds: waitTime.value), () async {
+            if (!context.mounted) return;
+            
             if (!isMoving.value && !isEmergency.value && isDoorState.value == closedState) {
-              (counter.value < nextFloor.value) ? counterUp() :
-              (counter.value > nextFloor.value) ? counterDown() :
-              (context.mounted) ? ttsManager.speakText(context.pushNumber(), true): null;
+              if (counter.value < nextFloor.value) {
+                await counterUp();
+              } else if (counter.value > nextFloor.value) {
+                await counterDown();
+              } else {
+                await safeAsync(() async {
+                  if (context.mounted) await ttsManager.speakText(context.pushNumber(), true);
+                });
+              }
             }
           });
+          addTimer(timer);
         }
+      } catch (e) {
+        "Error in floorSelected: $e".debugPrint();
       }
     }
 
     // Handle floor button deselection with next floor recalculation
-    floorCanceled(int i) async {
-      if (i.isSelected(up: isAboveSelectedList.value, down: isUnderSelectedList.value) && i != nextFloor.value) {
-        await audioManager.playEffectSound(index: 0, asset: cancelButton, volume: 1.0);
-        await Vibration.vibrate(duration: vibTime, amplitude: vibAmp);
-        i.falseSelected(up: isAboveSelectedList.value, down: isUnderSelectedList.value);
-        if (i == nextFloor.value) {
-          nextFloor.value = (counter.value < nextFloor.value) ?
-          counter.value.upNextFloor(up: isAboveSelectedList.value, down: isUnderSelectedList.value) :
-          counter.value.downNextFloor(up: isAboveSelectedList.value, down: isUnderSelectedList.value);
+    Future<void> floorCanceled(int i) async {
+      if (!context.mounted) return;
+      
+      try {
+        if (i.isSelected(up: isAboveSelectedList.value, down: isUnderSelectedList.value) && i != nextFloor.value) {
+          await safeAsync(() async {
+            await audioManager.playEffectSound(index: 0, asset: cancelButton, volume: 1.0);
+            await Vibration.vibrate(duration: vibTime, amplitude: vibAmp);
+          });
+          
+          i.falseSelected(up: isAboveSelectedList.value, down: isUnderSelectedList.value);
+          if (i == nextFloor.value) {
+            nextFloor.value = (counter.value < nextFloor.value) ?
+            counter.value.upNextFloor(up: isAboveSelectedList.value, down: isUnderSelectedList.value) :
+            counter.value.downNextFloor(up: isAboveSelectedList.value, down: isUnderSelectedList.value);
+          }
+          "nextFloor: ${nextFloor.value}".debugPrint();
         }
-        "nextFloor: ${nextFloor.value}".debugPrint();
+      } catch (e) {
+        "Error in floorCanceled: $e".debugPrint();
       }
     }
 
     // --- Door Control Logic ---
     // Door opening and closing operations
     // Close elevator doors with state management and movement continuation
-    doorsClosing() async {
-      if (!isMoving.value && !isEmergency.value && isDoorState.value != closedState && isDoorState.value != closingState) {
+    Future<void> doorsClosing() async {
+      if (!context.mounted || isMoving.value || isEmergency.value || 
+          isDoorState.value == closedState || isDoorState.value == closingState) return;
+      
+      try {
         isDoorState.value = closingState;
         "isDoorState: ${isDoorState.value}".debugPrint();
-        await ttsManager.speakText(context.closeDoor(), true);
-        await Future.delayed(Duration(seconds: waitTime.value)).then((_) {
+        
+        await safeAsync(() async {
+          await ttsManager.speakText(context.closeDoor(), true);
+        });
+        
+        final timer = Timer(Duration(seconds: waitTime.value), () async {
+          if (!context.mounted) return;
+          
           if (!isMoving.value && !isEmergency.value && isDoorState.value == closingState) {
             isDoorState.value = closedState;
             "isDoorState: ${isDoorState.value}".debugPrint();
-            (counter.value < nextFloor.value) ? counterUp():
-            (counter.value > nextFloor.value) ? counterDown():
-            (context.mounted) ? ttsManager.speakText(context.pushNumber(), true): null;
+            
+            if (counter.value < nextFloor.value) {
+              await counterUp();
+            } else if (counter.value > nextFloor.value) {
+              await counterDown();
+            } else {
+              await safeAsync(() async {
+                if (context.mounted) await ttsManager.speakText(context.pushNumber(), true);
+              });
+            }
           }
         });
+        addTimer(timer);
+      } catch (e) {
+        "Error in doorsClosing: $e".debugPrint();
       }
     }
 
     // --- Operation Button Logic ---
     // Open, close, and alert button handling with state management
     // Handle open button press with door opening logic
-    pressedOpenAction(bool isOn) async {
-      if (!isMoving.value) {
+    Future<void> pressedOpenAction(bool isOn) async {
+      if (!context.mounted || isMoving.value) return;
+      
+      try {
         isPressedOperationButtons.value = [isOn, false, false];
         if (isOn) {
-          await audioManager.playEffectSound(index: 0, asset: selectButton, volume: 1.0);
-          await Vibration.vibrate(duration: vibTime, amplitude: vibAmp);
-          if (!isMoving.value && !isEmergency.value && isDoorState.value != openedState && isDoorState.value != openingState) {
-            Future.delayed(const Duration(milliseconds: flashTime)).then((_) async {
-              if (!isMoving.value && !isEmergency.value && isDoorState.value != openedState && isDoorState.value != openingState) {
-                if (context.mounted) ttsManager.speakText(context.openDoor(), true);
+          await safeAsync(() async {
+            await audioManager.playEffectSound(index: 0, asset: selectButton, volume: 1.0);
+            await Vibration.vibrate(duration: vibTime, amplitude: vibAmp);
+          });
+          
+          if (!isMoving.value && !isEmergency.value && 
+              isDoorState.value != openedState && isDoorState.value != openingState) {
+            
+            final flashTimer = Timer(const Duration(milliseconds: flashTime), () async {
+              if (!context.mounted) return;
+              
+              if (!isMoving.value && !isEmergency.value && 
+                  isDoorState.value != openedState && isDoorState.value != openingState) {
+                
+                await safeAsync(() async {
+                  if (context.mounted) await ttsManager.speakText(context.openDoor(), true);
+                });
+                
                 isDoorState.value = openingState;
                 "isDoorState: ${isDoorState.value}".debugPrint();
-                await Future.delayed(Duration(seconds: waitTime.value)).then((_) {
+                
+                final openTimer = Timer(Duration(seconds: waitTime.value), () async {
+                  if (!context.mounted) return;
+                  
                   if (!isMoving.value && !isEmergency.value && isDoorState.value == openingState) {
                     isDoorState.value = openedState;
                     "isDoorState: ${isDoorState.value}".debugPrint();
                   }
                 });
+                addTimer(openTimer);
               }
             });
+            addTimer(flashTimer);
           }
         }
-      } else {
-        isPressedOperationButtons.value = [false, false, false];
+      } catch (e) {
+        "Error in pressedOpenAction: $e".debugPrint();
       }
     }
 
     // Handle close button press with door closing logic
-    pressedCloseAction(bool isOn) async {
-      if (!isMoving.value) {
+    Future<void> pressedCloseAction(bool isOn) async {
+      if (!context.mounted || isMoving.value) return;
+      
+      try {
         isPressedOperationButtons.value = [false, isOn, false];
         if (isOn) {
-          await audioManager.playEffectSound(index: 0, asset: selectButton, volume: 1.0);
-          await Vibration.vibrate(duration: vibTime, amplitude: vibAmp);
-          if (!isMoving.value && !isEmergency.value && isDoorState.value != closedState && isDoorState.value != closingState) {
-            Future.delayed(const Duration(milliseconds: flashTime)).then((_) => doorsClosing());
+          await safeAsync(() async {
+            await audioManager.playEffectSound(index: 0, asset: selectButton, volume: 1.0);
+            await Vibration.vibrate(duration: vibTime, amplitude: vibAmp);
+          });
+          
+          if (!isMoving.value && !isEmergency.value && 
+              isDoorState.value != closedState && isDoorState.value != closingState) {
+            
+            final flashTimer = Timer(const Duration(milliseconds: flashTime), () async {
+              if (!context.mounted) return;
+              await doorsClosing();
+            });
+            addTimer(flashTimer);
           }
         }
-      } else {
-        isPressedOperationButtons.value = [false, false, false];
+      } catch (e) {
+        "Error in pressedCloseAction: $e".debugPrint();
       }
     }
 
     // Handle alert button press with emergency logic and return to first floor
-    pressedAlertAction(bool isOn, isLongPressed) async {
-      isPressedOperationButtons.value = [false, false, isOn];
-      if (isOn && ((currentFloor.value - counter.value).abs() > 5) && ((nextFloor.value - counter.value).abs() > 5)) {
-        await audioManager.playEffectSound(index: 0, asset: selectButton, volume: 1.0);
-        await Vibration.vibrate(duration: vibTime, amplitude: vibAmp);
-        if (isLongPressed) {
-          if (isMoving.value) isEmergency.value = true;
-          if (isEmergency.value && isMoving.value) {
-            await audioManager.playEffectSound(index: 0, asset: callSound, volume: 1.0);
-            await Future.delayed(Duration(seconds: waitTime.value)).then((_) {
-              if (context.mounted) ttsManager.speakText(context.emergency(), true);
-              nextFloor.value = counter.value;
-              isMoving.value = false;
-              isEmergency.value = true;
-              counter.value.clearLowerFloor(isAboveSelectedList.value, isUnderSelectedList.value);
-              counter.value.clearUpperFloor(isAboveSelectedList.value, isUnderSelectedList.value);
-            });
-            await Future.delayed(Duration(seconds: openTime.value)).then((_) async {
-              if (context.mounted) ttsManager.speakText(context.return1st(), true);
-            });
-            await Future.delayed(Duration(seconds: waitTime.value)).then((_) async {
-              if (counter.value != 1) {
-                nextFloor.value = 1;
-                "nextFloor: ${nextFloor.value}".debugPrint();
-                (counter.value < nextFloor.value) ? counterUp() : counterDown();
-              } else {
-                if (context.mounted) ttsManager.speakText(context.openDoor(), true);
-                isDoorState.value = openingState;
-                "isDoorState: ${isDoorState.value}".debugPrint();
-              }
-            });
+    Future<void> pressedAlertAction(bool isOn, isLongPressed) async {
+      if (!context.mounted) return;
+      
+      try {
+        isPressedOperationButtons.value = [false, false, isOn];
+        if (isOn && ((currentFloor.value - counter.value).abs() > 5) && ((nextFloor.value - counter.value).abs() > 5)) {
+          await safeAsync(() async {
+            await audioManager.playEffectSound(index: 0, asset: selectButton, volume: 1.0);
+            await Vibration.vibrate(duration: vibTime, amplitude: vibAmp);
+          });
+          
+          if (isLongPressed) {
+            if (isMoving.value) isEmergency.value = true;
+            if (isEmergency.value && isMoving.value) {
+              await safeAsync(() async {
+                await audioManager.playEffectSound(index: 0, asset: callSound, volume: 1.0);
+              });
+              
+              final emergencyTimer = Timer(Duration(seconds: waitTime.value), () async {
+                if (!context.mounted) return;
+                
+                await safeAsync(() async {
+                  if (context.mounted) await ttsManager.speakText(context.emergency(), true);
+                });
+                
+                nextFloor.value = counter.value;
+                isMoving.value = false;
+                isEmergency.value = true;
+                counter.value.clearLowerFloor(isAboveSelectedList.value, isUnderSelectedList.value);
+                counter.value.clearUpperFloor(isAboveSelectedList.value, isUnderSelectedList.value);
+              });
+              addTimer(emergencyTimer);
+              
+              final returnTimer = Timer(Duration(seconds: openTime.value), () async {
+                if (!context.mounted) return;
+                
+                await safeAsync(() async {
+                  if (context.mounted) await ttsManager.speakText(context.return1st(), true);
+                });
+              });
+              addTimer(returnTimer);
+              
+              final firstFloorTimer = Timer(Duration(seconds: waitTime.value), () async {
+                if (!context.mounted) return;
+                
+                if (counter.value != 1) {
+                  nextFloor.value = 1;
+                  "nextFloor: ${nextFloor.value}".debugPrint();
+                  if (counter.value < nextFloor.value) {
+                    await counterUp();
+                  } else {
+                    await counterDown();
+                  }
+                } else {
+                  await safeAsync(() async {
+                    if (context.mounted) await ttsManager.speakText(context.openDoor(), true);
+                  });
+                  isDoorState.value = openingState;
+                  "isDoorState: ${isDoorState.value}".debugPrint();
+                }
+              });
+              addTimer(firstFloorTimer);
+            }
           }
         }
+      } catch (e) {
+        "Error in pressedAlertAction: $e".debugPrint();
       }
     }
 
@@ -324,13 +532,21 @@ class HomePage extends HookConsumerWidget {
     // Automatic door state transitions and timing management
     useEffect(() {
       if (isDoorState.value == openingState) {
-        Future.delayed(Duration(seconds: waitTime.value)).then((_) {
+        final timer = Timer(Duration(seconds: waitTime.value), () {
+          if (!context.mounted) return;
+          
           isDoorState.value = openedState;
           "isDoorState: ${isDoorState.value}".debugPrint();
+          
           if (!isMoving.value && !isEmergency.value && isDoorState.value == openedState) {
-            Future.delayed(Duration(seconds: openTime.value)).then((_) async => doorsClosing());
+            final closeTimer = Timer(Duration(seconds: openTime.value), () async {
+              if (!context.mounted) return;
+              await doorsClosing();
+            });
+            addTimer(closeTimer);
           }
         });
+        addTimer(timer);
       } else if (isDoorState.value == closingState) {
         doorsClosing();
       }

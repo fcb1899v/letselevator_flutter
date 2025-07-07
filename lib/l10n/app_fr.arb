@@ -1,0 +1,55 @@
+{
+  "@@locale": "fr",
+
+  "letsElevator": "LETS ELEVATOR",
+
+  "menu": "Menu",
+  "settings": "Paramètres",
+  "start": "DÉMARRER",
+  "back": "RETOUR",
+  "ok": "OK",
+  "cancel": "ANNULER",
+
+  "basement": "Sous-sol ",
+  "floor": "{NUMBER}ᵉ étage, ",
+  "ground": "Rez-de-chaussée, ",
+  "openDoor": "Ouverture.",
+  "closeDoor": "Fermeture.",
+  "pushNumber": "",
+  "upFloor": "Montée.",
+  "downFloor": "Descente.",
+  "notStop": "Non desservi.",
+  "emergency": "Arrêt d'urgence pour inspection.",
+  "return1st": "Vérification terminée. Retour au premier étage.",
+  "bypass": "Passer",
+  "stop": "Arrêter",
+
+  "changeNumber": "Changer l'étage",
+  "changeBasementNumber": "Changer l'étage du sous-sol",
+
+  "rooftop": "Dernier étage, ",
+  "vip": "Étage VIP, ",
+  "spa": "Étage spa, ",
+  "parking": "Étage parking, ",
+  "platform": "Étage plateforme, ",
+  "paradise": "Étage paradis, ",
+  "dog": "Étage animaux, ",
+
+  "unlock": "Déverrouiller",
+  "unlockTitle": "Regardez la vidéo pour\ndéverrouiller le nouveau bouton !",
+  "unlockDesc": "\nRegardez jusqu'à la fin\npour utiliser le nouveau bouton.\nAppuyez sur OK !",
+  "unlockAllTitle": "Conditions de déverrouillage : 1. ou 2.",
+  "unlockAll1": "1. Obtenez plus de 100 points dans le défi de 30 s.",
+  "unlockAll2": "2. Déverrouillez toutes les formes de boutons.",
+
+  "challenge": "Défi 30 s",
+  "best": "MEILLEUR",
+  "yourScore": "SCORE",
+  "newRecord": "NOUVEAU RECORD !",
+
+  "termsAndPrivacyPolicy": "Conditions et politique de confidentialité",
+  "terms": "Conditions",
+  "officialPage": "Page officielle",
+  "officialShop": "Boutique officielle",
+  "ranking": "Classement"
+}

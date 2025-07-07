@@ -383,8 +383,7 @@ class SettingsWidget {
       style: TextStyle(
         color: whiteColor,
         fontSize: context.settingsAppBarFontSize(),
-        fontFamily: context.lang() == "en" ? elevatorFont: normalFont,
-        fontWeight: context.lang() == "en" ? FontWeight.normal: FontWeight.bold
+        fontFamily: context.font(),
       ),
     ),
     leading: FadeTransition(
@@ -536,8 +535,7 @@ class SettingsWidget {
               style: TextStyle(
                 color: whiteColor,
                 fontSize: context.settingsLockFreeFontSize(),
-                fontWeight: FontWeight.bold,
-                fontFamily: normalFont,
+                fontFamily: context.font(),
               ),
             ),
           ),
@@ -559,8 +557,7 @@ class SettingsWidget {
             text: "${context.unlockAllTitle()}\n",
             style: TextStyle(
               color: lampColor,
-              fontWeight: FontWeight.bold,
-              fontFamily: normalFont,
+              fontFamily: context.font(),
               decorationColor: whiteColor,
               fontSize: context.settingsTooltipTitleFontSize(),
             ),
@@ -570,7 +567,7 @@ class SettingsWidget {
             style: TextStyle(
               color: blackColor,
               fontStyle: FontStyle.normal,
-              fontFamily: normalFont,
+              fontFamily: context.font(),
               decoration: TextDecoration.none,
               fontSize: context.settingsTooltipDescFontSize(),
             ),
@@ -580,7 +577,7 @@ class SettingsWidget {
             style: TextStyle(
               color: blackColor,
               fontStyle: FontStyle.normal,
-              fontFamily: normalFont,
+              fontFamily: context.font(),
               decoration: TextDecoration.none,
               fontSize: context.settingsTooltipDescFontSize(),
             ),
@@ -697,7 +694,6 @@ class SettingsWidget {
             style: TextStyle(
               color: lampColor,
               fontSize: context.settingsAlertFloorNumberFontSize(),
-              fontWeight: FontWeight.normal,
               fontFamily: numberFont[1],
             ),
           )
@@ -717,8 +713,7 @@ class SettingsWidget {
           style: TextStyle(
             color: whiteColor,
             fontSize: context.settingsFloorStopFontSize(),
-            fontFamily: normalFont,
-            fontWeight: FontWeight.bold,
+            fontFamily: context.font(),
           ),
         ),
         Transform.scale(
@@ -783,8 +778,7 @@ class SettingsWidget {
       Text(title,
         style: TextStyle(
           fontSize: context.settingsAlertTitleFontSize(),
-          fontWeight: FontWeight.bold,
-          fontFamily: normalFont,
+          fontFamily: context.font(),
           color: whiteColor,
         ),
       ),
@@ -810,8 +804,7 @@ class SettingsWidget {
       style: TextStyle(
           color: color,
           fontSize: context.settingsAlertSelectFontSize(),
-          fontFamily: normalFont,
-          fontWeight: FontWeight.bold
+          fontFamily: context.font(),
       ),
     ),
   );
@@ -825,7 +818,7 @@ class SettingsWidget {
       style: TextStyle(
         color: color,
         fontSize: context.settingsAlertDescFontSize(),
-        fontFamily: normalFont,
+        fontFamily: context.font(),
       ),
     ),
   );
@@ -840,14 +833,14 @@ class SettingsWidget {
       style: TextStyle(
         color: blackColor,
         fontSize: context.settingsAlertTitleFontSize(),
-        fontFamily: normalFont,
+        fontFamily: context.font(),
       ),
     ),
     content: Text(context.unlockDesc(),
       style: TextStyle(
         color: blackColor,
         fontSize: context.settingsAlertDescFontSize(),
-        fontFamily: normalFont,
+        fontFamily: context.font(),
       ),
     ),
     actions: [

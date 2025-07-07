@@ -207,8 +207,7 @@ class MenuWidget {
       style: TextStyle(
         color: whiteColor,
         fontSize: context.menuAppBarFontSize(),
-        fontFamily: context.lang() == "en" ? elevatorFont: normalFont,
-        fontWeight: context.lang() == "en" ? FontWeight.normal: FontWeight.bold
+        fontFamily: context.font(),
       ),
     ),
   );

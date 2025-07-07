@@ -559,7 +559,7 @@ class ButtonsWidget {
           color: whiteColor,
           fontSize: context.beforeCountdownNumberSize(),
           fontWeight: FontWeight.bold,
-          fontFamily: normalFont,
+          fontFamily: context.font(),
         )
       )
     ]
@@ -572,7 +572,7 @@ class ButtonsWidget {
       color: whiteColor,
       fontWeight: context.lang() == "en" ? FontWeight.normal: FontWeight.bold,
       fontSize: context.scoreTitleFontSize(),
-      fontFamily: normalFont
+      fontFamily: context.font()
     ),
   );
 
@@ -593,7 +593,7 @@ class ButtonsWidget {
           color: whiteColor,
           fontWeight: context.lang() == "en" ? FontWeight.normal: FontWeight.bold,
           fontSize: context.bestFontSize(),
-          fontFamily: normalFont,
+          fontFamily: context.font(),
         ),
       ),
       Text(bestScore.countNumber(),
@@ -622,7 +622,7 @@ class ButtonsWidget {
           color: blackColor,
           fontWeight: FontWeight.bold,
           fontSize: context.backButtonFontSize(),
-          fontFamily: normalFont,
+          fontFamily: context.font(),
         ),
       ),
     ),
@@ -646,7 +646,7 @@ class ButtonsWidget {
           color: blackColor,
           fontWeight: FontWeight.bold,
           fontSize: context.backButtonFontSize(),
-          fontFamily: normalFont,
+          fontFamily: context.font(),
         ),
       ),
     ),

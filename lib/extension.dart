@@ -137,6 +137,11 @@ extension ContextExt on BuildContext {
   double width() => MediaQuery.of(this).size.width;
   double height() => MediaQuery.of(this).size.height;
   String lang() => Localizations.localeOf(this).languageCode;
+  String font() =>
+      (lang() == "ja") ? "notoJP":
+      (lang() == "zh") ? "notoSC":
+      (lang() == "ko") ? "bmDohyeon":
+      "roboto";
 
   // --- Progress Indicator Sizing ---
   // Responsive sizing utilities for circular progress indicators
@@ -178,6 +183,8 @@ extension ContextExt on BuildContext {
       (counter == max) ? rooftop():
       (counter == 0) ? ground():
       (lang() == "en") ? floor("${counter.enRankNumber()}${basement(counter)}"):
+      (lang() == "es") ? "${counter.esRankNumber()}${basement(counter)}":
+      (lang() == "fr") ? "${counter.frRankNumber()}${basement(counter)}":
       floor("${basement(counter)}${counter.abs()}");
   String openingSound(int counter, bool isShimada) =>
       "${soundFloor(counter)}${soundPlace(counter, isShimada)}${openDoor()}";
@@ -234,24 +241,18 @@ extension ContextExt on BuildContext {
   ];
 
   List<String> linkLogos() => [
-    // if (lang() == "ja") twitterLogo,
-    // if (lang() == "ja") instagramLogo,
     if (Platform.isAndroid) youtubeLogo,
     landingPageLogo,
     privacyPolicyLogo,
     if (lang() == "ja") shopPageLogo,
   ];
   List<String> linkLinks() => [
-    // if (lang() == "ja") elevatorTwitter,
-    // if (lang() == "ja") elevatorInstagram,
     if (Platform.isAndroid) youtubeLink(),
     landingPageLink(),
     privacyPolicyLink(),
     if (lang() == "ja") shopLink,
   ];
   List<String> linkTitles() => [
-    // if (lang() == "ja") "X",
-    // if (lang() == "ja") "Instagram",
     if (Platform.isAndroid) "Youtube",
     officialPage(),
     terms(),
@@ -303,12 +304,11 @@ extension ContextExt on BuildContext {
   // --- Menu Layout ---
   // Main menu screen layout with app bar, buttons, and external links
   double menuAppBarHeight() => height() * 0.07;
-  double menuAppBarFontSize() => height() * (lang() == "en" ? 0.045: 0.032);
-  double menuTitleFontSize() => height() * (lang() == "en" ? 0.05: 0.032);
+  double menuAppBarFontSize() => height() * 0.032;
   double menuButtonSize() => widthResponsible() * 0.33;
   double menuButtonMargin() => responsible() * 0.05;
   double menuLinksLogoSize() => widthResponsible() * 0.16;
-  double menuLinksTitleSize() => widthResponsible() *  (lang() == "en" ? 0.030: 0.025);
+  double menuLinksTitleSize() => widthResponsible() * 0.025;
   double menuLinksTitleMargin() => widthResponsible() * 0.02;
   double menuLinksMargin() => widthResponsible() * 0.04;
 
@@ -319,7 +319,7 @@ extension ContextExt on BuildContext {
   double settingsDividerThickness() => height() * 0.001;
   // AppBar: Top navigation bar with back button and title
   double settingsAppBarHeight() => height() * 0.07;
-  double settingsAppBarFontSize() => height() * (lang() == "en" ? 0.045: 0.032);
+  double settingsAppBarFontSize() => height() * 0.032;
   double settingsAppBarBackButtonSize() => height() * 0.05;
   double settingsAppBarBackButtonMargin() => height() * 0.01;
   // Lock: Premium feature indicators and unlock buttons
@@ -408,7 +408,7 @@ extension ContextExt on BuildContext {
   // Start button for challenge mode
   double challengeStartButtonWidth() => widthResponsible() * 0.2;
   double challengeStartButtonHeight() => widthResponsible() * 0.125;
-  double challengeButtonFontSize() => widthResponsible() * ((lang() == "ja" || lang() == "en") ? 0.022: 0.03);
+  double challengeButtonFontSize() => widthResponsible() * 0.022;
   double challengeStartFontSize() => widthResponsible() * 0.04;
   // Countdown timer display
   double countdownFontSize() => widthResponsible() * 0.075;
@@ -473,6 +473,84 @@ extension IntExt on int {
       (abs() % 10 == 2 && abs() ~/ 10 != 1) ? "${abs()}nd ":
       (abs() % 10 == 3 && abs() ~/ 10 != 1) ? "${abs()}rd ":
       "${abs()}th ";
+  // Spanish ordinal number generation for floor announcements
+  String esRankNumber() => //1~199
+  (this == 0) ? '':
+  (this == 1) ? 'primer ' :
+  (this == 2) ? 'segundo ' :
+  (this == 3) ? 'tercer ' :
+  (this == 4) ? 'cuarto ' :
+  (this == 5) ? 'quinto ' :
+  (this == 6) ? 'sexto ' :
+  (this == 7) ? 'séptimo ' :
+  (this == 8) ? 'octavo ' :
+  (this == 9) ? 'noveno ' :
+  (this == 10) ? 'décimo ' :
+  (this == 11) ? 'undécimo ' :
+  (this == 12) ? 'duodécimo ' :
+  (this == 13) ? 'decimotercero ' :
+  (this == 14) ? 'decimocuarto ' :
+  (this == 15) ? 'decimoquinto ' :
+  (this == 16) ? 'decimosexto ' :
+  (this == 17) ? 'decimoséptimo ' :
+  (this == 18) ? 'decimoctavo ' :
+  (this == 19) ? 'decimonoveno ' :
+  (this == 20) ? 'vigésimo ':
+  (this < 100) ? esRankNumberOver20():
+  esRankNumberOver100();
+  String esRankNumberOver20() =>
+      (this < 100) ? "${
+          (this < 30) ? 'vigésimo ':
+          (this < 40) ? 'trigésimo ':
+          (this < 50) ? 'cuadragésimo ':
+          (this < 60) ? 'quincuagésimo ':
+          (this < 70) ? 'sexagésimo ':
+          (this < 80) ? 'septuagésimo ':
+          (this < 90) ? 'octogésimo ':
+          'nonagésimo '
+      } ${(this % 10).esRankNumber()} ":
+      esRankNumberOver100();
+  String esRankNumberOver100() =>
+      'centésimo ${(this % 100).esRankNumberOver20()} ';
+  // French ordinal number generation for floor announcements
+  String frRankNumber() => //1~199
+    (this == 0) ? '':
+    (this == 1) ? 'premier ' :
+    (this == 2) ? 'deuxième ' :
+    (this == 3) ? 'troisième ' :
+    (this == 4) ? 'quatrième ' :
+    (this == 5) ? 'cinquième ' :
+    (this == 6) ? 'sixième ' :
+    (this == 7) ? 'septième ' :
+    (this == 8) ? 'huitième ' :
+    (this == 9) ? 'neuvième ' :
+    (this == 10) ? 'dixième ' :
+    (this == 11) ? 'onzième ' :
+    (this == 12) ? 'douzième ' :
+    (this == 13) ? 'treizième ' :
+    (this == 14) ? 'quatorzième ' :
+    (this == 15) ? 'quinzième ' :
+    (this == 16) ? 'seizième ' :
+    (this == 17) ? 'dix-septième ' :
+    (this == 18) ? 'dix-huitième ' :
+    (this == 19) ? 'dix-neuvième ' :
+    (this == 20) ? 'vingtième ':
+    (this < 100) ? frRankNumberOver20():
+    frRankNumberOver100();
+  String frRankNumberOver20() =>
+    (this < 100) ? "${
+      (this < 30) ? 'vingtième ':
+      (this < 40) ? 'trentième ':
+      (this < 50) ? 'quarantième ':
+      (this < 60) ? 'cinquantième ':
+      (this < 70) ? 'soixantième ':
+      (this < 80) ? 'soixante-dixième ':
+      (this < 90) ? 'quatre-vingtième ':
+      'quatre-vingt-dixième '
+    } ${(this % 10).frRankNumber()} ":
+    frRankNumberOver100();
+  String frRankNumberOver100() =>
+    'centième ${(this % 100).frRankNumberOver20()} ';
 
   // --- Display Logic ---
   // Floor number display formatting for elevator display panel
