@@ -1,65 +1,32 @@
-import 'dart:io';
-import 'package:flutter/material.dart';
+// =============================
+// AudioManager: Audio Playback Management
+//
+// This file manages audio playback functionality including:
+// 1. Audio Player Management: Multiple audio player instances
+// 2. Sound Playback: Effect sounds and loop sounds
+// 3. Audio Control: Play, stop, and volume control
+// 4. Player State Management: Track and manage player states
+// =============================
+
 import 'package:audioplayers/audioplayers.dart';
-import 'package:flutter_tts/flutter_tts.dart';
 import 'extension.dart';
 
-/// For TTS
-class TtsManager {
-
-  final BuildContext context;
-  TtsManager({required this.context});
-
-  final FlutterTts flutterTts = FlutterTts();
-
-  Future<void> speakText(String text, bool isSoundOn) async {
-    if (isSoundOn) {
-      await flutterTts.stop();
-      await flutterTts.speak(text);
-      text.debugPrint();
-    }
-  }
-
-  Future<void> stopTts() async {
-    await flutterTts.stop();
-    "Stop TTS".debugPrint();
-  }
-
-  Future<void> initTts() async {
-    await flutterTts.setSharedInstance(true);
-    await flutterTts.setIosAudioCategory(
-        IosTextToSpeechAudioCategory.playback,
-        [
-          IosTextToSpeechAudioCategoryOptions.allowBluetooth,
-          IosTextToSpeechAudioCategoryOptions.allowBluetoothA2DP,
-          IosTextToSpeechAudioCategoryOptions.mixWithOthers,
-          IosTextToSpeechAudioCategoryOptions.defaultToSpeaker
-        ]
-    );
-    await flutterTts.setVolume(1);
-    if (context.mounted) await flutterTts.setLanguage(context.ttsLang());
-    if (context.mounted) {
-      await flutterTts.setVoice({
-        "name": context.voiceName(Platform.isAndroid),
-        "locale": context.ttsVoice()
-      });
-    }
-    await flutterTts.setSpeechRate(0.5);
-    if (context.mounted) context.voiceName(Platform.isAndroid).debugPrint();
-    if (context.mounted) speakText(context.pushNumber(), true);
-  }
-}
-
-/// For Audio
 class AudioManager {
 
   final List<AudioPlayer> audioPlayers;
 
   static const audioPlayerNumber = 1;
   AudioManager() : audioPlayers = List.generate(audioPlayerNumber, (_) => AudioPlayer());
+  
+  // --- Audio Player Management ---
+  // Get player state for specific index
   PlayerState playerState(int index) => audioPlayers[index].state;
+  
+  // Get player title for debugging
   String playerTitle(int index) => "${["warning", "left train", "right train", "emergency", "effectSound"][index]}Player";
 
+  // --- Sound Playback ---
+  // Play loop sound with volume control
   Future<void> playLoopSound({
     required int index,
     required String asset,
@@ -72,6 +39,7 @@ class AudioManager {
     "Loop ${playerTitle(index)}: ${audioPlayers[index].state}".debugPrint();
   }
 
+  // Play effect sound with volume control
   Future<void> playEffectSound({
     required int index,
     required String asset,
@@ -84,11 +52,14 @@ class AudioManager {
     "Play effect sound: ${audioPlayers[index].state}".debugPrint();
   }
 
+  // --- Audio Control ---
+  // Stop specific audio player
   Future<void> stopSound(int index) async {
     await audioPlayers[index].stop();
     "Stop ${playerTitle(index)}: ${audioPlayers[index].state}".debugPrint();
   }
 
+  // Stop all playing audio players
   Future<void> stopAll() async {
     for (final player in audioPlayers) {
       try {

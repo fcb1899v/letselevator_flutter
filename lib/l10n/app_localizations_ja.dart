@@ -12,13 +12,22 @@ class AppLocalizationsJa extends AppLocalizations {
   String get letsElevator => 'レッツ・エレベーター';
 
   @override
-  String get thisApp => 'このアプリはリアルなエレベーターシミュレーターです。';
+  String get menu => 'メニュー';
 
   @override
-  String get openDoor => 'ドアがひらきます。　';
+  String get settings => '各種設定';
 
   @override
-  String get closeDoor => 'ドアがしまります。　';
+  String get start => 'スタート';
+
+  @override
+  String get back => '戻る';
+
+  @override
+  String get ok => 'OK';
+
+  @override
+  String get cancel => 'キャンセル';
 
   @override
   String get basement => '地下';
@@ -32,25 +41,10 @@ class AppLocalizationsJa extends AppLocalizations {
   String get ground => '地上階です。　';
 
   @override
-  String get rooftop => '屋上です。　';
+  String get openDoor => 'ドアがひらきます。　';
 
   @override
-  String get platform => 'ホーム階です。　';
-
-  @override
-  String get dog => '犬です。　';
-
-  @override
-  String get spa => '温泉です。　';
-
-  @override
-  String get vip => 'VIP階です。　';
-
-  @override
-  String get parking => '駐車場です。　';
-
-  @override
-  String get paradise => '楽園です。　';
+  String get closeDoor => 'ドアがしまります。　';
 
   @override
   String get pushNumber => '行き先階ボタンを押してください。　';
@@ -71,7 +65,10 @@ class AppLocalizationsJa extends AppLocalizations {
   String get return1st => '確認が完了しました。一階に戻ります。 ';
 
   @override
-  String get settings => '各種設定';
+  String get bypass => '通過階';
+
+  @override
+  String get stop => '停止階';
 
   @override
   String get changeNumber => '行き先階数の変更';
@@ -80,76 +77,25 @@ class AppLocalizationsJa extends AppLocalizations {
   String get changeBasementNumber => '地下階数の変更';
 
   @override
-  String get ok => 'OK';
+  String get rooftop => '屋上です。　';
 
   @override
-  String get cancel => 'キャンセル';
+  String get vip => 'VIP階です。　';
 
   @override
-  String get bypass => '通過階';
+  String get spa => '温泉です。　';
 
   @override
-  String get stop => '停止階';
+  String get parking => '駐車場です。　';
 
   @override
-  String get menu => 'メニュー';
+  String get platform => 'ホーム階です。　';
 
   @override
-  String get normalMode => 'ノーマル\nモード';
+  String get paradise => '楽園です。　';
 
   @override
-  String get elevatorMode => 'エレベーター\nモード';
-
-  @override
-  String get buttonsMode => '1000の\nボタン\nモード';
-
-  @override
-  String get reproButtons => '再現!\n1000の\nボタン';
-
-  @override
-  String get aboutShimax => '島田電機\n製作所\nとは';
-
-  @override
-  String get aboutButtons => '1000の\nボタン\nとは';
-
-  @override
-  String get aboutLetsElevator => 'レッツ・エレベーターとは';
-
-  @override
-  String get termsAndPrivacyPolicy => '利用規約・プライバシーポリシー';
-
-  @override
-  String get terms => '利用規約';
-
-  @override
-  String get officialPage => '公式ページ';
-
-  @override
-  String get officialShop => '公式ショップ';
-
-  @override
-  String get start => 'スタート';
-
-  @override
-  String get challenge => '30秒チャレンジ';
-
-  @override
-  String get best => 'ベスト ';
-
-  @override
-  String get challengeRanking => '30秒\nチャレンジ\nランキング';
-
-  @override
-  String get ranking => 'ランキング';
-
-  @override
-  String get yourScore => 'スコア';
-
-  @override
-  String get back => '戻る';
-
-  @override
-  String get newRecord => 'ベストスコア更新！';
+  String get dog => '犬です。　';
 
   @override
   String get unlock => '解放';
@@ -168,4 +114,31 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get unlockAll2 => '2. 全てのボタン形状を解放!!';
+
+  @override
+  String get challenge => '30秒チャレンジ';
+
+  @override
+  String get best => 'ベスト ';
+
+  @override
+  String get yourScore => 'スコア';
+
+  @override
+  String get newRecord => 'ベストスコア更新！';
+
+  @override
+  String get termsAndPrivacyPolicy => '利用規約・プライバシーポリシー';
+
+  @override
+  String get terms => '利用規約';
+
+  @override
+  String get officialPage => '公式ページ';
+
+  @override
+  String get officialShop => '公式ショップ';
+
+  @override
+  String get ranking => 'ランキング';
 }

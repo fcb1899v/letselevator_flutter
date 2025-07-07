@@ -1,3 +1,15 @@
+// =============================
+// HomePage: Main Elevator Simulator Interface
+//
+// This file contains the main elevator simulator interface with:
+// 1. State Management: Riverpod providers and local state management
+// 2. Initialization: App lifecycle and data loading
+// 3. Elevator Movement: Up/down movement logic and floor selection
+// 4. Door Control: Opening/closing door operations
+// 5. Button Interactions: Floor and operation button handling
+// 6. UI Layout: Display, buttons, and responsive design
+// =============================
+
 import 'package:flutter/material.dart';
 import 'package:vibration/vibration.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -8,7 +20,8 @@ import 'constant.dart';
 import 'games_manager.dart';
 import 'main.dart';
 import 'menu.dart';
-import 'sound_manager.dart';
+import 'audio_manager.dart';
+import 'tts_manager.dart';
 
 class HomePage extends HookConsumerWidget {
   const HomePage({super.key});
@@ -16,6 +29,8 @@ class HomePage extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
 
+    // --- State Management ---
+    // Riverpod providers for app-wide state management
     final isGamesSignIn = ref.watch(gamesSignInProvider);
     final isShimada = ref.watch(isShimadaProvider);
     final isMenu = ref.watch(isMenuProvider);
@@ -25,6 +40,8 @@ class HomePage extends HookConsumerWidget {
     final buttonStyle = ref.watch(buttonStyleProvider);
     final backgroundStyle = ref.watch(backgroundStyleProvider);
 
+    // --- Local State Variables ---
+    // Elevator position and movement state
     final counter = useState(1);
     final currentFloor = useState(1);
     final nextFloor = useState(1);
@@ -39,11 +56,13 @@ class HomePage extends HookConsumerWidget {
     final openTime = useState(initialOpenTime);
     final lifecycle = useAppLifecycleState();
 
-    //Manager
+    // --- Manager Instances ---
+    // Audio and text-to-speech managers for sound effects
     final ttsManager = useMemoized(() => TtsManager(context: context));
     final audioManager = useMemoized(() => AudioManager());
 
-    //Class
+    // --- Widget Instances ---
+    // Common widgets and home-specific widget instances
     final common = CommonWidget(context: context);
     final home = HomeWidget(
         context: context,
@@ -53,6 +72,9 @@ class HomePage extends HookConsumerWidget {
         buttonShape: buttonShape
     );
 
+    // --- Initialization Functions ---
+    // App initialization and lifecycle management
+    // Initialize app data including TTS, games sign-in, and best score
     initState() async {
       isLoadingData.value = true;
       try {
@@ -66,6 +88,8 @@ class HomePage extends HookConsumerWidget {
       }
     }
 
+    // --- Lifecycle Management ---
+    // Initialize app on first build
     useEffect(() {
       WidgetsBinding.instance.addPostFrameCallback((_) async {
         await initState();
@@ -73,6 +97,7 @@ class HomePage extends HookConsumerWidget {
       return null;
     }, []);
 
+    // Handle app lifecycle changes (pause/inactive states)
     useEffect(() {
       if (lifecycle == AppLifecycleState.inactive || lifecycle == AppLifecycleState.paused) {
         if (context.mounted) {
@@ -83,7 +108,9 @@ class HomePage extends HookConsumerWidget {
       return null;
     }, [lifecycle]);
 
-    ///Going up floor
+    // --- Elevator Movement Logic ---
+    // Core elevator movement functions for up and down travel
+    // Move elevator upward to target floor with speed calculation
     counterUp() async {
       ttsManager.speakText(context.upFloor(), true);
       int count = 0;
@@ -111,7 +138,7 @@ class HomePage extends HookConsumerWidget {
       });
     }
 
-    ///Going down floor
+    // Move elevator downward to target floor with speed calculation
     counterDown() async {
       ttsManager.speakText(context.downFloor(), true);
       int count = 0;
@@ -139,7 +166,9 @@ class HomePage extends HookConsumerWidget {
       });
     }
 
-    ///Select floor button
+    // --- Floor Selection Logic ---
+    // Floor button selection and deselection handling
+    // Handle floor button selection with validation and movement logic
     floorSelected(int i, bool selectFlag) async {
       if (!isEmergency.value) {
         if (i == counter.value) {
@@ -165,7 +194,7 @@ class HomePage extends HookConsumerWidget {
       }
     }
 
-    ///Deselect floor button
+    // Handle floor button deselection with next floor recalculation
     floorCanceled(int i) async {
       if (i.isSelected(up: isAboveSelectedList.value, down: isUnderSelectedList.value) && i != nextFloor.value) {
         await audioManager.playEffectSound(index: 0, asset: cancelButton, volume: 1.0);
@@ -180,8 +209,9 @@ class HomePage extends HookConsumerWidget {
       }
     }
 
-
-    ///Close door
+    // --- Door Control Logic ---
+    // Door opening and closing operations
+    // Close elevator doors with state management and movement continuation
     doorsClosing() async {
       if (!isMoving.value && !isEmergency.value && isDoorState.value != closedState && isDoorState.value != closingState) {
         isDoorState.value = closingState;
@@ -199,7 +229,9 @@ class HomePage extends HookConsumerWidget {
       }
     }
 
-    ///Pressed open button action
+    // --- Operation Button Logic ---
+    // Open, close, and alert button handling with state management
+    // Handle open button press with door opening logic
     pressedOpenAction(bool isOn) async {
       if (!isMoving.value) {
         isPressedOperationButtons.value = [isOn, false, false];
@@ -227,7 +259,7 @@ class HomePage extends HookConsumerWidget {
       }
     }
 
-    ///Pressed close button action
+    // Handle close button press with door closing logic
     pressedCloseAction(bool isOn) async {
       if (!isMoving.value) {
         isPressedOperationButtons.value = [false, isOn, false];
@@ -243,7 +275,7 @@ class HomePage extends HookConsumerWidget {
       }
     }
 
-    ///Long pressed alert button action
+    // Handle alert button press with emergency logic and return to first floor
     pressedAlertAction(bool isOn, isLongPressed) async {
       isPressedOperationButtons.value = [false, false, isOn];
       if (isOn && ((currentFloor.value - counter.value).abs() > 5) && ((nextFloor.value - counter.value).abs() > 5)) {
@@ -280,14 +312,16 @@ class HomePage extends HookConsumerWidget {
       }
     }
 
-    ///Button action list
+    // --- Button Action Management ---
+    // Dynamic button action list for operation buttons
     List<dynamic> pressedButtonAction(bool isOn, isLongPressed) => [
       (isOn && isLongPressed) ? () => pressedOpenAction(isOn): (_) => pressedOpenAction(isOn),
       (isOn && isLongPressed) ? () => pressedCloseAction(isOn): (_) => pressedCloseAction(isOn),
       (isOn && isLongPressed) ? () => pressedAlertAction(isOn, isLongPressed): (_) => pressedAlertAction(isOn, isLongPressed),
     ];
     
-    ///Action after changing door state
+    // --- Door State Management ---
+    // Automatic door state transitions and timing management
     useEffect(() {
       if (isDoorState.value == openingState) {
         Future.delayed(Duration(seconds: waitTime.value)).then((_) {
@@ -303,21 +337,26 @@ class HomePage extends HookConsumerWidget {
       return null;
     }, [isDoorState.value]);
 
+    // --- UI Layout ---
+    // Main elevator interface layout with responsive design
     return Scaffold(
       backgroundColor: blackColor,
       body: Stack(alignment: Alignment.center,
         children: [
+          // Background image with responsive sizing
           common.commonBackground(
             width: context.widthResponsible(),
             image: backgroundStyle.backGroundImage(),
           ),
+          // Main content container with display and buttons
           Container(
             alignment: Alignment.center,
             width: context.displayWidth(),
             height: context.height(),
             child: Column(mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-              ///Display
+              // --- Display Panel ---
+              // Elevator display with floor number and direction arrow
               Container(
                 width: context.displayWidth(),
                 height: context.displayHeight(),
@@ -334,7 +373,8 @@ class HomePage extends HookConsumerWidget {
                   ],
                 ),
               ),
-              ///Operation Buttons (Open, Close, Alert)
+              // --- Operation Buttons ---
+              // Open, close, and alert button row with gesture handling
               Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [...List.generate(3, (i) => GestureDetector(
                   onTapDown: pressedButtonAction(true, false)[i],
@@ -351,7 +391,8 @@ class HomePage extends HookConsumerWidget {
                   )))..insert(2, SizedBox(width: context.operationButtonSize()))
                 ],
               ),
-              ///Floor Buttons
+              // --- Floor Buttons Grid ---
+              // Dynamic floor button grid with selection handling
               Column(children: floorNumbers.toReversedMatrix(4).asMap().entries.map((row) =>
                 Column(children: [
                   SizedBox(height: context.buttonMargin()),
@@ -389,23 +430,34 @@ class HomePage extends HookConsumerWidget {
                   if (row.key == floorNumbers.toReversedMatrix(4).length - 1) SizedBox(height: context.buttonMargin()),
                 ])
               ).toList()),
+              // Ad space reservation
               SizedBox(height: context.admobHeight()),
             ]),
           ),
-          ///Menu
+          // --- Overlay Elements ---
+          // Menu overlay when menu is active
           if (isMenu) const MenuPage(isHome: true),
-          ///AdBanner
+          // Ad banner with menu toggle functionality
           common.commonAdBanner(
             image: isMenu.buttonChanBackGround(),
             onTap: () async => ref.read(isMenuProvider.notifier).state = await isMenu.pressedMenu()
           ),
-          ///Progress Indicator
+          // Loading indicator during data initialization
           if (isLoadingData.value) common.commonCircularProgressIndicator(),
         ]
       ),
     );
   }
 }
+
+// =============================
+// HomeWidget: Display Components for Elevator Interface
+//
+// This class provides display widgets for the elevator interface including:
+// 1. Display Arrow: Direction indicator for elevator movement
+// 2. Display Number: Floor number display with different styles
+// 3. Shimada Logo: Brand logo display for Shimada mode
+// =============================
 
 class HomeWidget {
 
@@ -423,8 +475,8 @@ class HomeWidget {
     required this.buttonShape,
   });
 
-  ///Display
-  //Display arrow
+  // --- Display Components ---
+  // Direction arrow display for elevator movement indication
   Widget displayArrow(String image) => Container(
     width: context.displayArrowWidth(),
     height: context.displayArrowHeight(),
@@ -435,7 +487,7 @@ class HomeWidget {
     child: Image.asset(image),
   );
 
-  //Display floor number
+  // Floor number display with style-based formatting
   Widget displayNumber(int counter) => Container(
     alignment: Alignment.topRight,
     width: context.displayNumberWidth(),
@@ -484,7 +536,7 @@ class HomeWidget {
     ), [counter]),
   );
 
-  //Shimada logo
+  // Shimada Electric brand logo display
   Widget displayShimadaLogo() => Container(
     margin: EdgeInsets.only(top: context.shimadaLogoTopMargin()),
     child: Image.asset(shimadaImage,

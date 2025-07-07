@@ -108,119 +108,11 @@ abstract class AppLocalizations {
   /// **'LETS ELEVATOR'**
   String get letsElevator;
 
-  ///
-  ///
-  /// In en, this message translates to:
-  /// **'This app is a realistic elevator simulator.'**
-  String get thisApp;
-
-  /// Doors opening.
+  /// No description provided for @menu.
   ///
   /// In en, this message translates to:
-  /// **'Doors opening. '**
-  String get openDoor;
-
-  /// Doors closing.
-  ///
-  /// In en, this message translates to:
-  /// **'Doors closing. '**
-  String get closeDoor;
-
-  /// basement
-  ///
-  /// In en, this message translates to:
-  /// **'basement '**
-  String get basement;
-
-  /// {NUMBER} floor
-  ///
-  /// In en, this message translates to:
-  /// **'{NUMBER} floor, '**
-  String floor(Object NUMBER);
-
-  /// Ground floor
-  ///
-  /// In en, this message translates to:
-  /// **'Ground floor, '**
-  String get ground;
-
-  /// Top floor
-  ///
-  /// In en, this message translates to:
-  /// **'The top floor, '**
-  String get rooftop;
-
-  /// Platform floor
-  ///
-  /// In en, this message translates to:
-  /// **'Platform floor, '**
-  String get platform;
-
-  /// Dog floor
-  ///
-  /// In en, this message translates to:
-  /// **'Dog floor, '**
-  String get dog;
-
-  /// Spa floor
-  ///
-  /// In en, this message translates to:
-  /// **'Spa floor, '**
-  String get spa;
-
-  /// VIP floor
-  ///
-  /// In en, this message translates to:
-  /// **'VIP floor, '**
-  String get vip;
-
-  /// Parking floor
-  ///
-  /// In en, this message translates to:
-  /// **'Parking floor, '**
-  String get parking;
-
-  /// Paradise floor
-  ///
-  /// In en, this message translates to:
-  /// **'Paradise floor, '**
-  String get paradise;
-
-  /// Press button
-  ///
-  /// In en, this message translates to:
-  /// **'Please press the button for the desired floor'**
-  String get pushNumber;
-
-  /// Going up.
-  ///
-  /// In en, this message translates to:
-  /// **'Going up. '**
-  String get upFloor;
-
-  /// Going down.
-  ///
-  /// In en, this message translates to:
-  /// **'Going down. '**
-  String get downFloor;
-
-  /// No description provided for @notStop.
-  ///
-  /// In en, this message translates to:
-  /// **'Sorry, this floor is restricted. '**
-  String get notStop;
-
-  /// Emergency stop.
-  ///
-  /// In en, this message translates to:
-  /// **'Emergency stop to check the status of the elevator. '**
-  String get emergency;
-
-  /// Return 1st floor.
-  ///
-  /// In en, this message translates to:
-  /// **'Elevator status check completed. Return to the first floor. '**
-  String get return1st;
+  /// **'MENU'**
+  String get menu;
 
   /// No description provided for @settings.
   ///
@@ -228,17 +120,17 @@ abstract class AppLocalizations {
   /// **'Settings'**
   String get settings;
 
-  /// No description provided for @changeNumber.
+  /// No description provided for @start.
   ///
   /// In en, this message translates to:
-  /// **'Change floor number'**
-  String get changeNumber;
+  /// **'START'**
+  String get start;
 
-  /// No description provided for @changeBasementNumber.
+  /// No description provided for @back.
   ///
   /// In en, this message translates to:
-  /// **'Change basement floor number'**
-  String get changeBasementNumber;
+  /// **'BACK'**
+  String get back;
 
   /// No description provided for @ok.
   ///
@@ -252,6 +144,72 @@ abstract class AppLocalizations {
   /// **'CANCEL'**
   String get cancel;
 
+  /// No description provided for @basement.
+  ///
+  /// In en, this message translates to:
+  /// **'basement '**
+  String get basement;
+
+  /// No description provided for @floor.
+  ///
+  /// In en, this message translates to:
+  /// **'{NUMBER} floor, '**
+  String floor(Object NUMBER);
+
+  /// No description provided for @ground.
+  ///
+  /// In en, this message translates to:
+  /// **'Ground floor, '**
+  String get ground;
+
+  /// No description provided for @openDoor.
+  ///
+  /// In en, this message translates to:
+  /// **'Doors opening. '**
+  String get openDoor;
+
+  /// No description provided for @closeDoor.
+  ///
+  /// In en, this message translates to:
+  /// **'Doors closing. '**
+  String get closeDoor;
+
+  /// No description provided for @pushNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Please press the button for the desired floor'**
+  String get pushNumber;
+
+  /// No description provided for @upFloor.
+  ///
+  /// In en, this message translates to:
+  /// **'Going up. '**
+  String get upFloor;
+
+  /// No description provided for @downFloor.
+  ///
+  /// In en, this message translates to:
+  /// **'Going down. '**
+  String get downFloor;
+
+  /// No description provided for @notStop.
+  ///
+  /// In en, this message translates to:
+  /// **'Sorry, this floor is restricted. '**
+  String get notStop;
+
+  /// No description provided for @emergency.
+  ///
+  /// In en, this message translates to:
+  /// **'Emergency stop for inspection. '**
+  String get emergency;
+
+  /// No description provided for @return1st.
+  ///
+  /// In en, this message translates to:
+  /// **'Elevator status check complete. Returning to the first floor. '**
+  String get return1st;
+
   /// No description provided for @bypass.
   ///
   /// In en, this message translates to:
@@ -264,125 +222,59 @@ abstract class AppLocalizations {
   /// **'Stop'**
   String get stop;
 
-  /// Menu
+  /// No description provided for @changeNumber.
   ///
   /// In en, this message translates to:
-  /// **'MENU'**
-  String get menu;
+  /// **'Change floor number'**
+  String get changeNumber;
 
-  /// Normal mode
+  /// No description provided for @changeBasementNumber.
   ///
   /// In en, this message translates to:
-  /// **'Normal\nmode'**
-  String get normalMode;
+  /// **'Change basement floor number'**
+  String get changeBasementNumber;
 
-  /// Elevator mode
+  /// No description provided for @rooftop.
   ///
   /// In en, this message translates to:
-  /// **'Elevator\nmode'**
-  String get elevatorMode;
+  /// **'The top floor, '**
+  String get rooftop;
 
-  /// 1,000 elevator buttons mode
+  /// No description provided for @vip.
   ///
   /// In en, this message translates to:
-  /// **'1000\nbuttons\nmode'**
-  String get buttonsMode;
+  /// **'VIP floor, '**
+  String get vip;
 
-  /// No description provided for @reproButtons.
+  /// No description provided for @spa.
   ///
   /// In en, this message translates to:
-  /// **'Reproduce!\n1000\nbuttons'**
-  String get reproButtons;
+  /// **'Spa floor, '**
+  String get spa;
 
-  /// About Shimax
+  /// No description provided for @parking.
   ///
   /// In en, this message translates to:
-  /// **'About\nShimax'**
-  String get aboutShimax;
+  /// **'Parking floor, '**
+  String get parking;
 
-  /// about 1000 buttons
+  /// No description provided for @platform.
   ///
   /// In en, this message translates to:
-  /// **'About\n1000\nbuttons'**
-  String get aboutButtons;
+  /// **'Platform floor, '**
+  String get platform;
 
-  /// About LETS ELEVATOR
+  /// No description provided for @paradise.
   ///
   /// In en, this message translates to:
-  /// **'About LETS ELEVATOR'**
-  String get aboutLetsElevator;
+  /// **'Paradise floor, '**
+  String get paradise;
 
-  /// Terms and privacy policy
+  /// No description provided for @dog.
   ///
   /// In en, this message translates to:
-  /// **'Terms and privacy policy'**
-  String get termsAndPrivacyPolicy;
-
-  /// Terms
-  ///
-  /// In en, this message translates to:
-  /// **'Terms'**
-  String get terms;
-
-  /// Official Page
-  ///
-  /// In en, this message translates to:
-  /// **'Official Page'**
-  String get officialPage;
-
-  /// No description provided for @officialShop.
-  ///
-  /// In en, this message translates to:
-  /// **'Official Shop'**
-  String get officialShop;
-
-  /// start
-  ///
-  /// In en, this message translates to:
-  /// **'START'**
-  String get start;
-
-  /// 30sec challenge
-  ///
-  /// In en, this message translates to:
-  /// **'30s Challenge'**
-  String get challenge;
-
-  /// best score
-  ///
-  /// In en, this message translates to:
-  /// **'BEST'**
-  String get best;
-
-  /// 30sec Challenge Ranking
-  ///
-  /// In en, this message translates to:
-  /// **'30sec\nChallenge\nRanking'**
-  String get challengeRanking;
-
-  /// ranking
-  ///
-  /// In en, this message translates to:
-  /// **'RANKING'**
-  String get ranking;
-
-  /// your score
-  ///
-  /// In en, this message translates to:
-  /// **'SCORE'**
-  String get yourScore;
-
-  /// back
-  ///
-  /// In en, this message translates to:
-  /// **'BACK'**
-  String get back;
-
-  /// new record
-  ///
-  /// In en, this message translates to:
-  /// **'NEW RECORD!!'**
-  String get newRecord;
+  /// **'Dog floor, '**
+  String get dog;
 
   /// No description provided for @unlock.
   ///
@@ -411,7 +303,7 @@ abstract class AppLocalizations {
   /// No description provided for @unlockAll1.
   ///
   /// In en, this message translates to:
-  /// **'1. Score 100+ in 30 sec challenge.'**
+  /// **'1. Score 100+ in 30-sec challenge.'**
   String get unlockAll1;
 
   /// No description provided for @unlockAll2.
@@ -419,6 +311,60 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'2. Unlock all button shapes.'**
   String get unlockAll2;
+
+  /// No description provided for @challenge.
+  ///
+  /// In en, this message translates to:
+  /// **'30s Challenge'**
+  String get challenge;
+
+  /// No description provided for @best.
+  ///
+  /// In en, this message translates to:
+  /// **'BEST'**
+  String get best;
+
+  /// No description provided for @yourScore.
+  ///
+  /// In en, this message translates to:
+  /// **'SCORE'**
+  String get yourScore;
+
+  /// No description provided for @newRecord.
+  ///
+  /// In en, this message translates to:
+  /// **'NEW RECORD!!'**
+  String get newRecord;
+
+  /// No description provided for @termsAndPrivacyPolicy.
+  ///
+  /// In en, this message translates to:
+  /// **'Terms and privacy policy'**
+  String get termsAndPrivacyPolicy;
+
+  /// No description provided for @terms.
+  ///
+  /// In en, this message translates to:
+  /// **'Terms'**
+  String get terms;
+
+  /// No description provided for @officialPage.
+  ///
+  /// In en, this message translates to:
+  /// **'Official Page'**
+  String get officialPage;
+
+  /// No description provided for @officialShop.
+  ///
+  /// In en, this message translates to:
+  /// **'Official Shop'**
+  String get officialShop;
+
+  /// No description provided for @ranking.
+  ///
+  /// In en, this message translates to:
+  /// **'RANKING'**
+  String get ranking;
 }
 
 class _AppLocalizationsDelegate

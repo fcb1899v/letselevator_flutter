@@ -12,13 +12,22 @@ class AppLocalizationsEn extends AppLocalizations {
   String get letsElevator => 'LETS ELEVATOR';
 
   @override
-  String get thisApp => 'This app is a realistic elevator simulator.';
+  String get menu => 'MENU';
 
   @override
-  String get openDoor => 'Doors opening. ';
+  String get settings => 'Settings';
 
   @override
-  String get closeDoor => 'Doors closing. ';
+  String get start => 'START';
+
+  @override
+  String get back => 'BACK';
+
+  @override
+  String get ok => 'OK';
+
+  @override
+  String get cancel => 'CANCEL';
 
   @override
   String get basement => 'basement ';
@@ -32,25 +41,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get ground => 'Ground floor, ';
 
   @override
-  String get rooftop => 'The top floor, ';
+  String get openDoor => 'Doors opening. ';
 
   @override
-  String get platform => 'Platform floor, ';
-
-  @override
-  String get dog => 'Dog floor, ';
-
-  @override
-  String get spa => 'Spa floor, ';
-
-  @override
-  String get vip => 'VIP floor, ';
-
-  @override
-  String get parking => 'Parking floor, ';
-
-  @override
-  String get paradise => 'Paradise floor, ';
+  String get closeDoor => 'Doors closing. ';
 
   @override
   String get pushNumber => 'Please press the button for the desired floor';
@@ -65,27 +59,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get notStop => 'Sorry, this floor is restricted. ';
 
   @override
-  String get emergency =>
-      'Emergency stop to check the status of the elevator. ';
+  String get emergency => 'Emergency stop for inspection. ';
 
   @override
   String get return1st =>
-      'Elevator status check completed. Return to the first floor. ';
-
-  @override
-  String get settings => 'Settings';
-
-  @override
-  String get changeNumber => 'Change floor number';
-
-  @override
-  String get changeBasementNumber => 'Change basement floor number';
-
-  @override
-  String get ok => 'OK';
-
-  @override
-  String get cancel => 'CANCEL';
+      'Elevator status check complete. Returning to the first floor. ';
 
   @override
   String get bypass => 'Bypass';
@@ -94,64 +72,31 @@ class AppLocalizationsEn extends AppLocalizations {
   String get stop => 'Stop';
 
   @override
-  String get menu => 'MENU';
+  String get changeNumber => 'Change floor number';
 
   @override
-  String get normalMode => 'Normal\nmode';
+  String get changeBasementNumber => 'Change basement floor number';
 
   @override
-  String get elevatorMode => 'Elevator\nmode';
+  String get rooftop => 'The top floor, ';
 
   @override
-  String get buttonsMode => '1000\nbuttons\nmode';
+  String get vip => 'VIP floor, ';
 
   @override
-  String get reproButtons => 'Reproduce!\n1000\nbuttons';
+  String get spa => 'Spa floor, ';
 
   @override
-  String get aboutShimax => 'About\nShimax';
+  String get parking => 'Parking floor, ';
 
   @override
-  String get aboutButtons => 'About\n1000\nbuttons';
+  String get platform => 'Platform floor, ';
 
   @override
-  String get aboutLetsElevator => 'About LETS ELEVATOR';
+  String get paradise => 'Paradise floor, ';
 
   @override
-  String get termsAndPrivacyPolicy => 'Terms and privacy policy';
-
-  @override
-  String get terms => 'Terms';
-
-  @override
-  String get officialPage => 'Official Page';
-
-  @override
-  String get officialShop => 'Official Shop';
-
-  @override
-  String get start => 'START';
-
-  @override
-  String get challenge => '30s Challenge';
-
-  @override
-  String get best => 'BEST';
-
-  @override
-  String get challengeRanking => '30sec\nChallenge\nRanking';
-
-  @override
-  String get ranking => 'RANKING';
-
-  @override
-  String get yourScore => 'SCORE';
-
-  @override
-  String get back => 'BACK';
-
-  @override
-  String get newRecord => 'NEW RECORD!!';
+  String get dog => 'Dog floor, ';
 
   @override
   String get unlock => 'Unlock';
@@ -167,8 +112,35 @@ class AppLocalizationsEn extends AppLocalizations {
   String get unlockAllTitle => 'Unlock Conditions: 1. or 2.';
 
   @override
-  String get unlockAll1 => '1. Score 100+ in 30 sec challenge.';
+  String get unlockAll1 => '1. Score 100+ in 30-sec challenge.';
 
   @override
   String get unlockAll2 => '2. Unlock all button shapes.';
+
+  @override
+  String get challenge => '30s Challenge';
+
+  @override
+  String get best => 'BEST';
+
+  @override
+  String get yourScore => 'SCORE';
+
+  @override
+  String get newRecord => 'NEW RECORD!!';
+
+  @override
+  String get termsAndPrivacyPolicy => 'Terms and privacy policy';
+
+  @override
+  String get terms => 'Terms';
+
+  @override
+  String get officialPage => 'Official Page';
+
+  @override
+  String get officialShop => 'Official Shop';
+
+  @override
+  String get ranking => 'RANKING';
 }

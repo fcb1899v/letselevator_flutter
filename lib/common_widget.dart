@@ -1,3 +1,13 @@
+// =============================
+// CommonWidget: Shared UI Components
+//
+// This class provides common UI components used across the app including:
+// 1. Background Components: Responsive background image handling
+// 2. Ad Components: Ad banner with menu button integration
+// 3. Button Components: Floor button with number overlay
+// 4. Loading Components: Circular progress indicator overlay
+// =============================
+
 import 'package:flutter/material.dart';
 import 'admob_banner.dart';
 import 'constant.dart';
@@ -11,7 +21,8 @@ class CommonWidget {
     required this.context,
   });
 
-  ///Background
+  // --- Background Components ---
+  // Responsive background image with orientation handling
   Widget commonBackground({
     required double width,
     required String image
@@ -36,7 +47,8 @@ class CommonWidget {
     ),
   );
 
-  ///AdBanner
+  // --- Ad Components ---
+  // Ad banner with menu button integration
   Widget commonAdBanner({
     required String image,
     required void Function() onTap,
@@ -45,7 +57,7 @@ class CommonWidget {
     Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
         const AdBannerWidget(),
-        /// Menu Button
+        // Menu button with gesture handling
         GestureDetector(
           onTap: onTap,
           child: SizedBox(
@@ -58,7 +70,8 @@ class CommonWidget {
     ),
   ]);
 
-  ///Floor Button
+  // --- Button Components ---
+  // Floor button with number overlay and styling
   Widget floorButtonImage({
     required String image,
     required double size,
@@ -91,7 +104,8 @@ class CommonWidget {
     ),
   );
 
-  ///Circular Progress Indicator
+  // --- Loading Components ---
+  // Circular progress indicator overlay
   Widget commonCircularProgressIndicator() => Container(
     alignment: Alignment.center,
     width: context.width(),

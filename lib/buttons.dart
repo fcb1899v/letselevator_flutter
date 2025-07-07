@@ -1,3 +1,16 @@
+// =============================
+// ButtonsPage: 1000 Buttons Challenge Interface
+//
+// This file contains the 1000 buttons challenge interface with:
+// 1. State Management: Challenge state and button selection tracking
+// 2. Initialization: Data loading and lifecycle management
+// 3. Challenge Logic: 30-second challenge with countdown and scoring
+// 4. Button Interactions: Selection and deselection with sound effects
+// 5. Timer Management: Challenge countdown and result handling
+// 6. UI Layout: Button panels and challenge interface
+// 7. Result Display: Score display and ranking integration
+// =============================
+
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -10,7 +23,7 @@ import 'main.dart';
 import 'menu.dart';
 import 'extension.dart';
 import 'constant.dart';
-import 'sound_manager.dart';
+import 'audio_manager.dart';
 
 class ButtonsPage extends HookConsumerWidget {
   const ButtonsPage({super.key});
@@ -18,6 +31,8 @@ class ButtonsPage extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
 
+    // --- Challenge State Management ---
+    // Button selection tracking and challenge state variables
     final isSelectedButtonsList = useState(panelMax.listListAllFalse(rowMax, columnMax));
     final isDarkBack = useState(false);
     final isBeforeCount = useState(false);
@@ -25,23 +40,32 @@ class ButtonsPage extends HookConsumerWidget {
     final isChallengeFinish = useState(false);
     final isLoadingData = useState(false);
 
+    // --- Timer and Counter State ---
+    // Challenge timing and score tracking
     final beforeCount = useState(0);
     final counter = useState(0);
     final currentSeconds = useState(0);
 
+    // --- Riverpod State ---
+    // App-wide state providers
     final isMenu = ref.watch(isMenuProvider);
     final isGamesSignIn = ref.watch(gamesSignInProvider);
     final bestScore = ref.watch(bestScoreProvider);
 
     final lifecycle = useAppLifecycleState();
 
-    //Manager
+    // --- Manager Instances ---
+    // Audio manager for sound effects
     final audioManager = useMemoized(() => AudioManager());
 
-    //Class
+    // --- Widget Instances ---
+    // Common widgets and buttons-specific widget instances
     final common = CommonWidget(context: context);
     final buttons = ButtonsWidget(context: context);
 
+    // --- Initialization Functions ---
+    // App initialization and data loading
+    // Initialize button states, games sign-in, and best score
     initState() async {
       isLoadingData.value = true;
       try {
@@ -55,6 +79,8 @@ class ButtonsPage extends HookConsumerWidget {
       }
     }
 
+    // --- Lifecycle Management ---
+    // Handle app lifecycle changes (pause/inactive states)
     useEffect(() {
       if (lifecycle == AppLifecycleState.inactive || lifecycle == AppLifecycleState.paused) {
         if (context.mounted) audioManager.stopAll();
@@ -62,15 +88,19 @@ class ButtonsPage extends HookConsumerWidget {
       return null;
     }, [lifecycle]);
 
+    // --- Timer Management ---
+    // Challenge countdown timer and result handling
     useEffect(() {
       WidgetsBinding.instance.addPostFrameCallback((_) async {
         initState();
         final timer = Timer.periodic(const Duration(seconds: 1), (Timer timer) async {
           if (currentSeconds.value < 0 && isChallengeStart.value) {
+            // Challenge finished - handle results
             isDarkBack.value = true;
             isChallengeStart.value = false;
             isChallengeFinish.value = true;
             if (counter.value > bestScore) {
+              // New best score achieved
               audioManager.playEffectSound(index: 0, asset: bestScoreSound, volume: 1.0);
               ref.read(bestScoreProvider.notifier).state = counter.value;
               await gamesSubmitScore(bestScore, isGamesSignIn);
@@ -80,6 +110,7 @@ class ButtonsPage extends HookConsumerWidget {
             "Your Score: ${counter.value}, Best score: $bestScore".debugPrint();
             timer.cancel;
           } else if (isChallengeStart.value) {
+            // Challenge countdown in progress
             currentSeconds.value = currentSeconds.value - 1;
             if (currentSeconds.value < 4) audioManager.playEffectSound(index: 0, asset: countdown, volume: 1.0);
             if (currentSeconds.value == 0) audioManager.playEffectSound(index: 0, asset: countdownFinish, volume: 1.0);
@@ -90,7 +121,9 @@ class ButtonsPage extends HookConsumerWidget {
       return null;
     }, const []);
 
-    //Select button
+    // --- Button Interaction Logic ---
+    // Button selection and deselection with sound effects
+    // Select button and increment counter
     buttonSelected(int p, i, j) async {
       if (!isSelectedButtonsList.value[p][i][j] && !p.isTranspButton(i, j)) {
         if (!isChallengeStart.value) {
@@ -102,7 +135,7 @@ class ButtonsPage extends HookConsumerWidget {
       }
     }
 
-    //Deselect button
+    // Deselect button and decrement counter
     buttonDeSelected(int p, i, j) async {
       if (isSelectedButtonsList.value[p][i][j] && !p.isTranspButton(i, j)) {
         if (!isChallengeStart.value) {
@@ -114,14 +147,15 @@ class ButtonsPage extends HookConsumerWidget {
       }
     }
 
-    //30秒チャレンジスタート前のカウントダウン表示
+    // --- Challenge Logic ---
+    // Pre-challenge countdown display
     beforeCountdown(int i) {
       audioManager.playEffectSound(index: 0, asset: countdown, volume: 1.0);
       isBeforeCount.value = true;
       beforeCount.value = i;
     }
 
-    //30秒チャレンジスタート前のカウントダウン表示終了
+    // Finish pre-challenge countdown and start challenge
     finishBeforeCountdown() {
       audioManager.playEffectSound(index: 0, asset: countdownFinish, volume: 1.0);
       isDarkBack.value= false;
@@ -129,7 +163,7 @@ class ButtonsPage extends HookConsumerWidget {
       currentSeconds.value = 30;
     }
 
-    // 30秒チャレンジスタート
+    // Start 30-second challenge with countdown sequence
     challengeStart() async {
       counter.value = 0;
       isSelectedButtonsList.value = panelMax.listListAllFalse(rowMax, columnMax);
@@ -143,7 +177,7 @@ class ButtonsPage extends HookConsumerWidget {
       await Future.delayed(const Duration(milliseconds: 500)).then((_) async => finishBeforeCountdown());
     }
 
-    // 30秒チャレンジのストップ
+    // Stop 30-second challenge
     challengeStop() {
       counter.value = 0;
       isSelectedButtonsList.value = panelMax.listListAllFalse(rowMax, columnMax);
@@ -151,42 +185,48 @@ class ButtonsPage extends HookConsumerWidget {
       currentSeconds.value = 0;
     }
 
-    // 完全再現1000のボタンに戻る
+    // Return to 1000 buttons interface
     back1000Buttons() {
       isDarkBack.value = false;
       isChallengeFinish.value = false;
     }
 
+    // --- UI Layout ---
+    // Main 1000 buttons challenge interface layout
     return Scaffold(
       body: SizedBox(
         width: context.width(),
         height: context.height(),
-        ///Metal Decoration
         child: Stack(children: [
+          // Background image with metal decoration
           common.commonBackground(
             width: context.width(),
             image: backgroundStyleList[0].backGroundImage()
           ),
+          // Main content container with header and button panels
           Column(children: [
             const Spacer(flex: 3),
+            // --- Header Row ---
+            // Logo, challenge controls, and score counter
             Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-              /// 1000 buttons logo
+              // 1000 buttons logo with leaderboard access
               buttons.titleLogo(isGamesSignIn),
-              ///Countdown
+              // Challenge countdown or start button
               (isChallengeStart.value) ? GestureDetector(
                 onTap: () => challengeStop(),
                 child: buttons.challengeCountdown(currentSeconds.value),
-              ///Challenge start button
+              // Challenge start button
               ): GestureDetector(
                 onTap: () => challengeStart(),
                 child: buttons.challengeStartButton(),
               ),
-              ///Button counter
+              // Button counter display
               buttons.buttonCounter(counter.value),
             ]),
             const Spacer(flex: 1),
-            ///Buttons Panel
+            // --- Button Panels ---
+            // Scrollable button panels with interactive viewer
             SingleChildScrollView(
               controller: ScrollController(),
               scrollDirection: Axis.horizontal,
@@ -194,7 +234,7 @@ class ButtonsPage extends HookConsumerWidget {
                 child: Row(children: [
                   for(int p = 0; p < panelMax; p++) ... {
                     Stack(children: [
-                      ///Normal size buttons
+                      // Normal size buttons grid
                       Column(children: List.generate(columnMax, (col) =>
                         Row(children: List.generate(rowMax - rowMinus[p][col], (row) =>
                           buttons.normalSizeButton(panel: p, row: row, col: col,
@@ -204,7 +244,7 @@ class ButtonsPage extends HookConsumerWidget {
                           ),
                         ))
                       )),
-                      ///Large circle button @ panel 2
+                      // Large circle button in panel 2
                       if (p == 1) Row(children: [
                         SizedBox(width: 1.9 * context.defaultButtonLength()),
                         Column(children: [
@@ -217,7 +257,7 @@ class ButtonsPage extends HookConsumerWidget {
                           ),
                         ]),
                       ]),
-                      ///Long rectangle buttons @ panel 3
+                      // Long rectangle buttons in panel 3
                       if (p == 3) Row(children: [
                         SizedBox(width: 9 * context.defaultButtonLength()),
                         Column(children: [
@@ -232,7 +272,7 @@ class ButtonsPage extends HookConsumerWidget {
                           ),
                         ]),
                       ]),
-                      ///Large circle buttons @ panel 4
+                      // Large circle buttons in panel 4
                       if (p == 4) Row(children: [
                         SizedBox(width: 6.1 * context.defaultButtonLength()),
                         Column(children: [
@@ -247,7 +287,7 @@ class ButtonsPage extends HookConsumerWidget {
                           )),
                         ]),
                       ]),
-                      ///Large up buttons @ panel 4
+                      // Large up buttons in panel 4
                       if (p == 4) Row(children: [
                         SizedBox(width: 5.35 * context.defaultButtonLength()),
                         Column(children: [
@@ -260,7 +300,7 @@ class ButtonsPage extends HookConsumerWidget {
                           )
                         ]),
                       ]),
-                      ///Large down buttons @ panel 4
+                      // Large down buttons in panel 4
                       if (p == 4) Row(children: [
                         SizedBox(width: 1.35 * context.defaultButtonLength()),
                         Column(children: [
@@ -274,42 +314,44 @@ class ButtonsPage extends HookConsumerWidget {
                         ]),
                       ]),
                     ]),
-                    ///Panel Divider
+                    // Panel divider for visual separation
                     if (p != panelMax - 1) buttons.panelDivider(),
                   },
                 ]),
               ),
             ),
             const Spacer(flex: 1),
+            // Ad space reservation
             SizedBox(height: context.admobHeight()),
           ]),
-          ///Countdown before 30s challenge start
+          // --- Overlay Elements ---
+          // Challenge overlay with countdown and results
           if (isDarkBack.value) Container(
             width: context.width(),
             height: context.height(),
             color: transpBlackColor,
             child: Stack(alignment: Alignment.center,
               children: [
-                ///Countdown
+                // Pre-challenge countdown display
                 if (isBeforeCount.value) buttons.startCountdown(beforeCount.value),
-                ///Challenge result
+                // Challenge result display
                 if (isChallengeFinish.value) Column(mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
                     const Spacer(flex: 3),
-                    ///Challenge result title
+                    // Challenge result title
                     buttons.resultTitle(),
                     const Spacer(flex: 1),
-                    ///Challenge result score
+                    // Challenge result score
                     buttons.resultScore(counter.value),
                     const Spacer(flex: 1),
-                    ///Challenge best score
+                    // Challenge best score
                     buttons.resultBestScore(bestScore),
                     const Spacer(flex: 2),
                     Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
-                        ///Ranking button
+                        // Ranking button
                         buttons.resultRankingButton(isGamesSignIn),
-                        ///Back button
+                        // Back button
                         buttons.resultBackButton(onBack: () => back1000Buttons()),
                       ]
                     ),
@@ -319,19 +361,31 @@ class ButtonsPage extends HookConsumerWidget {
               ]
             ),
           ),
+          // Menu overlay when menu is active
           if (isMenu) const MenuPage(isHome: false),
-          ///AdBanner
+          // Ad banner with menu toggle functionality
           common.commonAdBanner(
             image: isMenu.buttonChanBackGround(),
             onTap: () async => ref.read(isMenuProvider.notifier).state = await isMenu.pressedMenu()
           ),
-          ///Progress Indicator
+          // Loading indicator during data initialization
           if (isLoadingData.value) common.commonCircularProgressIndicator(),
         ]),
       ),
     );
   }
 }
+
+// =============================
+// ButtonsWidget: 1000 Buttons Challenge Components
+//
+// This class provides 1000 buttons challenge interface components including:
+// 1. Header Components: Logo, challenge controls, and score display
+// 2. Button Components: Normal and large size button widgets
+// 3. Challenge Components: Countdown and start button interfaces
+// 4. Result Components: Challenge result display and navigation
+// 5. Layout Components: Panel dividers and spacing elements
+// =============================
 
 class ButtonsWidget {
 
@@ -341,7 +395,8 @@ class ButtonsWidget {
     required this.context,
   });
 
-  ///1000 buttons logo
+  // --- Header Components ---
+  // 1000 buttons logo with leaderboard access
   Widget titleLogo(bool isGamesSignIn) =>  GestureDetector(
     onTap: () => gamesShowLeaderboard(isGamesSignIn),
     child: Container(
@@ -351,7 +406,7 @@ class ButtonsWidget {
     ),
   );
 
-  ///Challenge start button
+  // Challenge start button with text styling
   Widget challengeStartButton() => Container(
     alignment: Alignment.center,
     width: context.challengeStartButtonWidth(),
@@ -399,7 +454,7 @@ class ButtonsWidget {
       borderRadius: BorderRadius.circular(context.startCornerRadius()),
       border: Border.all(color: whiteColor, width: context.startBorderWidth()),
     ),
-    ///Countdown
+    // Countdown number display
     child: Text(countdown.countDownNumber(),
     textAlign: TextAlign.center,
     style: TextStyle(
@@ -410,7 +465,7 @@ class ButtonsWidget {
   )
 );
 
-  ///Button counter
+  // Button counter display with large number styling
   Widget buttonCounter(int counter) => Container(
     width: context.countDisplayWidth(),
     height: context.countDisplayHeight(),
@@ -432,8 +487,8 @@ class ButtonsWidget {
   );
 
 
-  ///Buttons
-  //Normal size button
+  // --- Button Components ---
+  // Normal size button with gesture handling
   Widget normalSizeButton({
     required int panel,
     required int row,
@@ -454,7 +509,7 @@ class ButtonsWidget {
     onDoubleTap: () => deSelect(panel, row, col),
   );
 
-  //Large size button
+  // Large size button with customizable ratios
   Widget largeSizeButton({
     required int panel,
     required int row,
@@ -477,6 +532,8 @@ class ButtonsWidget {
     onDoubleTap: () => deSelect(panel, row, col),
   );
 
+  // --- Layout Components ---
+  // Panel divider for visual separation
   Widget panelDivider() => Container(
     width: 1,
     height: context.dividerHeight(),
@@ -484,7 +541,8 @@ class ButtonsWidget {
     color: blackColor,
   );
 
-  ///Show countdown
+  // --- Challenge Components ---
+  // Pre-challenge countdown display with circle background
   Widget startCountdown(int beforeCount) => Stack(
     alignment: Alignment.center,
     children: [
@@ -507,7 +565,8 @@ class ButtonsWidget {
     ]
   );
 
-  ///Show result
+  // --- Result Components ---
+  // Challenge result title display
   Widget resultTitle() => Text(context.yourScore(),
     style: TextStyle(
       color: whiteColor,
@@ -517,6 +576,7 @@ class ButtonsWidget {
     ),
   );
 
+  // Challenge result score display
   Widget resultScore(int score) => Text(score.countNumber(),
     style: TextStyle(
       color: lampColor,
@@ -525,6 +585,7 @@ class ButtonsWidget {
     ),
   );
 
+  // Challenge best score display
   Widget resultBestScore(int bestScore) => Row(mainAxisAlignment: MainAxisAlignment.center,
     children: [
       Text("${context.best()}:  ",
@@ -545,6 +606,7 @@ class ButtonsWidget {
     ]
   );
 
+  // Ranking button with leaderboard access
   Widget resultRankingButton(bool isSignIn) =>  GestureDetector(
     onTap: () => gamesShowLeaderboard(isSignIn),
     child: Container(
@@ -566,6 +628,7 @@ class ButtonsWidget {
     ),
   );
 
+  // Back button for returning to main interface
   Widget resultBackButton({
     required void Function() onBack
   }) =>  GestureDetector(

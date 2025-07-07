@@ -1,3 +1,15 @@
+// =============================
+// SettingsPage: App Settings and Configuration Interface
+//
+// This file contains the settings interface with:
+// 1. State Management: Riverpod providers and local state management
+// 2. Initialization: Data loading and lifecycle management
+// 3. Settings Categories: Button style, shape, numbers, and background
+// 4. Floor Management: Floor number and stop configuration
+// 5. Reward System: Ad-based unlocking mechanism
+// 6. UI Components: Settings widgets and dialogs
+// =============================
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -21,16 +33,21 @@ class SettingsPage extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
 
+    // --- State Management ---
+    // Riverpod providers for app-wide state
     final isMenu = ref.watch(isMenuProvider);
     final isGamesSignIn = ref.watch(gamesSignInProvider);
     final bestScore = ref.watch(bestScoreProvider);
 
+    // Settings-related providers
     final floorNumbers = ref.watch(floorNumbersProvider);
     final floorStops = ref.watch(floorStopsProvider);
     final buttonShape = ref.watch(buttonShapeProvider);
     final buttonStyle = ref.watch(buttonStyleProvider);
     final backgroundStyle = ref.watch(backgroundStyleProvider);
 
+    // --- Local State Variables ---
+    // Settings interface state and animation
     final floorManager = useMemoized(() => FloorManager());
     final isButtonOn = useState(List.generate(4, (_) => List.generate(4, (_) => false)));
     final selectedNumber = useState(0);
@@ -39,10 +56,12 @@ class SettingsPage extends HookConsumerWidget {
     final isLoadingData = useState(false);
     final animationController = useAnimationController(duration:Duration(milliseconds: flashTime))..repeat(reverse: true);
 
-    //Manager
+    // --- Manager Instances ---
+    // Reward ad manager for unlocking features
     final RewardedAd? ad = rewardedAd();
 
-    //Class
+    // --- Widget Instances ---
+    // Common widgets and settings-specific widget instances
     final common = CommonWidget(context: context);
     final settings = SettingsWidget(
       context: context,
@@ -53,6 +72,9 @@ class SettingsPage extends HookConsumerWidget {
       backgroundStyle: backgroundStyle,
     );
 
+    // --- Data Persistence ---
+    // Load button lock status from shared preferences
+    // Retrieve saved lock states for premium features
     Future<List<bool>> getButtonLockList() async {
       final prefs = await SharedPreferences.getInstance();
       final List<bool> lockList = List<bool>.from(buttonLockList.value);
@@ -64,6 +86,9 @@ class SettingsPage extends HookConsumerWidget {
       return lockList;
     }
 
+    // --- Initialization Functions ---
+    // App initialization and data loading
+    // Initialize games sign-in, best score, and button lock states
     initState() async {
       isLoadingData.value = true;
       try {
@@ -76,6 +101,9 @@ class SettingsPage extends HookConsumerWidget {
         isLoadingData.value = false;
       }
     }
+
+    // --- Lifecycle Management ---
+    // Initialize app on first build
     useEffect(() {
       WidgetsBinding.instance.addPostFrameCallback((_) async {
         await initState();
@@ -83,7 +111,9 @@ class SettingsPage extends HookConsumerWidget {
       return null;
     }, []);
 
-    ///Rewarded Ad
+    // --- Reward System ---
+    // Ad-based feature unlocking mechanism
+    // Handle reward ad completion and unlock features
     void earnedRewardAd(int i, AdWithoutView ad, RewardItem reward) async {
       "showRewardedAd".debugPrint();
       if (reward.amount > 0) {
@@ -98,10 +128,11 @@ class SettingsPage extends HookConsumerWidget {
       if (context.mounted) context.pushNoBack(SettingsPage());
     }
 
+    // Show reward ad dialog for feature unlocking
     void showRewardAdAlertDialog(int i) {
       Vibration.vibrate(duration: vibTime, amplitude: vibAmp);
       "$ad".debugPrint();
-      ///Rewarded Ad Permission
+      // Check if reward ad is available and show dialog
       if (ad != null) {
         showDialog(context: context,
           builder: (context) => settings.rewardAdAlertDialog(
@@ -115,13 +146,15 @@ class SettingsPage extends HookConsumerWidget {
       }
     }
 
-    ///Change select button
+    // --- Settings Category Selection ---
+    // Handle settings category button selection
     void changeSelectButton(int i) {
       Vibration.vibrate(duration: vibTime, amplitude: vibAmp);
       showSettingNumber.value = i;
     }
 
-    ///Change button style action
+    // --- Button Style Settings ---
+    // Change button style with persistence
     Future<void> changeButtonStyle(int row) async {
       Vibration.vibrate(duration: vibTime, amplitude: vibAmp);
       ref.read(buttonStyleProvider.notifier).state = await floorManager.changeSettingsIntValue(
@@ -131,7 +164,8 @@ class SettingsPage extends HookConsumerWidget {
       );
     }
 
-    ///Change button shape action
+    // --- Button Shape Settings ---
+    // Change button shape with persistence
     Future<void> changeButtonShape(String value) async {
       Vibration.vibrate(duration: vibTime, amplitude: vibAmp);
       ref.read(buttonShapeProvider.notifier).state = await floorManager.changeSettingsStringValue(
@@ -141,12 +175,14 @@ class SettingsPage extends HookConsumerWidget {
       );
     }
 
-    ///Change button number action
+    // --- Floor Number Management ---
+    // Floor number selection and configuration
     void floorNumberSelect(int number, int row, int col) {
-      selectedNumber.value = floorNumbers.selectedFloor(number, row, col); // 選択された数字を更新
+      selectedNumber.value = floorNumbers.selectedFloor(number, row, col);
       "Select number: ${selectedNumber.value}".debugPrint();
     }
 
+    // Save floor number changes
     Future<void> floorNumberSelectOKAction(int row, int col) async {
       ref.read(floorNumbersProvider.notifier).state = await floorManager.saveFloorNumber(
         currentList: floorNumbers,
@@ -156,11 +192,13 @@ class SettingsPage extends HookConsumerWidget {
       if (context.mounted) context.popPage();
     }
 
+    // Reset button state after floor number selection
     Future<void> floorNumberSelectThenAction(int row, int col) async {
       isButtonOn.value[row][col] = false;
       isButtonOn.value = List.from(isButtonOn.value);
     }
 
+    // Handle floor number button changes
     void changeButtonNumber(int row, int col) {
       if (!isNotSelectFloor(row, col)) {
         Vibration.vibrate(duration: vibTime, amplitude: vibAmp);
@@ -174,7 +212,8 @@ class SettingsPage extends HookConsumerWidget {
       }
     }
 
-    ///Change stop floor action
+    // --- Floor Stop Management ---
+    // Change floor stop flag with persistence
     Future<void> changeFloorStopFlag(bool value, int row, int col) async {
       if (!isNotSelectFloor(row, col)) {
         Vibration.vibrate(duration: vibTime, amplitude: vibAmp);
@@ -186,7 +225,8 @@ class SettingsPage extends HookConsumerWidget {
       }
     }
 
-    ///Change background style
+    // --- Background Style Settings ---
+    // Change background style with persistence
     Future<void> changeBackgroundStyle(String value) async {
       Vibration.vibrate(duration: vibTime, amplitude: vibAmp);
       ref.read(backgroundStyleProvider.notifier).state = await floorManager.changeSettingsStringValue(
@@ -196,14 +236,16 @@ class SettingsPage extends HookConsumerWidget {
       );
     }
 
-    ///Back button
+    // --- Navigation ---
+    // Back button navigation to home page
     void pressedBack() {
       ref.read(isShimadaProvider.notifier).state = false;
       ref.read(isMenuProvider.notifier).state = false;
       context.pushFadeReplacement(HomePage());
     }
 
-    ///Settings
+    // --- UI Layout ---
+    // Main settings interface layout with responsive design
     return Scaffold(
       backgroundColor: blackColor,
       appBar: isMenu ? null: settings.settingsAppBar(
@@ -212,12 +254,15 @@ class SettingsPage extends HookConsumerWidget {
       ),
       body: Stack(alignment: Alignment.center,
         children: [
+          // Background image with dynamic selection
           common.commonBackground(
             width: context.width(),
             image: ((showSettingNumber.value == 2) ? backgroundStyle: backgroundStyleList[0]).backGroundImage(),
           ),
+          // Main content container with settings categories
           Column(children: [
-            ///Select button
+            // --- Settings Category Buttons ---
+            // Category selection buttons for different settings
             Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: List.generate(settingsItemList.length, (i) =>
                 settings.selectButtonWidget(
@@ -227,7 +272,8 @@ class SettingsPage extends HookConsumerWidget {
               ),
             ),
             settings.settingsDivider(),
-            ///Change button style
+            // --- Dynamic Settings Content ---
+            // Button style settings with lock overlay
             (showSettingNumber.value == 0) ? Stack(alignment: Alignment.center,
               children: [
                 settings.settingsButtonStyleWidget(onTap: changeButtonStyle),
@@ -238,12 +284,12 @@ class SettingsPage extends HookConsumerWidget {
                 ),
               ]
             ):
-            ///Change button number and stop floor
+            // Floor number and stop configuration
             (showSettingNumber.value == 1) ? settings.settingsButtonNumberWidget(
               isButtonOn: isButtonOn.value,
               changeButtonNumber: changeButtonNumber,
               changeFloorStopFlag: changeFloorStopFlag
-            ///Change background style
+            // Background style selection with lock overlay
             ): Stack(alignment: Alignment.topCenter,
               children: [
                 settings.settingsBackgroundSelectWidget(onTap: (value) => changeBackgroundStyle(value)),
@@ -255,7 +301,7 @@ class SettingsPage extends HookConsumerWidget {
               ]
             ),
             if (showSettingNumber.value == 0) settings.settingsDivider(),
-            ///Change button shape
+            // Button shape selection with reward system
             if (showSettingNumber.value == 0) settings.settingsButtonShapeWidget(
               bestScore: bestScore,
               buttonLockList: buttonLockList.value,
@@ -263,14 +309,15 @@ class SettingsPage extends HookConsumerWidget {
               showRewardAdAlertDialog: showRewardAdAlertDialog
             ),
           ]),
-          ///Menu
+          // --- Overlay Elements ---
+          // Menu overlay when menu is active
           if (isMenu) const MenuPage(isHome: true),
-          ///AdBanner
+          // Ad banner with menu toggle functionality
           common.commonAdBanner(
             image: isMenu.buttonChanBackGround(),
             onTap: () async => ref.read(isMenuProvider.notifier).state = await isMenu.pressedMenu()
           ),
-          ///Progress Indicator
+          // Loading indicator during data initialization
           if (isLoadingData.value) common.commonCircularProgressIndicator(),
         ]
       ),
@@ -278,6 +325,19 @@ class SettingsPage extends HookConsumerWidget {
   }
 }
 
+
+// =============================
+// SettingsWidget: Settings Interface Components
+//
+// This class provides settings interface components including:
+// 1. AppBar: Settings header with animated back button
+// 2. Category Selection: Settings category buttons
+// 3. Button Style: Button style selection interface
+// 4. Button Shape: Button shape selection with reward system
+// 5. Floor Management: Floor number and stop configuration
+// 6. Background Selection: Background style selection interface
+// 7. Dialogs: Alert dialogs and reward ad dialogs
+// =============================
 
 class SettingsWidget {
   final BuildContext context;
@@ -296,17 +356,20 @@ class SettingsWidget {
     required this.backgroundStyle,
   });
 
-  ///Common widget for settings
+  // --- Common Components ---
+  // Settings divider for visual separation
   Divider settingsDivider() => Divider(
     height: context.settingsDividerHeight(),
     thickness: context.settingsDividerThickness(),
     color: blackColor,
   );
 
+  // Lock icon for premium features
   Icon lockIcon(double size) =>
       Icon(CupertinoIcons.lock_fill, color: lampColor, size: size,);
 
-  ///AppBar
+  // --- AppBar Component ---
+  // Settings header with animated back button
   AppBar settingsAppBar({
     required AnimationController animation,
     required void Function() onPressed,
@@ -337,7 +400,8 @@ class SettingsWidget {
     ),
   );
 
-  ///Select button
+  // --- Category Selection Component ---
+  // Settings category button widget
   Widget selectButtonWidget({
     required String image,
     required void Function() onTap,
@@ -354,7 +418,8 @@ class SettingsWidget {
     )
   );
 
-  ///Change button style
+  // --- Button Style Component ---
+  // Button style selection interface
   Widget settingsButtonStyleWidget({
     required void Function(int) onTap,
   }) => Column(
@@ -377,6 +442,8 @@ class SettingsWidget {
     )),
   );
 
+  // --- Lock Container Component ---
+  // Premium feature lock overlay with tooltip
   Widget settingsLockContainer({
     required double width,
     required double height,
@@ -395,7 +462,8 @@ class SettingsWidget {
     ),
   );
 
-  ///Change button shape
+  // --- Button Shape Component ---
+  // Button shape selection with reward system integration
   Widget settingsButtonShapeWidget({
     required int bestScore,
     required List<bool> buttonLockList,
@@ -439,6 +507,8 @@ class SettingsWidget {
     ),
   ]);
 
+  // --- Button Lock Container Component ---
+  // Individual button lock overlay with unlock button
   Widget settingsButtonLockContainer({
     required void Function() onTap,
   }) => Container(
@@ -476,7 +546,8 @@ class SettingsWidget {
     ),
   );
 
-  //Tooltip for EV Mileage
+  // --- Tooltip Component ---
+  // Information tooltip for premium features
   Container settingsTooltip() => Container(
     height: context.settingsTooltipHeight(),
     alignment: Alignment.topCenter,
@@ -535,7 +606,8 @@ class SettingsWidget {
   );
 
 
-  ///Change button number
+  // --- Floor Management Components ---
+  // Floor number selection dialog
   void floorNumberSelectDialog(int row, col, {
     required void Function(int) select,
     required void Function() action,
@@ -560,7 +632,7 @@ class SettingsWidget {
     ),
   ).then((_) => then());
 
-  ///Settings button number
+  // Floor number configuration interface
   Widget settingsButtonNumberWidget({
     required List<List<bool>> isButtonOn,
     required void Function(int, int) changeButtonNumber,
@@ -634,7 +706,7 @@ class SettingsWidget {
     ),
   );
 
-  ///Change stop floor
+  // Floor stop toggle configuration
   Widget settingsFloorStopToggleWidget(int row, col, {
     required void Function(bool, int, int) changeFloorStopFlag,
   }) => Container(
@@ -663,7 +735,8 @@ class SettingsWidget {
     ),
   );
 
-  ///Change background
+  // --- Background Selection Component ---
+  // Background style selection interface
   Widget settingsBackgroundSelectWidget({
     required void Function(String) onTap
   }) => Column(mainAxisAlignment: MainAxisAlignment.center,
@@ -702,7 +775,8 @@ class SettingsWidget {
   );
 
 
-  ///AlertDialog
+  // --- Dialog Components ---
+  // Alert dialog title with close button
   Widget alertDialogTitle(String title) => Row(
     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
     children: [
@@ -715,7 +789,7 @@ class SettingsWidget {
         ),
       ),
       SizedBox(width: context.settingsAlertCloseIconSpace()),
-      ///Close button
+      // Close button for dialog
       GestureDetector(
         onTap: () => context.popPage(),
         child: Icon(Icons.close,
@@ -726,6 +800,7 @@ class SettingsWidget {
     ]
   );
 
+  // OK button for dialogs
   TextButton alertOKButton({
     required Color color,
     required void Function() onPressed,
@@ -741,6 +816,7 @@ class SettingsWidget {
     ),
   );
 
+  // Cancel button for dialogs
   TextButton alertCancelButton({
     required Color color,
   }) => TextButton(
@@ -754,6 +830,7 @@ class SettingsWidget {
     ),
   );
 
+  // Reward ad alert dialog
   CupertinoAlertDialog rewardAdAlertDialog({
     required String title,
     required String content,
