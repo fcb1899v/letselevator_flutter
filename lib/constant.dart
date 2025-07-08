@@ -97,6 +97,8 @@ const String lBID30Sec = "bestscore.30sec";
 
 /// Audio player configuration and sound file paths
 /// Defines all audio assets used throughout the application
+const String openSound = "audios/pingpong.mp3";
+const String closeSound = "audios/ping.mp3";
 const String countdown = "audios/pon.mp3";
 const String countdownFinish = "audios/chan.mp3";
 const String bestScoreSound = "audios/jajan.mp3";

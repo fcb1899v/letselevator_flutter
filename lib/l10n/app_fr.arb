@@ -15,7 +15,7 @@
   "ground": "Rez-de-chaussée, ",
   "openDoor": "Ouverture.",
   "closeDoor": "Fermeture.",
-  "pushNumber": "",
+  "pushNumber": "Sélectionnez votre étage.",
   "upFloor": "Montée.",
   "downFloor": "Descente.",
   "notStop": "Non desservi.",

@@ -130,6 +130,7 @@ class HomePage extends HookConsumerWidget {
               "currentFloor: ${currentFloor.value}, nextFloor: ${nextFloor.value}".debugPrint();
               isMoving.value = false;
               isEmergency.value = false;
+              audioManager.playEffectSound(index: 0, asset: openSound, volume: 1.0);
               isDoorState.value = openingState;
               "isDoorState: ${isDoorState.value}".debugPrint();
             }
@@ -158,6 +159,7 @@ class HomePage extends HookConsumerWidget {
               "currentFloor: ${currentFloor.value}, nextFloor: ${nextFloor.value}".debugPrint();
               isMoving.value = false;
               isEmergency.value = false;
+              audioManager.playEffectSound(index: 0, asset: openSound, volume: 1.0);
               isDoorState.value = openingState;
               "isDoorState: ${isDoorState.value}".debugPrint();
             }
@@ -217,6 +219,7 @@ class HomePage extends HookConsumerWidget {
         isDoorState.value = closingState;
         "isDoorState: ${isDoorState.value}".debugPrint();
         await ttsManager.speakText(context.closeDoor(), true);
+        audioManager.playEffectSound(index: 0, asset: closeSound, volume: 1.0);
         await Future.delayed(Duration(seconds: waitTime.value)).then((_) {
           if (!isMoving.value && !isEmergency.value && isDoorState.value == closingState) {
             isDoorState.value = closedState;
@@ -267,7 +270,9 @@ class HomePage extends HookConsumerWidget {
           await audioManager.playEffectSound(index: 0, asset: selectButton, volume: 1.0);
           await Vibration.vibrate(duration: vibTime, amplitude: vibAmp);
           if (!isMoving.value && !isEmergency.value && isDoorState.value != closedState && isDoorState.value != closingState) {
-            Future.delayed(const Duration(milliseconds: flashTime)).then((_) => doorsClosing());
+            Future.delayed(const Duration(milliseconds: flashTime)).then((_) =>
+              doorsClosing()
+            );
           }
         }
       } else {

@@ -1,165 +1,104 @@
-// =============================
-// TtsManager: Text-to-Speech Management
-//
-// This class handles text-to-speech functionality with:
-// 1. Language Configuration: Multi-language TTS support
-// 2. Voice Settings: Platform-specific voice configurations
-// 3. TTS Operations: Playback control and initialization
-// 4. Error Handling: Comprehensive error handling for stability
-// 5. Resource Management: Proper cleanup and memory management
-// =============================
-
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'extension.dart';
+
+// =============================
+// TtsManager: Text-to-Speech management
+// Handles multi-language TTS for the app
+// =============================
 
 class TtsManager {
   final BuildContext context;
   TtsManager({required this.context});
 
   final FlutterTts flutterTts = FlutterTts();
-  bool _isInitialized = false;
 
-  // --- TTS Configuration ---
-  // Language setting for text-to-speech
-  String ttsLang() =>
-    (context.lang() != "en") ? context.lang(): "en";
-  
-  // Voice locale setting for TTS
-  String ttsVoice() =>
-    (context.lang() == "ja") ? "ja-JP":
-    (context.lang() == "ko") ? "ko-KR":
-    (context.lang() == "zh") ? "zh-CN":
-    "en-US";
-  
-  // Platform-specific voice name configuration
-  String voiceName(bool isAndroid) =>
-    isAndroid ? (
-        context.lang() == "ja" ? "ja-JP-language":
-        context.lang() == "ko" ? "ko-KR-language":
-        context.lang() == "zh" ? "ko-CN-language":
-        "en-US-language"
-    ): (
-        context.lang() == "ja" ? "Kyoko":
-        context.lang() == "ko" ? "Yuna":
-        context.lang() == "zh" ? "Lili":
-        "Samantha"
-    );
+  /// Get TTS locale based on current language
+  String ttsLocale() =>
+      (context.lang() == "ja") ? "ja-JP":
+      (context.lang() == "zh") ? "zh-CN":
+      (context.lang() == "ko") ? "ko-KR":
+      (context.lang() == "es") ? "es-ES":
+      (context.lang() == "fr") ? "fr-FR":
+      "en-US";
 
-  // --- Safe TTS Operations ---
-  // Wrapper for safe TTS operations with error handling
-  Future<void> safeTtsOperation(Future<void> Function() operation) async {
-    try {
-      if (!_isInitialized) {
-        "TTS not initialized, skipping operation".debugPrint();
-        return;
-      }
-      await operation();
-    } catch (e) {
-      "TTS operation error: $e".debugPrint();
+  /// Get Android voice name
+  String androidVoiceName() =>
+      (context.lang() == "ja") ? "ja-JP-language":
+      (context.lang() == "zh") ? "zh-CN-language":
+      (context.lang() == "ko") ? "ko-KR-language":
+      (context.lang() == "es") ? "es-ES-language":
+      (context.lang() == "fr") ? "fr-FR-language":
+      "en-US-language";
+
+  /// Get iOS voice name
+  String iOSVoiceName() =>
+      (context.lang() == "ja") ? "Kyoko":
+      (context.lang() == "zh") ? "婷婷":
+      (context.lang() == "ko") ? "유나":
+      (context.lang() == "es") ? "Mónica":
+      (context.lang() == "fr") ? "Audrey":
+      "Samantha";
+
+  /// Get default voice name by platform
+  String defaultVoiceName() =>
+      (Platform.isIOS || Platform.isMacOS) ? iOSVoiceName(): androidVoiceName();
+
+  /// Set TTS voice
+  Future<void> setTtsVoice() async {
+    final voices = await flutterTts.getVoices;
+    List<dynamic> localFemaleVoices = (Platform.isIOS || Platform.isMacOS) ? voices.where((voice) {
+      final isLocalMatch = voice['locale'].toString().contains(context.lang());
+      final isFemale = voice['gender'].toString().contains('female');
+      return isLocalMatch && isFemale;
+    }).toList(): [];
+    "localFemaleVoices: $localFemaleVoices".debugPrint();
+    if (context.mounted) {
+      final isExistDefaultVoice = localFemaleVoices.any((voice) => voice['name'] == defaultVoiceName()) || localFemaleVoices.isEmpty;
+      final voiceName = isExistDefaultVoice ? defaultVoiceName(): localFemaleVoices[0]['name'];
+      final voiceLocale = isExistDefaultVoice ? ttsLocale(): localFemaleVoices[0]['locale'];
+      final result = await flutterTts.setVoice({'name': voiceName, 'locale': voiceLocale,});
+      "setVoice: $voiceName, setLocale: $voiceLocale, result: $result".debugPrint();
     }
   }
 
-  // --- TTS Operations ---
-  // Play text-to-speech with sound control and error handling
+  /// Speak text if sound is on
   Future<void> speakText(String text, bool isSoundOn) async {
-    if (!isSoundOn || text.isEmpty) return;
-    
-    await safeTtsOperation(() async {
+    if (isSoundOn) {
       await flutterTts.stop();
       await flutterTts.speak(text);
       text.debugPrint();
-    });
+    }
   }
 
-  // Stop text-to-speech playback with error handling
+  /// Stop TTS
   Future<void> stopTts() async {
-    await safeTtsOperation(() async {
-      await flutterTts.stop();
-      "Stop TTS".debugPrint();
-    });
+    await flutterTts.stop();
+    "Stop TTS".debugPrint();
   }
 
-  // Initialize text-to-speech with platform-specific settings and error handling
+  /// Initialize TTS
   Future<void> initTts() async {
-    if (_isInitialized) {
-      "TTS already initialized".debugPrint();
-      return;
+    await flutterTts.setSharedInstance(true);
+    if (Platform.isIOS || Platform.isMacOS) {
+      await flutterTts.setIosAudioCategory(
+          IosTextToSpeechAudioCategory.playback,
+          [
+            IosTextToSpeechAudioCategoryOptions.allowBluetooth,
+            IosTextToSpeechAudioCategoryOptions.allowBluetoothA2DP,
+            IosTextToSpeechAudioCategoryOptions.mixWithOthers,
+            IosTextToSpeechAudioCategoryOptions.defaultToSpeaker
+          ]
+      );
     }
-    
-    try {
-      await flutterTts.setSharedInstance(true);
-      
-      // iOS specific configuration
-      if (Platform.isIOS) {
-        await flutterTts.setIosAudioCategory(
-            IosTextToSpeechAudioCategory.playback,
-            [
-              IosTextToSpeechAudioCategoryOptions.allowBluetooth,
-              IosTextToSpeechAudioCategoryOptions.allowBluetoothA2DP,
-              IosTextToSpeechAudioCategoryOptions.mixWithOthers,
-              IosTextToSpeechAudioCategoryOptions.defaultToSpeaker
-            ]
-        );
-      }
-      
-      await flutterTts.setVolume(1);
-      
-      if (context.mounted) {
-        await flutterTts.setLanguage(ttsLang());
-        await flutterTts.setVoice({
-          "name": voiceName(Platform.isAndroid),
-          "locale": ttsVoice()
-        });
-      }
-      
-      await flutterTts.setSpeechRate(0.5);
-      
-      if (context.mounted) {
-        voiceName(Platform.isAndroid).debugPrint();
-        await speakText(context.pushNumber(), true);
-      }
-      
-      _isInitialized = true;
-      "TTS initialized successfully".debugPrint();
-    } catch (e) {
-      "Error initializing TTS: $e".debugPrint();
-      _isInitialized = false;
-    }
+    await flutterTts.awaitSpeakCompletion(true);
+    await flutterTts.awaitSynthCompletion(true);
+    if (context.mounted) await flutterTts.setLanguage(context.lang());
+    if (context.mounted) await flutterTts.isLanguageAvailable(context.lang());
+    if (context.mounted) await setTtsVoice();
+    await flutterTts.setVolume(1);
+    await flutterTts.setSpeechRate(0.5);
+    if (context.mounted) speakText(context.pushNumber(), true);
   }
-
-  // --- Resource Management ---
-  // Dispose TTS resources to prevent memory leaks
-  Future<void> dispose() async {
-    try {
-      await stopTts();
-      await flutterTts.setSharedInstance(false);
-      _isInitialized = false;
-      "TTS disposed successfully".debugPrint();
-    } catch (e) {
-      "Error disposing TTS: $e".debugPrint();
-    }
-  }
-
-  // --- Health Check ---
-  // Check if TTS is in a healthy state
-  bool isHealthy() {
-    return _isInitialized;
-  }
-
-  // --- Recovery ---
-  // Attempt to recover from TTS errors
-  Future<void> recover() async {
-    try {
-      await stopTts();
-      _isInitialized = false;
-      // Small delay to allow system to stabilize
-      await Future.delayed(const Duration(milliseconds: 100));
-      await initTts();
-      "TTS recovery completed".debugPrint();
-    } catch (e) {
-      "Error during TTS recovery: $e".debugPrint();
-    }
-  }
-} 
+}
