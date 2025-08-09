@@ -1,73 +1,62 @@
-// =============================
-// AudioManager: Audio Playback Management
-//
-// This file manages audio playback functionality including:
-// 1. Audio Player Management: Multiple audio player instances
-// 2. Sound Playback: Effect sounds and loop sounds
-// 3. Audio Control: Play, stop, and volume control
-// 4. Player State Management: Track and manage player states
-// =============================
-
-import 'package:audioplayers/audioplayers.dart';
+import 'package:just_audio/just_audio.dart';
 import 'extension.dart';
 
+// =============================
+// AudioManager: Audio management using just_audio
+// - Centralized, lightweight wrapper around just_audio for SFX
+// - Lazily initializes a single AudioPlayer instance on first use
+// - Exposes simple play/stop APIs with error-safe handling and debug logs
+// =============================
+/// Manages short sound effect playback across the app.
+///
+/// Notes:
+/// - Player is created lazily on first play via `_initializePlayer()`.
+/// - Consecutive plays will stop the current sound before starting the next.
+/// - All methods are exception-safe and emit debug logs in debug mode.
 class AudioManager {
+  /// Lazily created audio player instance for short SFX playback
+  AudioPlayer? _audioPlayer;
 
-  final List<AudioPlayer> audioPlayers;
+  /// Initialize audio player (lazy)
+  ///
+  /// Creates the internal player once and reuses it.
+  Future<void> _initializePlayer() async => _audioPlayer ??= AudioPlayer();
 
-  static const audioPlayerNumber = 1;
-  AudioManager() : audioPlayers = List.generate(audioPlayerNumber, (_) => AudioPlayer());
-  
-  // --- Audio Player Management ---
-  // Get player state for specific index
-  PlayerState playerState(int index) => audioPlayers[index].state;
-  
-  // Get player title for debugging
-  String playerTitle(int index) => "${["warning", "left train", "right train", "emergency", "effectSound"][index]}Player";
-
-  // --- Sound Playback ---
-  // Play loop sound with volume control
-  Future<void> playLoopSound({
-    required int index,
-    required String asset,
-    required double volume,
-  }) async {
-    final player = audioPlayers[index];
-    await player.setVolume(volume);
-    await player.setReleaseMode(ReleaseMode.loop);
-    await player.play(AssetSource(asset));
-    "Loop ${playerTitle(index)}: ${audioPlayers[index].state}".debugPrint();
-  }
-
-  // Play effect sound with volume control
+  /// Play effect sound
+  ///
+  /// - [asset]: path to bundled asset declared in pubspec
+  /// - [volume]: 0.0 ~ 1.0
   Future<void> playEffectSound({
-    required int index,
     required String asset,
     required double volume,
   }) async {
-    final player = audioPlayers[index];
-    await player.setVolume(volume);
-    await player.setReleaseMode(ReleaseMode.release);
-    await player.play(AssetSource(asset));
-    "Play effect sound: ${audioPlayers[index].state}".debugPrint();
-  }
-
-  // --- Audio Control ---
-  // Stop specific audio player
-  Future<void> stopSound(int index) async {
-    await audioPlayers[index].stop();
-    "Stop ${playerTitle(index)}: ${audioPlayers[index].state}".debugPrint();
-  }
-
-  // Stop all playing audio players
-  Future<void> stopAll() async {
-    for (final player in audioPlayers) {
-      try {
-        if (player.state == PlayerState.playing) {
-          await player.stop();
-          "Stop all players".debugPrint();
-        }
-      } catch (_) {}
+    try {
+      await _initializePlayer();
+      if (_audioPlayer == null) {
+        'Audio player is null'.debugPrint();
+        return;
+      }
+      if (_audioPlayer!.playing) await _audioPlayer!.stop();
+      await _audioPlayer!.setVolume(volume);
+      await _audioPlayer!.setAsset(asset);
+      await _audioPlayer!.play();
+      'Play $asset: ${_audioPlayer!.playerState}'.debugPrint();
+    } catch (e) {
+      'Play sound failed for $asset: $e'.debugPrint();
     }
   }
-}
+
+  /// Stop audio playback
+  ///
+  /// Safe to call even when nothing is playing.
+  Future<void> stopAudio() async {
+    try {
+      if (_audioPlayer!.playing) {
+        await _audioPlayer!.stop();
+        'Stop audio: ${_audioPlayer!.playerState}'.debugPrint();
+      }
+    } catch (e) {
+      'Stop audio failed: $e'.debugPrint();
+    }
+  }
+} 

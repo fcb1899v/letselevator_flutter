@@ -79,7 +79,7 @@ class MenuPage extends HookConsumerWidget {
     // Handle app lifecycle changes (pause/inactive states)
     useEffect(() {
       if (lifecycle == AppLifecycleState.inactive || lifecycle == AppLifecycleState.paused) {
-        if (context.mounted) audioManager.stopAll();
+        if (context.mounted) audioManager.stopAudio();
       }
       return null;
     }, [lifecycle]);
@@ -101,7 +101,7 @@ class MenuPage extends HookConsumerWidget {
     // Handle menu button interactions with page transitions
     // Process menu button clicks with sound effects and navigation
     pressedMenuLink(int i) async {
-      audioManager.playEffectSound(index: 0, asset: selectButton, volume: 1.0);
+      audioManager.playEffectSound(asset: selectSound, volume: 0.8);
       Vibration.vibrate(duration: vibTime, amplitude: vibAmp);
       if (i == 0) {
         // Toggle Shimada mode and return to home

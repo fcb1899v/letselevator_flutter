@@ -315,7 +315,7 @@ class SettingsPage extends HookConsumerWidget {
           // Ad banner with menu toggle functionality
           common.commonAdBanner(
             image: isMenu.buttonChanBackGround(),
-            onTap: () async => ref.read(isMenuProvider.notifier).state = await isMenu.pressedMenu()
+            onTap: pressedBack
           ),
           // Loading indicator during data initialization
           if (isLoadingData.value) common.commonCircularProgressIndicator(),

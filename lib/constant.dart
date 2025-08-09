@@ -29,6 +29,7 @@ const int initialOpenTime = 10; // Door opening duration in seconds
 const int initialWaitTime = 2;  // Wait time after door opens in seconds
 const int flashTime = 500;      // Flash animation duration in milliseconds
 const int toolTipTime = 10000;  // Tooltip display duration in milliseconds
+const int operationTime = 300;  // Operation button duration in milliseconds
 
 /// Haptic feedback configuration for user interaction
 const int vibTime = 200; // Vibration duration in milliseconds
@@ -97,15 +98,15 @@ const String lBID30Sec = "bestscore.30sec";
 
 /// Audio player configuration and sound file paths
 /// Defines all audio assets used throughout the application
-const String openSound = "audios/pingpong.mp3";
-const String closeSound = "audios/ping.mp3";
-const String countdown = "audios/pon.mp3";
-const String countdownFinish = "audios/chan.mp3";
-const String bestScoreSound = "audios/jajan.mp3";
-const String selectButton = "audios/kako.mp3";
-const String cancelButton = "audios/hi.mp3";
-const String changeModeSound = "audios/popi.mp3";
-const String callSound = "audios/call.mp3";
+const String openSound = "assets/audios/pingpong.mp3";
+const String closeSound = "assets/audios/ping.mp3";
+const String countdown = "assets/audios/pon.mp3";
+const String countdownFinish = "assets/audios/chan.mp3";
+const String bestScoreSound = "assets/audios/jajan.mp3";
+const String selectSound = "assets/audios/kako.mp3";
+const String cancelSound = "assets/audios/hi.mp3";
+const String changeModeSound = "assets/audios/popi.mp3";
+const String callSound = "assets/audios/call.mp3";
 
 // =============================================================================
 // FONT CONFIGURATION

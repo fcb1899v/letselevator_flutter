@@ -15,9 +15,9 @@ LETS ELEVATOR is a simulator app that provides a realistic elevator operation ex
 ### 🎯 Key Features
 
 - **Realistic Elevator Operation**: Authentic elevator-like operation experience
-- **Multiple Modes**: Normal mode, 1000-floor mode, Shimada mode
+- **Multiple Modes**: Normal mode, 1000 Buttons Challenge, Shimada mode
 - **Customizable**: Button styles, backgrounds, floor number settings
-- **Multi-language Support**: Japanese, English, Korean, Chinese
+- **Multi-language Support**: Japanese, English, Spanish, French, Korean, Chinese
 - **Audio & Vibration Feedback**: Realistic operation feel
 - **Google Play Games Integration**: Leaderboard functionality
 - **Ad Support**: AdMob advertisement display
@@ -32,7 +32,7 @@ LETS ELEVATOR is a simulator app that provides a realistic elevator operation ex
 - **Google Mobile Ads**: Advertisement display
 
 ### Core Features
-- **Audio**: audioplayers
+- **Audio**: just_audio
 - **Text-to-Speech**: flutter_tts
 - **Vibration**: vibration
 - **Localization**: flutter_localizations
@@ -66,6 +66,10 @@ Create `assets/.env` file and configure required environment variables:
 IOS_BANNER_UNIT_ID="your-ios-banner-id"
 ANDROID_BANNER_UNIT_ID="your-android-banner-id"
 # Other ad IDs...
+IOS_INTERSTITIAL_UNIT_ID="your-ios-interstitial-id"
+ANDROID_INTERSTITIAL_UNIT_ID="your-android-interstitial-id"
+IOS_REWARDED_UNIT_ID="your-ios-rewarded-id"
+ANDROID_REWARDED_UNIT_ID="your-android-rewarded-id"
 ```
 
 ### 4. Firebase Configuration (Optional)
@@ -74,7 +78,15 @@ If using Firebase:
 2. Place `google-services.json` (Android) and `GoogleService-Info.plist` (iOS)
 3. These files are automatically excluded by .gitignore
 
-### 5. Run the Application
+### 5. Privacy & Compliance (iOS)
+- App Tracking Transparency (ATT) is enabled. On first launch, iOS may prompt for tracking authorization.
+- No additional setup is required beyond running the app on a real device.
+
+### 6. Firebase App Check (Optional)
+- App Check is activated in code (Android: Play Integrity, iOS: DeviceCheck in release; debug providers in debug builds).
+- Ensure corresponding providers are enabled in your Firebase project for production builds.
+
+### 7. Run the Application
 ```bash
 # Android
 flutter run
@@ -89,7 +101,7 @@ flutter run -d ios
 lib/
 ├── main.dart              # Application entry point
 ├── homepage.dart          # Main page
-├── buttons.dart           # Button settings page
+├── buttons.dart           # 1000 Buttons Challenge page
 ├── settings.dart          # Settings page
 ├── games_manager.dart     # Game services management
 ├── admob_banner.dart      # Advertisement management
@@ -122,8 +134,17 @@ assets/
 
 ### Floor Settings
 - Normal Mode: Standard floor numbers
-- 1000-Floor Mode: 1000-story building
+- 1000 Buttons Challenge: Speed challenge with large button grid
 - Shimada Mode: Special configuration
+
+## 🌐 Localization
+
+- ARB files live in `lib/l10n/` (en, es, fr, ja, ko, zh)
+- Configuration is managed by `l10n.yaml`
+- To add a language:
+  1. Create `app_xx.arb`
+  2. Add locale to `supportedLocales` if needed
+  3. Run `flutter pub get` and rebuild
 
 ## 📱 Supported Platforms
 
@@ -199,7 +220,7 @@ This app uses the following open-source libraries:
 - shared_preferences (BSD 3-Clause License)
 - flutter_dotenv (MIT License)
 - flutter_tts (BSD 3-Clause License)
-- audioplayers (MIT License)
+- just_audio (BSD 3-Clause License)
 - vibration (MIT License)
 - games_services (MIT License)
 - hooks_riverpod, flutter_hooks (MIT License)

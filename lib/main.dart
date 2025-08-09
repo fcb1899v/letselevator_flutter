@@ -21,6 +21,7 @@ import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'l10n/app_localizations.dart' show AppLocalizations;
 import 'firebase_options.dart';
 import 'games_manager.dart';
@@ -36,19 +37,13 @@ const isTest = false;
 
 // --- State Management Providers ---
 // Riverpod providers for app-wide state management
-// Shimada mode toggle for brand-specific features
 final isShimadaProvider = StateProvider<bool>((ref) => false);
-// Menu visibility state management
 final isMenuProvider = StateProvider<bool>((ref) => false);
-// Floor configuration and selection state
 final floorNumbersProvider = StateProvider<List<int>>((ref) => initialFloorNumbers);
 final floorStopsProvider = StateProvider<List<bool>>((ref) => initialFloorStops);
-// Button appearance and style configuration
 final buttonShapeProvider = StateProvider<String>((ref) => initialButtonShape);
 final buttonStyleProvider = StateProvider<int>((ref) => initialButtonStyle);
-// Background style configuration
 final backgroundStyleProvider = StateProvider<String>((ref) => initialBackgroundStyle);
-// Games sign-in state and best score tracking
 final gamesSignInProvider =  StateProvider<bool>((ref) => false);
 final bestScoreProvider = StateProvider<int>((ref) => 0);
 
@@ -56,8 +51,8 @@ final bestScoreProvider = StateProvider<int>((ref) => 0);
 // Main function for app initialization and configuration
 Future<void> main() async {
   // Initialize Flutter bindings for platform integration
-  WidgetsFlutterBinding.ensureInitialized();
-  
+  final widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
+  FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
   // --- Device Configuration ---
   // Set portrait orientation for consistent UI layout
   await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
@@ -70,11 +65,9 @@ Future<void> main() async {
     systemNavigationBarColor: Colors.transparent,
     systemNavigationBarIconBrightness: Brightness.light,
   ));
-  
   // --- Environment and Data Loading ---
   // Load environment variables from .env file
   await dotenv.load(fileName: "assets/.env");
-  
   // --- Shared Preferences Loading ---
   // Load saved user preferences and settings
   final prefs = await SharedPreferences.getInstance();
@@ -83,16 +76,13 @@ Future<void> main() async {
   final savedButtonShape = "buttonShapeKey".getSharedPrefString(prefs, initialButtonShape);
   final savedButtonStyle = "buttonStyleKey".getSharedPrefInt(prefs, initialButtonStyle);
   final savedBackgroundStyle = "backgroundStyleKey".getSharedPrefString(prefs, initialBackgroundStyle);
-  
   // --- Games Services Integration ---
   // Initialize games sign-in and load best score
   final isGamesSignIn = await gamesSignIn(false);
   final savedBestScore = await getBestScore(isGamesSignIn);
-
   // --- Firebase Configuration ---
   // Initialize Firebase with platform-specific options
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  
   // --- App Launch ---
   // Launch app with provider overrides for saved state
   runApp(ProviderScope(
@@ -107,28 +97,23 @@ Future<void> main() async {
     ],
     child: const MyApp())
   );
-
   // Activate Firebase App Check for security
   await FirebaseAppCheck.instance.activate(
     androidProvider: androidProvider,
     appleProvider: appleProvider,
   );
-  
   // --- Mobile Ads Initialization ---
   // Initialize Google Mobile Ads for monetization
   await MobileAds.instance.initialize();
-  
   // --- Privacy Configuration ---
   // Initialize App Tracking Transparency for iOS
   await initATTPlugin();
-
 }
 
 // --- Main Application Widget ---
 // Root application widget with configuration and routing
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
-  
   @override
   Widget build(BuildContext context) => MaterialApp(
     // --- UI Configuration ---
@@ -137,17 +122,14 @@ class MyApp extends StatelessWidget {
       data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1)),
       child: child!,
     ),
-    
     // --- Localization Configuration ---
     // Set up multi-language support with delegates and locales
     localizationsDelegates: AppLocalizations.localizationsDelegates,
     supportedLocales: AppLocalizations.supportedLocales,
-    
     // --- App Metadata ---
     title: appTitle,
     theme: ThemeData(primarySwatch: Colors.grey),
     debugShowCheckedModeBanner: false,
-    
     // --- Routing Configuration ---
     // Set initial route and define app navigation structure
     initialRoute: "/h",
@@ -156,7 +138,6 @@ class MyApp extends StatelessWidget {
       "/r": (context) => const ButtonsPage(),   // Button customization page
       "/s": (context) => const SettingsPage(),  // Settings and configuration page
     },
-    
     // --- Analytics and Navigation Observers ---
     // Firebase Analytics integration for user behavior tracking
     navigatorObservers: <NavigatorObserver>[

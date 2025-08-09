@@ -118,7 +118,7 @@ extension ContextExt on BuildContext {
   // --- Navigation & UI Basics ---
   // Core navigation and UI utility methods for screen management and responsive design
   void pushFadeReplacement(Widget page, {Duration duration = const Duration(milliseconds: 500)}) {
-    AudioManager().playEffectSound(index: 0, asset: changeModeSound, volume: 1.0);
+    AudioManager().playEffectSound(asset: changeModeSound, volume: 1.0);
     Navigator.pushReplacement(this, PageRouteBuilder(
       pageBuilder: (_, animation, __) => page,
       transitionsBuilder: (_, animation, __, child) => FadeTransition(
@@ -1068,7 +1068,7 @@ extension BoolExt on bool {
   // --- Menu Interaction ---
   // Menu button press handling with audio and vibration feedback
   Future<bool> pressedMenu() async {
-    await AudioManager().playEffectSound(index: 0, asset: selectButton, volume: 1.0);
+    await AudioManager().playEffectSound(asset: selectSound, volume: 0.8);
     await Vibration.vibrate(duration: vibTime, amplitude: vibAmp);
     return !this;
   }
@@ -1098,6 +1098,13 @@ extension ListBoolExt on List<bool> {
     false.openBackGround(this[0], buttonStyle),
     false.closeBackGround(this[1], buttonStyle),
     false.phoneBackGround(this[2], buttonStyle),
+  ];
+
+  // Update pressed lamp state; returns new list (index: 0=open, 1=close, 2=alert)
+  List<bool> setOperationButtonLamp(bool isOn, int i) => [
+    (i == 0) ? isOn: this[0],
+    (i == 1) ? isOn: this[1],
+    (i == 2) ? isOn: this[2],
   ];
 }
 

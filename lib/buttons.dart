@@ -83,7 +83,7 @@ class ButtonsPage extends HookConsumerWidget {
     // Handle app lifecycle changes (pause/inactive states)
     useEffect(() {
       if (lifecycle == AppLifecycleState.inactive || lifecycle == AppLifecycleState.paused) {
-        if (context.mounted) audioManager.stopAll();
+        if (context.mounted) audioManager.stopAudio();
       }
       return null;
     }, [lifecycle]);
@@ -101,7 +101,7 @@ class ButtonsPage extends HookConsumerWidget {
             isChallengeFinish.value = true;
             if (counter.value > bestScore) {
               // New best score achieved
-              audioManager.playEffectSound(index: 0, asset: bestScoreSound, volume: 1.0);
+              audioManager.playEffectSound(asset: bestScoreSound, volume: 1.0);
               ref.read(bestScoreProvider.notifier).state = counter.value;
               await gamesSubmitScore(bestScore, isGamesSignIn);
               final SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -112,8 +112,8 @@ class ButtonsPage extends HookConsumerWidget {
           } else if (isChallengeStart.value) {
             // Challenge countdown in progress
             currentSeconds.value = currentSeconds.value - 1;
-            if (currentSeconds.value < 4) audioManager.playEffectSound(index: 0, asset: countdown, volume: 1.0);
-            if (currentSeconds.value == 0) audioManager.playEffectSound(index: 0, asset: countdownFinish, volume: 1.0);
+            if (currentSeconds.value < 4) audioManager.playEffectSound(asset: countdown, volume: 1.0);
+            if (currentSeconds.value == 0) audioManager.playEffectSound(asset: countdownFinish, volume: 1.0);
           }
         });
         timer.cancel;
@@ -127,7 +127,7 @@ class ButtonsPage extends HookConsumerWidget {
     buttonSelected(int p, i, j) async {
       if (!isSelectedButtonsList.value[p][i][j] && !p.isTranspButton(i, j)) {
         if (!isChallengeStart.value) {
-          audioManager.playEffectSound(index: 0, asset: selectButton, volume: 1.0);
+          audioManager.playEffectSound(asset: selectSound, volume: 0.8);
           Vibration.vibrate(duration: vibTime, amplitude: vibAmp);
         }
         counter.value = counter.value + 1;
@@ -139,7 +139,7 @@ class ButtonsPage extends HookConsumerWidget {
     buttonDeSelected(int p, i, j) async {
       if (isSelectedButtonsList.value[p][i][j] && !p.isTranspButton(i, j)) {
         if (!isChallengeStart.value) {
-          audioManager.playEffectSound(index: 0, asset: cancelButton, volume: 1.0);
+          audioManager.playEffectSound(asset: cancelSound, volume: 1.0);
           Vibration.vibrate(duration: vibTime, amplitude: vibAmp);
         }
         counter.value = counter.value - 1;
@@ -150,14 +150,14 @@ class ButtonsPage extends HookConsumerWidget {
     // --- Challenge Logic ---
     // Pre-challenge countdown display
     beforeCountdown(int i) {
-      audioManager.playEffectSound(index: 0, asset: countdown, volume: 1.0);
+      audioManager.playEffectSound(asset: countdown, volume: 1.0);
       isBeforeCount.value = true;
       beforeCount.value = i;
     }
 
     // Finish pre-challenge countdown and start challenge
     finishBeforeCountdown() {
-      audioManager.playEffectSound(index: 0, asset: countdownFinish, volume: 1.0);
+      audioManager.playEffectSound(asset: countdownFinish, volume: 1.0);
       isDarkBack.value= false;
       isChallengeStart.value = true;
       currentSeconds.value = 30;
