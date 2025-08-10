@@ -58,11 +58,10 @@ Future<void> main() async {
   await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
   // Enable edge-to-edge display for modern UI
   await SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
-  // Configure transparent status bar and navigation
+  // Configure edge-to-edge display for Android 15+ compatibility
+  // Note: Removed deprecated statusBarColor and systemNavigationBarColor parameters
   SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
-    statusBarColor: Colors.transparent,
     statusBarIconBrightness: Brightness.light,
-    systemNavigationBarColor: Colors.transparent,
     systemNavigationBarIconBrightness: Brightness.light,
   ));
   // --- Environment and Data Loading ---

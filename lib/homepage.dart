@@ -122,33 +122,35 @@ class HomePage extends HookConsumerWidget {
     // Move elevator upward to target floor with speed calculation
     counterUp() async {
       if (!isMoving.value && isDoorState.value == closedState) {
-        isMoving.value = true;
-        int count = 0;
-        await ttsManager.speakText(context.upFloor(), true);
-        await Future.delayed(Duration(seconds: waitTime.value)).then((_) {
-          Future.forEach(counter.value.upFromToNumber(nextFloor.value), (int i) async {
-            await Future.delayed(Duration(milliseconds: i.elevatorSpeed(count, nextFloor.value))).then((_) async {
-              if (isMoving.value) {
-                count++;
-                if (counter.value < nextFloor.value && nextFloor.value < max + 1) counter.value = counter.value + 1;
-                if (counter.value == 0) counter.value = 1;
-                if (counter.value == nextFloor.value || counter.value == max) {
-                  if (context.mounted) ttsManager.speakText(context.openingSound(counter.value, isShimada), true);
-                  counter.value.clearLowerFloor(isAboveSelectedList.value, isUnderSelectedList.value);
-                  nextFloor.value = counter.value.upNextFloor(up: isAboveSelectedList.value, down: isUnderSelectedList.value);
-                  currentFloor.value = counter.value;
-                  "currentFloor: ${currentFloor.value}, nextFloor: ${nextFloor.value}".debugPrint();
-                  isMoving.value = false;
-                  isEmergency.value = false;
-                  audioManager.playEffectSound(asset: openSound, volume: 1.0);
-                  isDoorState.value = openingState;
-                  "isDoorState: ${isDoorState.value}".debugPrint();
+        await Future.delayed(Duration(seconds: waitTime.value)).then((_) async {
+          if (!isMoving.value && isDoorState.value == closedState) {
+            isMoving.value = true;
+            int count = 0;
+            if (context.mounted) await ttsManager.speakText(context.upFloor(), true);
+            Future.forEach(counter.value.upFromToNumber(nextFloor.value), (int i) async {
+              await Future.delayed(Duration(milliseconds: i.elevatorSpeed(count, nextFloor.value))).then((_) async {
+                if (isMoving.value) {
+                  count++;
+                  if (counter.value < nextFloor.value && nextFloor.value < max + 1) counter.value = counter.value + 1;
+                  if (counter.value == 0) counter.value = 1;
+                  if (counter.value == nextFloor.value || counter.value == max) {
+                    if (context.mounted) ttsManager.speakText(context.openingSound(counter.value, isShimada), true);
+                    counter.value.clearLowerFloor(isAboveSelectedList.value, isUnderSelectedList.value);
+                    nextFloor.value = counter.value.upNextFloor(up: isAboveSelectedList.value, down: isUnderSelectedList.value);
+                    currentFloor.value = counter.value;
+                    "currentFloor: ${currentFloor.value}, nextFloor: ${nextFloor.value}".debugPrint();
+                    isMoving.value = false;
+                    isEmergency.value = false;
+                    audioManager.playEffectSound(asset: openSound, volume: 1.0);
+                    isDoorState.value = openingState;
+                    "isDoorState: ${isDoorState.value}".debugPrint();
+                  }
+                } else {
+                  return;
                 }
-              } else {
-                return;
-              }
+              });
             });
-          });
+          }
         });
       }
     }
@@ -156,33 +158,35 @@ class HomePage extends HookConsumerWidget {
     // Move elevator downward to target floor with speed calculation
     counterDown() async {
       if (!isMoving.value && isDoorState.value == closedState) {
-        isMoving.value = true;
-        int count = 0;
-        await ttsManager.speakText(context.downFloor(), true);
-        await Future.delayed(Duration(seconds: waitTime.value)).then((_) {
-          Future.forEach(counter.value.downFromToNumber(nextFloor.value), (int i) async {
-            await Future.delayed(Duration(milliseconds: i.elevatorSpeed(count, nextFloor.value))).then((_) async {
-              if (isMoving.value) {
-                count++;
-                if (min - 1 < nextFloor.value && nextFloor.value < counter.value) counter.value = counter.value - 1;
-                if (counter.value == 0) counter.value = -1;
-                if (counter.value == nextFloor.value || counter.value == min) {
-                  if (context.mounted) ttsManager.speakText(context.openingSound(counter.value, isShimada), true);
-                  counter.value.clearUpperFloor(isAboveSelectedList.value, isUnderSelectedList.value);
-                  nextFloor.value = counter.value.downNextFloor(up: isAboveSelectedList.value, down: isUnderSelectedList.value);
-                  currentFloor.value = counter.value;
-                  "currentFloor: ${currentFloor.value}, nextFloor: ${nextFloor.value}".debugPrint();
-                  isMoving.value = false;
-                  isEmergency.value = false;
-                  audioManager.playEffectSound(asset: openSound, volume: 1.0);
-                  isDoorState.value = openingState;
-                  "isDoorState: ${isDoorState.value}".debugPrint();
+        await Future.delayed(Duration(seconds: waitTime.value)).then((_) async {
+          if (!isMoving.value && isDoorState.value == closedState) {
+            isMoving.value = true;
+            int count = 0;
+            if (context.mounted) await ttsManager.speakText(context.downFloor(), true);
+            Future.forEach(counter.value.downFromToNumber(nextFloor.value), (int i) async {
+              await Future.delayed(Duration(milliseconds: i.elevatorSpeed(count, nextFloor.value))).then((_) async {
+                if (isMoving.value) {
+                  count++;
+                  if (min - 1 < nextFloor.value && nextFloor.value < counter.value) counter.value = counter.value - 1;
+                  if (counter.value == 0) counter.value = -1;
+                  if (counter.value == nextFloor.value || counter.value == min) {
+                    if (context.mounted) ttsManager.speakText(context.openingSound(counter.value, isShimada), true);
+                    counter.value.clearUpperFloor(isAboveSelectedList.value, isUnderSelectedList.value);
+                    nextFloor.value = counter.value.downNextFloor(up: isAboveSelectedList.value, down: isUnderSelectedList.value);
+                    currentFloor.value = counter.value;
+                    "currentFloor: ${currentFloor.value}, nextFloor: ${nextFloor.value}".debugPrint();
+                    isMoving.value = false;
+                    isEmergency.value = false;
+                    audioManager.playEffectSound(asset: openSound, volume: 1.0);
+                    isDoorState.value = openingState;
+                    "isDoorState: ${isDoorState.value}".debugPrint();
+                  }
+                } else {
+                  return;
                 }
-              } else {
-                return;
-              }
+              });
             });
-          });
+          }
         });
       }
     }
@@ -254,10 +258,10 @@ class HomePage extends HookConsumerWidget {
     // Close elevator doors with state management and movement continuation
     doorsClosing() async {
       if (!isMoving.value && !isEmergency.value && isDoorState.value != closedState && isDoorState.value != closingState) {
+        await audioManager.playEffectSound(asset: closeSound, volume: 1.0);
+        if (context.mounted) await ttsManager.speakText(context.closeDoor(), true);
         isDoorState.value = closingState;
         "isDoorState: ${isDoorState.value}".debugPrint();
-        await ttsManager.speakText(context.closeDoor(), true);
-        audioManager.playEffectSound(asset: closeSound, volume: 1.0);
         await Future.delayed(Duration(seconds: waitTime.value)).then((_) {
           if (!isMoving.value && !isEmergency.value && isDoorState.value == closingState) {
             isDoorState.value = closedState;
@@ -274,7 +278,7 @@ class HomePage extends HookConsumerWidget {
     // Open, close, and alert button handling with state management
     // Handle open button press with door opening logic
     pressedOpenAction(bool isLongPressed) async {
-      if (!isPressedOperationButtons.value[0]) {
+      if (!isPressedOperationButtons.value[0] && !isMoving.value) {
         audioManager.playEffectSound(asset: selectSound, volume: 0.8);
         Vibration.vibrate(duration: vibTime, amplitude: vibAmp);
         if (!isMoving.value && !isEmergency.value) {

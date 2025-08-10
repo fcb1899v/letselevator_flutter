@@ -204,126 +204,126 @@ class ButtonsPage extends HookConsumerWidget {
             image: backgroundStyleList[0].backGroundImage()
           ),
           // Main content container with header and button panels
-          Column(children: [
-            const Spacer(flex: 3),
-            // --- Header Row ---
-            // Logo, challenge controls, and score counter
-            Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-              // 1000 buttons logo with leaderboard access
-              buttons.titleLogo(isGamesSignIn),
-              // Challenge countdown or start button
-              (isChallengeStart.value) ? GestureDetector(
-                onTap: () => challengeStop(),
-                child: buttons.challengeCountdown(currentSeconds.value),
-              // Challenge start button
-              ): GestureDetector(
-                onTap: () => challengeStart(),
-                child: buttons.challengeStartButton(),
-              ),
-              // Button counter display
-              buttons.buttonCounter(counter.value),
-            ]),
-            const Spacer(flex: 1),
-            // --- Button Panels ---
-            // Scrollable button panels with interactive viewer
-            SingleChildScrollView(
-              controller: ScrollController(),
-              scrollDirection: Axis.horizontal,
-              child: InteractiveViewer(
-                child: Row(children: [
-                  for(int p = 0; p < panelMax; p++) ... {
-                    Stack(children: [
-                      // Normal size buttons grid
-                      Column(children: List.generate(columnMax, (col) =>
-                        Row(children: List.generate(rowMax - rowMinus[p][col], (row) =>
-                          buttons.normalSizeButton(panel: p, row: row, col: col,
-                            isSelected: isSelectedButtonsList.value,
-                            select: (p, row, col) => buttonSelected(p, row, col),
-                            deSelect: (p, row, col) => buttonDeSelected(p, row, col),
-                          ),
-                        ))
-                      )),
-                      // Large circle button in panel 2
-                      if (p == 1) Row(children: [
-                        SizedBox(width: 1.9 * context.defaultButtonLength()),
-                        Column(children: [
-                          SizedBox(height: 5.9 * context.defaultButtonLength()),
-                          buttons.largeSizeButton(panel: 1, row: 2, col: 6,
-                            ratioW: 2.2, ratioH: 2.2,
-                            isSelected: isSelectedButtonsList.value,
-                            select: (p, row, col) => buttonSelected(1, 2, 6),
-                            deSelect: (p, row, col) => buttonDeSelected(1, 2, 6),
-                          ),
-                        ]),
-                      ]),
-                      // Long rectangle buttons in panel 3
-                      if (p == 3) Row(children: [
-                        SizedBox(width: 9 * context.defaultButtonLength()),
-                        Column(children: [
-                          SizedBox(height: 2 * context.defaultButtonLength()),
-                          ...List.generate(2, (i) =>
-                            buttons.largeSizeButton(panel: 3, row: 7 + 2 * i, col: 2 + 2 * i,
-                              ratioW: 1.0, ratioH: 1.5,
+          Column(mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              // --- Header Row ---
+              SizedBox(height: context.paddingTop()),
+              // Logo, challenge controls, and score counter
+              Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                // 1000 buttons logo with leaderboard access
+                buttons.titleLogo(isGamesSignIn),
+                // Challenge countdown or start button
+                (isChallengeStart.value) ? GestureDetector(
+                  onTap: () => challengeStop(),
+                  child: buttons.challengeCountdown(currentSeconds.value),
+                // Challenge start button
+                ): GestureDetector(
+                  onTap: () => challengeStart(),
+                  child: buttons.challengeStartButton(),
+                ),
+                // Button counter display
+                buttons.buttonCounter(counter.value),
+              ]),
+              // --- Button Panels ---
+              // Scrollable button panels with interactive viewer
+              SingleChildScrollView(
+                controller: ScrollController(),
+                scrollDirection: Axis.horizontal,
+                child: InteractiveViewer(
+                  child: Row(children: [
+                    for(int p = 0; p < panelMax; p++) ... {
+                      Stack(children: [
+                        // Normal size buttons grid
+                        Column(children: List.generate(columnMax, (col) =>
+                          Row(children: List.generate(rowMax - rowMinus[p][col], (row) =>
+                            buttons.normalSizeButton(panel: p, row: row, col: col,
                               isSelected: isSelectedButtonsList.value,
-                              select: (p, r, c) => buttonSelected(3, 7 + 2 * i, 2 + 2 * i),
-                              deSelect: (p, r, c) => buttonDeSelected(3, 7 + 2 * i, 2 + 2 * i),
+                              select: (p, row, col) => buttonSelected(p, row, col),
+                              deSelect: (p, row, col) => buttonDeSelected(p, row, col),
                             ),
-                          ),
-                        ]),
-                      ]),
-                      // Large circle buttons in panel 4
-                      if (p == 4) Row(children: [
-                        SizedBox(width: 6.1 * context.defaultButtonLength()),
-                        Column(children: [
-                          SizedBox(height: 5.8 * context.defaultButtonLength()),
-                          Row(children: List.generate(2, (i) =>
-                            buttons.largeSizeButton(panel: 4, row: 6 + i, col: 6,
-                              ratioW: 1.4, ratioH: 1.4,
+                          ))
+                        )),
+                        // Large circle button in panel 2
+                        if (p == 1) Row(children: [
+                          SizedBox(width: 1.9 * context.defaultButtonLength()),
+                          Column(children: [
+                            SizedBox(height: 5.9 * context.defaultButtonLength()),
+                            buttons.largeSizeButton(panel: 1, row: 2, col: 6,
+                              ratioW: 2.2, ratioH: 2.2,
                               isSelected: isSelectedButtonsList.value,
-                              select: (p, r, c) => buttonSelected(4, 6 + i, 6),
-                              deSelect: (p, r, c) => buttonDeSelected(4, 6 + i, 6),
+                              select: (p, row, col) => buttonSelected(1, 2, 6),
+                              deSelect: (p, row, col) => buttonDeSelected(1, 2, 6),
                             ),
-                          )),
+                          ]),
+                        ]),
+                        // Long rectangle buttons in panel 3
+                        if (p == 3) Row(children: [
+                          SizedBox(width: 9 * context.defaultButtonLength()),
+                          Column(children: [
+                            SizedBox(height: 2 * context.defaultButtonLength()),
+                            ...List.generate(2, (i) =>
+                              buttons.largeSizeButton(panel: 3, row: 7 + 2 * i, col: 2 + 2 * i,
+                                ratioW: 1.0, ratioH: 1.5,
+                                isSelected: isSelectedButtonsList.value,
+                                select: (p, r, c) => buttonSelected(3, 7 + 2 * i, 2 + 2 * i),
+                                deSelect: (p, r, c) => buttonDeSelected(3, 7 + 2 * i, 2 + 2 * i),
+                              ),
+                            ),
+                          ]),
+                        ]),
+                        // Large circle buttons in panel 4
+                        if (p == 4) Row(children: [
+                          SizedBox(width: 6.1 * context.defaultButtonLength()),
+                          Column(children: [
+                            SizedBox(height: 5.8 * context.defaultButtonLength()),
+                            Row(children: List.generate(2, (i) =>
+                              buttons.largeSizeButton(panel: 4, row: 6 + i, col: 6,
+                                ratioW: 1.4, ratioH: 1.4,
+                                isSelected: isSelectedButtonsList.value,
+                                select: (p, r, c) => buttonSelected(4, 6 + i, 6),
+                                deSelect: (p, r, c) => buttonDeSelected(4, 6 + i, 6),
+                              ),
+                            )),
+                          ]),
+                        ]),
+                        // Large up buttons in panel 4
+                        if (p == 4) Row(children: [
+                          SizedBox(width: 5.35 * context.defaultButtonLength()),
+                          Column(children: [
+                            SizedBox(height: 1.85 * context.defaultButtonLength()),
+                            buttons.largeSizeButton(panel: 4, row: 5, col: 2,
+                              ratioW: 1.3, ratioH: 1.3,
+                              isSelected: isSelectedButtonsList.value,
+                              select: (p, row, col) => buttonSelected(4, 5, 2),
+                              deSelect: (p, row, col) => buttonDeSelected(4, 5, 2),
+                            )
+                          ]),
+                        ]),
+                        // Large down buttons in panel 4
+                        if (p == 4) Row(children: [
+                          SizedBox(width: 1.35 * context.defaultButtonLength()),
+                          Column(children: [
+                            SizedBox(height: 4.85 * context.defaultButtonLength()),
+                            buttons.largeSizeButton(panel: 4, row: 1, col: 5,
+                              ratioW: 1.3, ratioH: 1.3,
+                              isSelected: isSelectedButtonsList.value,
+                              select: (p, row, col) => buttonSelected(4, 1, 5),
+                              deSelect: (p, row, col) => buttonDeSelected(4, 1, 5),
+                            ),
+                          ]),
                         ]),
                       ]),
-                      // Large up buttons in panel 4
-                      if (p == 4) Row(children: [
-                        SizedBox(width: 5.35 * context.defaultButtonLength()),
-                        Column(children: [
-                          SizedBox(height: 1.85 * context.defaultButtonLength()),
-                          buttons.largeSizeButton(panel: 4, row: 5, col: 2,
-                            ratioW: 1.3, ratioH: 1.3,
-                            isSelected: isSelectedButtonsList.value,
-                            select: (p, row, col) => buttonSelected(4, 5, 2),
-                            deSelect: (p, row, col) => buttonDeSelected(4, 5, 2),
-                          )
-                        ]),
-                      ]),
-                      // Large down buttons in panel 4
-                      if (p == 4) Row(children: [
-                        SizedBox(width: 1.35 * context.defaultButtonLength()),
-                        Column(children: [
-                          SizedBox(height: 4.85 * context.defaultButtonLength()),
-                          buttons.largeSizeButton(panel: 4, row: 1, col: 5,
-                            ratioW: 1.3, ratioH: 1.3,
-                            isSelected: isSelectedButtonsList.value,
-                            select: (p, row, col) => buttonSelected(4, 1, 5),
-                            deSelect: (p, row, col) => buttonDeSelected(4, 1, 5),
-                          ),
-                        ]),
-                      ]),
-                    ]),
-                    // Panel divider for visual separation
-                    if (p != panelMax - 1) buttons.panelDivider(),
-                  },
-                ]),
+                      // Panel divider for visual separation
+                      if (p != panelMax - 1) buttons.panelDivider(),
+                    },
+                  ]),
+                ),
               ),
-            ),
-            const Spacer(flex: 1),
-            // Ad space reservation
-            SizedBox(height: context.admobHeight()),
-          ]),
+              // Ad space reservation
+              SizedBox(height: context.admobHeight()),
+            ]
+          ),
           // --- Overlay Elements ---
           // Challenge overlay with countdown and results
           if (isDarkBack.value) Container(
@@ -335,29 +335,27 @@ class ButtonsPage extends HookConsumerWidget {
                 // Pre-challenge countdown display
                 if (isBeforeCount.value) buttons.startCountdown(beforeCount.value),
                 // Challenge result display
-                if (isChallengeFinish.value) Column(mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    const Spacer(flex: 3),
-                    // Challenge result title
-                    buttons.resultTitle(),
-                    const Spacer(flex: 1),
-                    // Challenge result score
-                    buttons.resultScore(counter.value),
-                    const Spacer(flex: 1),
-                    // Challenge best score
-                    buttons.resultBestScore(bestScore),
-                    const Spacer(flex: 2),
-                    Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        // Ranking button
-                        buttons.resultRankingButton(isGamesSignIn),
-                        // Back button
-                        buttons.resultBackButton(onBack: () => back1000Buttons()),
-                      ]
-                    ),
-                    const Spacer(flex: 5),
-                  ]
-                ),
+                if (isChallengeFinish.value) Column(children: [
+                  const Spacer(flex: 3),
+                  // Challenge result title
+                  buttons.resultTitle(),
+                  const Spacer(flex: 1),
+                  // Challenge result score
+                  buttons.resultScore(counter.value),
+                  const Spacer(flex: 1),
+                  // Challenge best score
+                  buttons.resultBestScore(bestScore),
+                  const Spacer(flex: 2),
+                  Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      // Ranking button
+                      buttons.resultRankingButton(isGamesSignIn),
+                      // Back button
+                      buttons.resultBackButton(onBack: () => back1000Buttons()),
+                    ]
+                  ),
+                  const Spacer(flex: 5),
+                ]),
               ]
             ),
           ),

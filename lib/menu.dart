@@ -132,48 +132,51 @@ class MenuPage extends HookConsumerWidget {
     // --- UI Layout ---
     // Main menu interface layout with responsive design
     return Scaffold(
+      backgroundColor: blackColor,
       appBar: menu.menuAppBar(),
-      body: Stack(alignment: Alignment.topCenter,
-        children: [
-          // Background image with responsive sizing
-          common.commonBackground(
-            width: context.width(),
-            image: backgroundStyleList[0].backGroundImage(),
-          ),
-          // Main content container with menu buttons and links
-          Column(children: [
-            const Spacer(flex: 1),
-            // --- Menu Buttons Grid ---
-            // Dynamic menu button grid with gesture handling
-            ...context.menuButtons(isHome, isShimada, isGamesSignIn).asMap().entries.map((row) => Column(children: [
-              Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: row.value.asMap().entries.map((col) => Row(children: [
-                  GestureDetector(
-                    onTap: () =>  pressedMenuLink(2 * row.key + col.key),
-                    child: SizedBox(
-                      width: context.menuButtonSize(),
-                      height: context.menuButtonSize(),
-                      child: Image.asset(col.value),
-                    ),
-                  ),
-                ])).toList(),
-              ),
-              if (row.key == 0) SizedBox(height: context.menuButtonMargin()),
-            ])),
-            const Spacer(flex: 1),
-            // --- Bottom Navigation Links ---
-            // External links and social media navigation
-            menu.menuBottomLinks(),
-            // Ad space reservation
-            Container(
-              color: blackColor,
-              height: context.admobHeight(),
+      body: SafeArea(
+        child: Stack(alignment: Alignment.topCenter,
+          children: [
+            // Background image with responsive sizing
+            common.commonBackground(
+              width: context.width(),
+              image: backgroundStyleList[0].backGroundImage(),
             ),
-          ]),
-          // --- Overlay Elements ---
-          // Loading indicator during data initialization
-          if (isLoadingData.value) common.commonCircularProgressIndicator(),
-        ]
+            // Main content container with menu buttons and links
+            Column(children: [
+              const Spacer(flex: 1),
+              // --- Menu Buttons Grid ---
+              // Dynamic menu button grid with gesture handling
+              ...context.menuButtons(isHome, isShimada, isGamesSignIn).asMap().entries.map((row) => Column(children: [
+                Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: row.value.asMap().entries.map((col) => Row(children: [
+                    GestureDetector(
+                      onTap: () =>  pressedMenuLink(2 * row.key + col.key),
+                      child: SizedBox(
+                        width: context.menuButtonSize(),
+                        height: context.menuButtonSize(),
+                        child: Image.asset(col.value),
+                      ),
+                    ),
+                  ])).toList(),
+                ),
+                if (row.key == 0) SizedBox(height: context.menuButtonMargin()),
+              ])),
+              const Spacer(flex: 1),
+              // --- Bottom Navigation Links ---
+              // External links and social media navigation
+              menu.menuBottomLinks(),
+              // Ad space reservation
+              Container(
+                color: blackColor,
+                height: context.admobHeight(),
+              ),
+            ]),
+            // --- Overlay Elements ---
+            // Loading indicator during data initialization
+            if (isLoadingData.value) common.commonCircularProgressIndicator(),
+          ]
+        ),
       ),
     );
   }

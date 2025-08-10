@@ -6,14 +6,14 @@
              Flutter draws its first frame -->
         <item name="android:windowBackground">@drawable/launch_background</item>
         <item name="android:windowFullscreen">false</item>
-        <!-- Edge-to-edge display support for Android 15+ -->
+        <item name="android:windowSplashScreenBackground">#f7b249</item>
+        <!-- Enable edge-to-edge display for Android 15+ -->
         <item name="android:windowLayoutInDisplayCutoutMode">shortEdges</item>
-        <item name="android:navigationBarColor">@android:color/transparent</item>
-        <item name="android:statusBarColor">@android:color/transparent</item>
-        <!-- Additional edge-to-edge support for older Android versions -->
-        <item name="android:windowTranslucentStatus">false</item>
-        <item name="android:windowTranslucentNavigation">false</item>
-        <item name="android:fitsSystemWindows">false</item>
+        <item name="android:enforceNavigationBarContrast">false</item>
+        <item name="android:enforceStatusBarContrast">false</item>
+        <!-- Android 15+ edge-to-edge support -->
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:windowLightNavigationBar">true</item>
     </style>
     <!-- Theme applied to the Android Window as soon as the process has started.
          This theme determines the color of the Android Window while your
@@ -23,13 +23,12 @@
          This Theme is only used starting with V2 of Flutter's Android embedding. -->
     <style name="NormalTheme" parent="@android:style/Theme.Light.NoTitleBar">
         <item name="android:windowBackground">?android:colorBackground</item>
-        <!-- Edge-to-edge display support for Android 15+ -->
+        <!-- Enable edge-to-edge display for Android 15+ -->
         <item name="android:windowLayoutInDisplayCutoutMode">shortEdges</item>
-        <item name="android:navigationBarColor">@android:color/transparent</item>
-        <item name="android:statusBarColor">@android:color/transparent</item>
-        <!-- Additional edge-to-edge support for older Android versions -->
-        <item name="android:windowTranslucentStatus">false</item>
-        <item name="android:windowTranslucentNavigation">false</item>
-        <item name="android:fitsSystemWindows">false</item>
+        <item name="android:enforceNavigationBarContrast">false</item>
+        <item name="android:enforceStatusBarContrast">false</item>
+        <!-- Android 15+ edge-to-edge support -->
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:windowLightNavigationBar">true</item>
     </style>
 </resources>

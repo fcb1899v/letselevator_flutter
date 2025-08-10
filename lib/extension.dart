@@ -136,6 +136,7 @@ extension ContextExt on BuildContext {
 
   double width() => MediaQuery.of(this).size.width;
   double height() => MediaQuery.of(this).size.height;
+  double paddingTop() => MediaQuery.of(this).padding.top;
   String lang() => Localizations.localeOf(this).languageCode;
   String font() =>
       (lang() == "ja") ? "notoJP":

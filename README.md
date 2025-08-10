@@ -100,18 +100,25 @@ flutter run -d ios
 ```
 lib/
 ├── main.dart              # Application entry point
-├── homepage.dart          # Main page
+├── homepage.dart          # Main elevator simulator interface
+├── menu.dart              # Main menu interface
 ├── buttons.dart           # 1000 Buttons Challenge page
 ├── settings.dart          # Settings page
+├── audio_manager.dart     # Audio management
+├── tts_manager.dart       # TTS management
 ├── games_manager.dart     # Game services management
-├── admob_banner.dart      # Advertisement management
+├── floor_manager.dart     # Floor management
+├── common_widget.dart     # Common widgets
 ├── constant.dart          # Constant definitions
 ├── extension.dart         # Extension functions
+├── admob_banner.dart      # Banner advertisements
 └── l10n/                  # Localization
     ├── app_en.arb
     ├── app_ja.arb
     ├── app_ko.arb
-    └── app_zh.arb
+    ├── app_zh.arb
+    ├── app_fr.arb
+    └── app_es.arb
 
 assets/
 ├── images/                # Image resources
@@ -141,6 +148,7 @@ assets/
 
 - ARB files live in `lib/l10n/` (en, es, fr, ja, ko, zh)
 - Configuration is managed by `l10n.yaml`
+- Supported languages: English, Spanish, French, Japanese, Korean, Chinese
 - To add a language:
   1. Create `app_xx.arb`
   2. Add locale to `supportedLocales` if needed

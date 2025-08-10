@@ -3,16 +3,14 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 54;
+	objectVersion = 60;
 	objects = {
 
 /* Begin PBXBuildFile section */
 		02350F4B26A26BD9006EB35A /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 02350F4D26A26BD9006EB35A /* InfoPlist.strings */; };
 		026E062A2BD3E9AD00DB39F0 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 026E06292BD3E9AD00DB39F0 /* GoogleService-Info.plist */; };
-		026E06332BD3EC8300DB39F0 /* Main.strings 21-10-12-719.strings in Resources */ = {isa = PBXBuildFile; fileRef = 026E062B2BD3EC8200DB39F0 /* Main.strings 21-10-12-719.strings */; };
 		026E06362BD3EC8300DB39F0 /* Main.strings in Resources */ = {isa = PBXBuildFile; fileRef = 026E062E2BD3EC8200DB39F0 /* Main.strings */; };
 		026E06372BD3EC8300DB39F0 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 026E062F2BD3EC8300DB39F0 /* Main.storyboard */; };
-		026E06392BD3EC8300DB39F0 /* Main.strings 21-10-12-727.strings in Resources */ = {isa = PBXBuildFile; fileRef = 026E06312BD3EC8300DB39F0 /* Main.strings 21-10-12-727.strings */; };
 		02CB029128B83FD2008F291C /* GameKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 02CB029028B83FD2008F291C /* GameKit.framework */; };
 		1498D2341E8E89220040F4C2 /* GeneratedPluginRegistrant.m in Sources */ = {isa = PBXBuildFile; fileRef = 1498D2331E8E89220040F4C2 /* GeneratedPluginRegistrant.m */; };
 		3B3967161E833CAA004F5970 /* AppFrameworkInfo.plist in Resources */ = {isa = PBXBuildFile; fileRef = 3B3967151E833CAA004F5970 /* AppFrameworkInfo.plist */; };
@@ -41,10 +39,8 @@
 		026B450B2E1DD6A5006A6A31 /* fr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fr; path = fr.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		026B450C2E1DD6AE006A6A31 /* es */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = es; path = es.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		026E06292BD3E9AD00DB39F0 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
-		026E062B2BD3EC8200DB39F0 /* Main.strings 21-10-12-719.strings */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.strings; path = "Main.strings 21-10-12-719.strings"; sourceTree = "<group>"; };
 		026E062E2BD3EC8200DB39F0 /* Main.strings */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.strings; path = Main.strings; sourceTree = "<group>"; };
 		026E062F2BD3EC8300DB39F0 /* Main.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Main.storyboard; sourceTree = "<group>"; };
-		026E06312BD3EC8300DB39F0 /* Main.strings 21-10-12-727.strings */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.strings; path = "Main.strings 21-10-12-727.strings"; sourceTree = "<group>"; };
 		02822A4C2773F14E00A86F3B /* ko */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ko; path = ko.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		02CB029028B83FD2008F291C /* GameKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GameKit.framework; path = System/Library/Frameworks/GameKit.framework; sourceTree = SDKROOT; };
 		02D7B04D2BD3D75D00AA09F0 /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/InfoPlist.strings"; sourceTree = "<group>"; };
@@ -135,8 +131,6 @@
 				97C146FD1CF9000F007C117D /* Assets.xcassets */,
 				026E062F2BD3EC8300DB39F0 /* Main.storyboard */,
 				026E062E2BD3EC8200DB39F0 /* Main.strings */,
-				026E062B2BD3EC8200DB39F0 /* Main.strings 21-10-12-719.strings */,
-				026E06312BD3EC8300DB39F0 /* Main.strings 21-10-12-727.strings */,
 				97C147021CF9000F007C117D /* Info.plist */,
 				026E06292BD3E9AD00DB39F0 /* GoogleService-Info.plist */,
 				1498D2321E8E86230040F4C2 /* GeneratedPluginRegistrant.h */,
@@ -217,10 +211,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				026E06392BD3EC8300DB39F0 /* Main.strings 21-10-12-727.strings in Resources */,
 				02350F4B26A26BD9006EB35A /* InfoPlist.strings in Resources */,
 				026E06362BD3EC8300DB39F0 /* Main.strings in Resources */,
-				026E06332BD3EC8300DB39F0 /* Main.strings 21-10-12-719.strings in Resources */,
 				3B3967161E833CAA004F5970 /* AppFrameworkInfo.plist in Resources */,
 				026E06372BD3EC8300DB39F0 /* Main.storyboard in Resources */,
 				97C146FE1CF9000F007C117D /* Assets.xcassets in Resources */,
@@ -239,9 +231,13 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-Runner/Pods-Runner-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
+			inputPaths = (
+			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-Runner/Pods-Runner-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -294,9 +290,13 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-Runner/Pods-Runner-resources-${CONFIGURATION}-input-files.xcfilelist",
 			);
+			inputPaths = (
+			);
 			name = "[CP] Copy Pods Resources";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-Runner/Pods-Runner-resources-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -408,7 +408,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = Runner/Runner.entitlements;
-				CURRENT_PROJECT_VERSION = 91;
+				CURRENT_PROJECT_VERSION = 94;
 				DEVELOPMENT_TEAM = P3MMV68RR4;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = Runner/Info.plist;
@@ -419,7 +419,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.5.10;
+				MARKETING_VERSION = 1.5.13;
 				PRODUCT_BUNDLE_IDENTIFIER = nakajimamasao.appstudio.letselevator;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = "Runner/Runner-Bridging-Header.h";
@@ -546,7 +546,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = Runner/Runner.entitlements;
-				CURRENT_PROJECT_VERSION = 91;
+				CURRENT_PROJECT_VERSION = 94;
 				DEVELOPMENT_TEAM = P3MMV68RR4;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = Runner/Info.plist;
@@ -557,7 +557,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.5.10;
+				MARKETING_VERSION = 1.5.13;
 				PRODUCT_BUNDLE_IDENTIFIER = nakajimamasao.appstudio.letselevator;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = "Runner/Runner-Bridging-Header.h";
@@ -574,7 +574,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = Runner/Runner.entitlements;
-				CURRENT_PROJECT_VERSION = 91;
+				CURRENT_PROJECT_VERSION = 94;
 				DEVELOPMENT_TEAM = P3MMV68RR4;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = Runner/Info.plist;
@@ -585,7 +585,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.5.10;
+				MARKETING_VERSION = 1.5.13;
 				PRODUCT_BUNDLE_IDENTIFIER = nakajimamasao.appstudio.letselevator;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = "Runner/Runner-Bridging-Header.h";
