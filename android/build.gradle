@@ -1,21 +1,20 @@
+// Root build file for Gradle 8.14.4
 allprojects {
     repositories {
         google()
         mavenCentral()
     }
     gradle.projectsEvaluated {
-        tasks.withType(JavaCompile) {
-            options.compilerArgs << "-Xlint:deprecation"
-            options.compilerArgs << '-Xlint:unchecked'
+        tasks.withType(JavaCompile).configureEach {
+            options.compilerArgs << "-Xlint:deprecation" << "-Xlint:unchecked"
         }
     }
 }
 
-
-rootProject.buildDir = '../build'
+rootProject.buildDir = "../build"
 subprojects {
     project.buildDir = "${rootProject.buildDir}/${project.name}"
-    project.evaluationDependsOn(':app')
+    project.evaluationDependsOn(":app")
 }
 
 tasks.register("clean", Delete) {

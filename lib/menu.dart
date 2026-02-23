@@ -58,8 +58,8 @@ class MenuPage extends HookConsumerWidget {
     initState() async {
       isLoadingData.value = true;
       try {
-        ref.read(gamesSignInProvider.notifier).state = await gamesSignIn(isGamesSignIn);
-        ref.read(bestScoreProvider.notifier).state = await getBestScore(isGamesSignIn);
+        ref.read(gamesSignInProvider.notifier).update(await gamesSignIn(isGamesSignIn));
+        ref.read(bestScoreProvider.notifier).update(await getBestScore(isGamesSignIn));
         isLoadingData.value = false;
       } catch (e) {
         "Error: $e".debugPrint();
@@ -92,9 +92,9 @@ class MenuPage extends HookConsumerWidget {
       final savedFloorNumbers = "numbersKey".getSharedPrefListInt(prefs, initialFloorNumbers);
       final savedFloorStops = "stopsKey".getSharedPrefListBool(prefs, initialFloorStops);
       final savedButtonStyle = "buttonStyleKey".getSharedPrefInt(prefs, initialButtonStyle);
-      ref.read(floorNumbersProvider.notifier).update((state) => isShimada ? initialFloorNumbers: savedFloorNumbers);
-      ref.read(floorStopsProvider.notifier).update((state) => isShimada ? initialFloorStops: savedFloorStops);
-      ref.read(buttonStyleProvider.notifier).update((state) => isShimada ? 0: savedButtonStyle);
+      ref.read(floorNumbersProvider.notifier).update(isShimada ? initialFloorNumbers : savedFloorNumbers);
+      ref.read(floorStopsProvider.notifier).update(isShimada ? initialFloorStops : savedFloorStops);
+      ref.read(buttonStyleProvider.notifier).update(isShimada ? 0 : savedButtonStyle);
     }
 
     // --- Menu Navigation Logic ---
@@ -106,27 +106,27 @@ class MenuPage extends HookConsumerWidget {
       if (i == 0) {
         // Toggle Shimada mode and return to home
         await getSavedData(!isShimada);
-        ref.read(isShimadaProvider.notifier).update((state) => !state);
+        ref.read(isShimadaProvider.notifier).update(!isShimada);
         if (context.mounted) context.pushFadeReplacement(HomePage());
       } else if (i == 1) {
         // Navigate to buttons page or show leaderboard
         await getSavedData(false);
-        ref.read(isShimadaProvider.notifier).update((state) => true);
+        ref.read(isShimadaProvider.notifier).update(true);
         (!isHome && isGamesSignIn) ? await gamesShowLeaderboard(isGamesSignIn):
         (context.mounted) ? context.pushFadeReplacement(ButtonsPage()): null;
       } else if (i == 2) {
         // Navigate to settings page
         await getSavedData(false);
-        ref.read(isShimadaProvider.notifier).update((state) => true);
+        ref.read(isShimadaProvider.notifier).update(true);
         if (context.mounted) context.pushFadeReplacement(SettingsPage());
       } else if (i == 3) {
         // Return to home and launch external link
         await getSavedData(false);
-        ref.read(isShimadaProvider.notifier).update((state) => false);
+        ref.read(isShimadaProvider.notifier).update(false);
         if (context.mounted) context.pushFadeReplacement(HomePage());
         if (context.mounted) launchUrl(Uri.parse(context.shimaxLink()));
       }
-      ref.read(isMenuProvider.notifier).state = false;
+      ref.read(isMenuProvider.notifier).update(false);
     }
 
     // --- UI Layout ---

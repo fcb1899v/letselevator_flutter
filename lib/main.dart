@@ -36,16 +36,109 @@ import 'settings.dart';
 const isTest = false;
 
 // --- State Management Providers ---
+// Initial values for provider overrides (set in main() before runApp)
+List<int>? _overrideFloorNumbers;
+List<bool>? _overrideFloorStops;
+int? _overrideButtonStyle;
+String? _overrideButtonShape;
+String? _overrideBackgroundStyle;
+bool? _overrideGamesSignIn;
+int? _overrideBestScore;
+
+// Notifier classes for app-wide state (Riverpod 3 Notifier API)
+// Each notifier exposes an update method for external state changes.
+class IsShimadaNotifier extends Notifier<bool> {
+  @override
+  bool build() => false;
+  void update(bool value) => state = value;
+}
+
+class IsMenuNotifier extends Notifier<bool> {
+  @override
+  bool build() => false;
+  void update(bool value) => state = value;
+}
+
+class FloorNumbersNotifier extends Notifier<List<int>> {
+  @override
+  List<int> build() {
+    final override = _overrideFloorNumbers;
+    _overrideFloorNumbers = null;
+    return override ?? initialFloorNumbers;
+  }
+  void update(List<int> value) => state = value;
+}
+
+class FloorStopsNotifier extends Notifier<List<bool>> {
+  @override
+  List<bool> build() {
+    final override = _overrideFloorStops;
+    _overrideFloorStops = null;
+    return override ?? initialFloorStops;
+  }
+  void update(List<bool> value) => state = value;
+}
+
+class ButtonShapeNotifier extends Notifier<String> {
+  @override
+  String build() {
+    final override = _overrideButtonShape;
+    _overrideButtonShape = null;
+    return override ?? initialButtonShape;
+  }
+  void update(String value) => state = value;
+}
+
+class ButtonStyleNotifier extends Notifier<int> {
+  @override
+  int build() {
+    final override = _overrideButtonStyle;
+    _overrideButtonStyle = null;
+    return override ?? initialButtonStyle;
+  }
+  void update(int value) => state = value;
+}
+
+class BackgroundStyleNotifier extends Notifier<String> {
+  @override
+  String build() {
+    final override = _overrideBackgroundStyle;
+    _overrideBackgroundStyle = null;
+    return override ?? initialBackgroundStyle;
+  }
+  void update(String value) => state = value;
+}
+
+class GamesSignInNotifier extends Notifier<bool> {
+  @override
+  bool build() {
+    final override = _overrideGamesSignIn;
+    _overrideGamesSignIn = null;
+    return override ?? false;
+  }
+  void update(bool value) => state = value;
+}
+
+class BestScoreNotifier extends Notifier<int> {
+  @override
+  int build() {
+    final override = _overrideBestScore;
+    _overrideBestScore = null;
+    return override ?? 0;
+  }
+  void update(int value) => state = value;
+}
+
 // Riverpod providers for app-wide state management
-final isShimadaProvider = StateProvider<bool>((ref) => false);
-final isMenuProvider = StateProvider<bool>((ref) => false);
-final floorNumbersProvider = StateProvider<List<int>>((ref) => initialFloorNumbers);
-final floorStopsProvider = StateProvider<List<bool>>((ref) => initialFloorStops);
-final buttonShapeProvider = StateProvider<String>((ref) => initialButtonShape);
-final buttonStyleProvider = StateProvider<int>((ref) => initialButtonStyle);
-final backgroundStyleProvider = StateProvider<String>((ref) => initialBackgroundStyle);
-final gamesSignInProvider =  StateProvider<bool>((ref) => false);
-final bestScoreProvider = StateProvider<int>((ref) => 0);
+final isShimadaProvider = NotifierProvider<IsShimadaNotifier, bool>(IsShimadaNotifier.new);
+final isMenuProvider = NotifierProvider<IsMenuNotifier, bool>(IsMenuNotifier.new);
+final floorNumbersProvider = NotifierProvider<FloorNumbersNotifier, List<int>>(FloorNumbersNotifier.new);
+final floorStopsProvider = NotifierProvider<FloorStopsNotifier, List<bool>>(FloorStopsNotifier.new);
+final buttonShapeProvider = NotifierProvider<ButtonShapeNotifier, String>(ButtonShapeNotifier.new);
+final buttonStyleProvider = NotifierProvider<ButtonStyleNotifier, int>(ButtonStyleNotifier.new);
+final backgroundStyleProvider = NotifierProvider<BackgroundStyleNotifier, String>(BackgroundStyleNotifier.new);
+final gamesSignInProvider = NotifierProvider<GamesSignInNotifier, bool>(GamesSignInNotifier.new);
+final bestScoreProvider = NotifierProvider<BestScoreNotifier, int>(BestScoreNotifier.new);
 
 // --- Application Entry Point ---
 // Main function for app initialization and configuration
@@ -83,23 +176,30 @@ Future<void> main() async {
   // Initialize Firebase with platform-specific options
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   // --- App Launch ---
-  // Launch app with provider overrides for saved state
+  // Set initial state overrides for Notifiers (read in each Notifier.build())
+  _overrideFloorNumbers = savedFloorNumbers;
+  _overrideFloorStops = savedFloorStops;
+  _overrideButtonStyle = savedButtonStyle;
+  _overrideButtonShape = savedButtonShape;
+  _overrideBackgroundStyle = savedBackgroundStyle;
+  _overrideGamesSignIn = isGamesSignIn;
+  _overrideBestScore = savedBestScore;
   runApp(ProviderScope(
     overrides: [
-      floorNumbersProvider.overrideWith((ref) => savedFloorNumbers),
-      floorStopsProvider.overrideWith((ref) => savedFloorStops),
-      buttonStyleProvider.overrideWith((ref) => savedButtonStyle),
-      buttonShapeProvider.overrideWith((ref) => savedButtonShape),
-      backgroundStyleProvider.overrideWith((ref) => savedBackgroundStyle),
-      gamesSignInProvider.overrideWith((ref) => isGamesSignIn),
-      bestScoreProvider.overrideWith((ref) => savedBestScore),
+      floorNumbersProvider.overrideWith(FloorNumbersNotifier.new),
+      floorStopsProvider.overrideWith(FloorStopsNotifier.new),
+      buttonStyleProvider.overrideWith(ButtonStyleNotifier.new),
+      buttonShapeProvider.overrideWith(ButtonShapeNotifier.new),
+      backgroundStyleProvider.overrideWith(BackgroundStyleNotifier.new),
+      gamesSignInProvider.overrideWith(GamesSignInNotifier.new),
+      bestScoreProvider.overrideWith(BestScoreNotifier.new),
     ],
     child: const MyApp())
   );
   // Activate Firebase App Check for security
   await FirebaseAppCheck.instance.activate(
-    androidProvider: androidProvider,
-    appleProvider: appleProvider,
+    providerAndroid: androidAppCheckProvider,
+    providerApple: appleAppCheckProvider,
   );
   // --- Mobile Ads Initialization ---
   // Initialize Google Mobile Ads for monetization

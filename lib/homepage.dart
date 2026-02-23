@@ -80,8 +80,8 @@ class HomePage extends HookConsumerWidget {
       isLoadingData.value = true;
       try {
         await ttsManager.initTts();
-        ref.read(gamesSignInProvider.notifier).state = await gamesSignIn(isGamesSignIn);
-        ref.read(bestScoreProvider.notifier).state = await getBestScore(isGamesSignIn);
+        ref.read(gamesSignInProvider.notifier).update(await gamesSignIn(isGamesSignIn));
+        ref.read(bestScoreProvider.notifier).update(await getBestScore(isGamesSignIn));
       } catch (e) {
         "Error: $e".debugPrint();
       } finally {
@@ -221,9 +221,9 @@ class HomePage extends HookConsumerWidget {
 
     // Handle floor button deselection with next floor recalculation
     floorCanceled(int i) async {
+      audioManager.playEffectSound(asset: selectSound, volume: 0.8);
+      Vibration.vibrate(duration: vibTime, amplitude: vibAmp);
       if (i.isSelected(up: isAboveSelectedList.value, down: isUnderSelectedList.value) && i != nextFloor.value) {
-        audioManager.playEffectSound(asset: cancelSound, volume: 1.0);
-        Vibration.vibrate(duration: vibTime, amplitude: vibAmp);
         i.falseSelected(up: isAboveSelectedList.value, down: isUnderSelectedList.value);
         if (i == nextFloor.value) {
           nextFloor.value = (counter.value < nextFloor.value) ?
@@ -231,9 +231,6 @@ class HomePage extends HookConsumerWidget {
           counter.value.downNextFloor(up: isAboveSelectedList.value, down: isUnderSelectedList.value);
         }
         "nextFloor: ${nextFloor.value}".debugPrint();
-      } else {
-        audioManager.playEffectSound(asset: selectSound, volume: 0.8);
-        Vibration.vibrate(duration: vibTime, amplitude: vibAmp);
       }
     }
 
@@ -476,7 +473,7 @@ class HomePage extends HookConsumerWidget {
           // Ad banner with menu toggle functionality
           common.commonAdBanner(
             image: isMenu.buttonChanBackGround(),
-            onTap: () async => ref.read(isMenuProvider.notifier).state = await isMenu.pressedMenu()
+            onTap: () async => ref.read(isMenuProvider.notifier).update(await isMenu.pressedMenu())
           ),
           // Loading indicator during data initialization
           if (isLoadingData.value) common.commonCircularProgressIndicator(),

@@ -1,12 +1,13 @@
+// App build for Gradle 8.14.4 / AGP 8.13
 plugins {
-    id 'com.android.application'
-    id "kotlin-android"
-    id "dev.flutter.flutter-gradle-plugin"
-    id "com.google.gms.google-services"
-    id "com.google.firebase.crashlytics"
+    id("com.android.application")
+    id("kotlin-android")
+    id("dev.flutter.flutter-gradle-plugin")
+    id("com.google.gms.google-services")
+    id("com.google.firebase.crashlytics")
 }
 
-def kotlin_version = "2.2.0"
+def kotlinVersion = "2.2.0"
 def localProperties = new Properties()
 def localPropertiesFile = rootProject.file('local.properties')
 if (localPropertiesFile.exists()) {
@@ -46,8 +47,8 @@ android {
         targetCompatibility JavaVersion.VERSION_17
     }
 
-    lintOptions {
-        disable 'InvalidPackage'
+    lint {
+        disable "InvalidPackage"
         checkReleaseBuilds false
     }
 
@@ -57,7 +58,7 @@ android {
 
     defaultConfig {
         applicationId "com.nakajimamasaoappstudio.letselevator"
-        minSdkVersion 23
+        minSdkVersion flutter.minSdkVersion
         targetSdkVersion 36
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
@@ -84,16 +85,16 @@ flutter {
 }
 
 dependencies {
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlinVersion"
     // ───────────────────── Firebase ─────────────────────
-    implementation platform("com.google.firebase:firebase-bom:33.16.0")
-    implementation "com.google.firebase:firebase-analytics-ktx"
+    implementation platform("com.google.firebase:firebase-bom:34.9.0")
+    implementation "com.google.firebase:firebase-analytics"
     implementation "com.google.firebase:firebase-appcheck-playintegrity"
     // ────────── Google Play Services  (BOM 23.4.0) ──────────
-    implementation 'com.google.android.gms:play-services-games-v2:20.1.2'
-    implementation "com.google.android.gms:play-services-auth:21.3.0"
+    implementation 'com.google.android.gms:play-services-games-v2:21.0.0'
+    implementation "com.google.android.gms:play-services-auth:21.5.1"
     // ───────────────────── Play Integrity ─────────────────────
-    implementation 'com.google.android.play:integrity:1.4.0'
+    implementation 'com.google.android.play:integrity:1.6.0'
 }
 
 allprojects {

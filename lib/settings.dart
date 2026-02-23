@@ -92,8 +92,8 @@ class SettingsPage extends HookConsumerWidget {
     initState() async {
       isLoadingData.value = true;
       try {
-        ref.read(gamesSignInProvider.notifier).state = await gamesSignIn(isGamesSignIn);
-        ref.read(bestScoreProvider.notifier).state = await getBestScore(isGamesSignIn);
+        ref.read(gamesSignInProvider.notifier).update(await gamesSignIn(isGamesSignIn));
+        ref.read(bestScoreProvider.notifier).update(await getBestScore(isGamesSignIn));
         buttonLockList.value = await getButtonLockList();
         isLoadingData.value = false;
       } catch (e) {
@@ -157,22 +157,22 @@ class SettingsPage extends HookConsumerWidget {
     // Change button style with persistence
     Future<void> changeButtonStyle(int row) async {
       Vibration.vibrate(duration: vibTime, amplitude: vibAmp);
-      ref.read(buttonStyleProvider.notifier).state = await floorManager.changeSettingsIntValue(
+      ref.read(buttonStyleProvider.notifier).update(await floorManager.changeSettingsIntValue(
         key: "buttonStyleKey",
         current: buttonStyle,
         next: row
-      );
+      ));
     }
 
     // --- Button Shape Settings ---
     // Change button shape with persistence
     Future<void> changeButtonShape(String value) async {
       Vibration.vibrate(duration: vibTime, amplitude: vibAmp);
-      ref.read(buttonShapeProvider.notifier).state = await floorManager.changeSettingsStringValue(
+      ref.read(buttonShapeProvider.notifier).update(await floorManager.changeSettingsStringValue(
         key: "buttonShapeKey",
         current: buttonShape,
         next: value
-      );
+      ));
     }
 
     // --- Floor Number Management ---
@@ -184,11 +184,11 @@ class SettingsPage extends HookConsumerWidget {
 
     // Save floor number changes
     Future<void> floorNumberSelectOKAction(int row, int col) async {
-      ref.read(floorNumbersProvider.notifier).state = await floorManager.saveFloorNumber(
+      ref.read(floorNumbersProvider.notifier).update(await floorManager.saveFloorNumber(
         currentList: floorNumbers,
         newIndex: reversedButtonIndex[row][col],
         newValue: selectedNumber.value
-      );
+      ));
       if (context.mounted) context.popPage();
     }
 
@@ -217,11 +217,11 @@ class SettingsPage extends HookConsumerWidget {
     Future<void> changeFloorStopFlag(bool value, int row, int col) async {
       if (!isNotSelectFloor(row, col)) {
         Vibration.vibrate(duration: vibTime, amplitude: vibAmp);
-        ref.read(floorStopsProvider.notifier).state = await floorManager.saveFloorStops(
+        ref.read(floorStopsProvider.notifier).update(await floorManager.saveFloorStops(
           currentList: floorStops,
           newIndex: reversedButtonIndex[row][col],
           newValue: value
-        );
+        ));
       }
     }
 
@@ -229,18 +229,18 @@ class SettingsPage extends HookConsumerWidget {
     // Change background style with persistence
     Future<void> changeBackgroundStyle(String value) async {
       Vibration.vibrate(duration: vibTime, amplitude: vibAmp);
-      ref.read(backgroundStyleProvider.notifier).state = await floorManager.changeSettingsStringValue(
+      ref.read(backgroundStyleProvider.notifier).update(await floorManager.changeSettingsStringValue(
         key: "backgroundStyleKey",
         current: backgroundStyle,
         next: value
-      );
+      ));
     }
 
     // --- Navigation ---
     // Back button navigation to home page
     void pressedBack() {
-      ref.read(isShimadaProvider.notifier).state = false;
-      ref.read(isMenuProvider.notifier).state = false;
+      ref.read(isShimadaProvider.notifier).update(false);
+      ref.read(isMenuProvider.notifier).update(false);
       context.pushFadeReplacement(HomePage());
     }
 

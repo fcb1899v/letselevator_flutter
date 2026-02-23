@@ -70,8 +70,8 @@ class ButtonsPage extends HookConsumerWidget {
       isLoadingData.value = true;
       try {
         isSelectedButtonsList.value = panelMax.listListAllFalse(rowMax, columnMax);
-        ref.read(gamesSignInProvider.notifier).state = await gamesSignIn(isGamesSignIn);
-        ref.read(bestScoreProvider.notifier).state = await getBestScore(isGamesSignIn);
+        ref.read(gamesSignInProvider.notifier).update(await gamesSignIn(isGamesSignIn));
+        ref.read(bestScoreProvider.notifier).update(await getBestScore(isGamesSignIn));
         isLoadingData.value = false;
       } catch (e) {
         "Error: $e".debugPrint();
@@ -102,7 +102,7 @@ class ButtonsPage extends HookConsumerWidget {
             if (counter.value > bestScore) {
               // New best score achieved
               audioManager.playEffectSound(asset: bestScoreSound, volume: 1.0);
-              ref.read(bestScoreProvider.notifier).state = counter.value;
+              ref.read(bestScoreProvider.notifier).update(counter.value);
               await gamesSubmitScore(bestScore, isGamesSignIn);
               final SharedPreferences prefs = await SharedPreferences.getInstance();
               'bestScore'.setSharedPrefInt(prefs, bestScore);
@@ -364,7 +364,7 @@ class ButtonsPage extends HookConsumerWidget {
           // Ad banner with menu toggle functionality
           common.commonAdBanner(
             image: isMenu.buttonChanBackGround(),
-            onTap: () async => ref.read(isMenuProvider.notifier).state = await isMenu.pressedMenu()
+            onTap: () async => ref.read(isMenuProvider.notifier).update(await isMenu.pressedMenu())
           ),
           // Loading indicator during data initialization
           if (isLoadingData.value) common.commonCircularProgressIndicator(),

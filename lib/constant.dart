@@ -11,8 +11,10 @@ const String appTitle = "LETS ELEVATOR";
 
 /// Firebase App Check providers for security validation
 /// Uses debug providers in debug mode, production providers in release mode
-final androidProvider = kDebugMode ? AndroidProvider.debug: AndroidProvider.playIntegrity;
-final appleProvider = kDebugMode ? AppleProvider.debug: AppleProvider.deviceCheck;
+final AndroidAppCheckProvider androidAppCheckProvider =
+    kDebugMode ? const AndroidDebugProvider() : const AndroidPlayIntegrityProvider();
+final AppleAppCheckProvider appleAppCheckProvider =
+    kDebugMode ? const AppleDebugProvider() : const AppleDeviceCheckProvider();
 
 // =============================================================================
 // ELEVATOR CONFIGURATION
