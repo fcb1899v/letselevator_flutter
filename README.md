@@ -61,17 +61,21 @@ cd elevatorsimulator
 flutter pub get
 ```
 
-### 3. Environment Variables Setup
-Create `assets/.env` file and configure required environment variables:
-```env
-IOS_BANNER_UNIT_ID="your-ios-banner-id"
-ANDROID_BANNER_UNIT_ID="your-android-banner-id"
-# Other ad IDs...
-IOS_INTERSTITIAL_UNIT_ID="your-ios-interstitial-id"
-ANDROID_INTERSTITIAL_UNIT_ID="your-android-interstitial-id"
-IOS_REWARDED_UNIT_ID="your-ios-rewarded-id"
-ANDROID_REWARDED_UNIT_ID="your-android-rewarded-id"
-```
+### 3. Configuration Files Setup
+
+**Environment variables.** Copy `assets/.env_example` to `assets/.env` and fill
+in the values. The template lists every key with what it is for, and is the one
+place that list is maintained. `pubspec.yaml` declares `assets/.env`, so the
+file has to exist or the build fails. Debug builds use Google's demo ad units
+and need no real ids, and the demo unit for an inline adaptive request is not
+the same id as the fixed-size one.
+
+**Android signing, release only.** Copy `android/key.properties.example` to
+`android/key.properties` and fill it in. Nothing in it ships inside the app, and
+the two passwords are real secrets: together with the keystore they let anyone
+publish an update Play accepts as coming from you. Keep the keystore outside the
+repository and back both up. A release built without this file falls back to the
+debug signing config, which produces an artifact Play rejects.
 
 ### 4. Firebase Configuration (Optional)
 If using Firebase:
