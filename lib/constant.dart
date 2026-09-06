@@ -1,5 +1,3 @@
-import 'package:firebase_app_check/firebase_app_check.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 // =============================================================================
@@ -9,12 +7,6 @@ import 'package:flutter/material.dart';
 /// Application title displayed throughout the app
 const String appTitle = "LETS ELEVATOR";
 
-/// Firebase App Check providers for security validation
-/// Uses debug providers in debug mode, production providers in release mode
-final AndroidAppCheckProvider androidAppCheckProvider =
-    kDebugMode ? const AndroidDebugProvider() : const AndroidPlayIntegrityProvider();
-final AppleAppCheckProvider appleAppCheckProvider =
-    kDebugMode ? const AppleDebugProvider() : const AppleDeviceCheckProvider();
 
 // =============================================================================
 // ELEVATOR CONFIGURATION
@@ -294,4 +286,30 @@ const List<Color> numberColorList = [
 // Green = 99.47080 * Ln(30) - 161.11957 = 177 = B1
 // Blue = 138.51773 * Ln(30-10) - 305.04480 = 110 = 6E
 
+// --- AdMob banner ceiling ---
+//
+// Ceiling for the inline adaptive banner, which is the only banner size that
+// takes one from the app: Google returns a height at or under it. The anchored
+// sizes ignore it and derive the height from the slot width instead, at the
+// 320x50 ratio for the plain one and 320x100 for the large one. Unused while
+// admob_banner asks for an anchored size; raise or lower it to trade screen
+// space against ad area when the inline variant is in place
+const int inlineBannerMaxHeight = 90;
 
+// --- AdMob demo ad units ---
+//
+// Google publishes these and they are the same for every developer, so they are
+// constants here rather than .env entries: they are not secret, and keeping them
+// in source means a missing .env key can no longer break a debug build.
+// Production unit IDs stay in .env, because those are ours.
+// https://developers.google.com/admob/android/test-ads
+// https://developers.google.com/admob/ios/test-ads  (checked 2026-09-05)
+//
+// Adaptive banners have their own demo unit. The fixed size ones (6300978111,
+// 2934735716) only serve 320x50, making every adaptive size look like 320x50
+const String androidBannerTestId = "ca-app-pub-3940256099942544/9214589741";
+const String iosBannerTestId = "ca-app-pub-3940256099942544/2435281174";
+const String androidRewardedTestId = "ca-app-pub-3940256099942544/5224354917";
+const String iosRewardedTestId = "ca-app-pub-3940256099942544/1712485313";
+const String androidInterstitialTestId = "ca-app-pub-3940256099942544/1033173712";
+const String iosInterstitialTestId = "ca-app-pub-3940256099942544/4411468910";

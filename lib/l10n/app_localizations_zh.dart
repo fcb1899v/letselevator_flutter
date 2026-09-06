@@ -1,5 +1,6 @@
 // ignore: unused_import
 import 'package:intl/intl.dart' as intl;
+
 import 'app_localizations.dart';
 
 // ignore_for_file: type=lint
@@ -105,6 +106,9 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get unlockDesc => '\n看完视频就能使用新按钮。\n请点击「确定」！';
+
+  @override
+  String get rewardAdUnavailable => '\n现在无法播放视频。\n请检查广告同意设置，\n或稍后再试。';
 
   @override
   String get unlockAllTitle => '解锁条件：1. 或 2.';

@@ -38,6 +38,7 @@
   "unlock": "Desbloquear",
   "unlockTitle": "¡Mira el video para\ndesbloquear el nuevo botón!",
   "unlockDesc": "\nMira hasta el final\npara usar el nuevo botón.\n¡Pulsa OK!",
+  "rewardAdUnavailable": "\nAhora no se puede reproducir el vídeo.\nRevisa tu consentimiento de anuncios\no inténtalo de nuevo en un momento.",
   "unlockAllTitle": "Condiciones de desbloqueo: 1. o 2.",
   "unlockAll1": "1. Consigue más de 100 puntos en el reto de 30s.",
   "unlockAll2": "2. Desbloquea todas las formas de botones.",

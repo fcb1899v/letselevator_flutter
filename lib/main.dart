@@ -10,9 +10,6 @@
 // =============================
 
 import 'dart:async';
-import 'dart:io';
-import 'package:app_tracking_transparency/app_tracking_transparency.dart';
-import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -196,17 +193,15 @@ Future<void> main() async {
     ],
     child: const MyApp())
   );
-  // Activate Firebase App Check for security
-  await FirebaseAppCheck.instance.activate(
-    providerAndroid: androidAppCheckProvider,
-    providerApple: appleAppCheckProvider,
-  );
   // --- Mobile Ads Initialization ---
   // Initialize Google Mobile Ads for monetization
   await MobileAds.instance.initialize();
   // --- Privacy Configuration ---
   // Initialize App Tracking Transparency for iOS
-  await initATTPlugin();
+  // No ATT call here. On iOS the UMP form shows Google's IDFA explainer and then
+  // raises the system ATT prompt itself, so asking again from the app put a
+  // second explainer after the user had already answered. Removed in NEO first;
+  // see 03_Developer/technical/2026-08-25_elevatorneo_att_gate_removal.md
 }
 
 // --- Main Application Widget ---
@@ -244,17 +239,4 @@ class MyApp extends StatelessWidget {
       RouteObserver<ModalRoute>()
     ],
   );
-}
-
-// --- Privacy Management ---
-// App Tracking Transparency implementation for iOS privacy compliance
-Future<void> initATTPlugin() async {
-  // Only request tracking permission on iOS and macOS platforms
-  if (Platform.isIOS || Platform.isMacOS) {
-    final status = await AppTrackingTransparency.trackingAuthorizationStatus;
-    // Request permission if not yet determined
-    if (status == TrackingStatus.notDetermined) {
-      await AppTrackingTransparency.requestTrackingAuthorization();
-    }
-  }
 }

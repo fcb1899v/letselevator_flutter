@@ -1,5 +1,6 @@
 // ignore: unused_import
 import 'package:intl/intl.dart' as intl;
+
 import 'app_localizations.dart';
 
 // ignore_for_file: type=lint
@@ -105,6 +106,10 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get unlockDesc => '\n영상을 끝까지 보면\n새 버튼을 사용할 수 있어요.\n확인을 눌러주세요!';
+
+  @override
+  String get rewardAdUnavailable =>
+      '\n지금은 영상을 재생할 수 없어요.\n광고 동의 설정을 확인하거나\n잠시 후 다시 시도해 주세요.';
 
   @override
   String get unlockAllTitle => '해제 조건: 1. 또는 2.';

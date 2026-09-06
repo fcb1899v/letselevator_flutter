@@ -20,7 +20,7 @@
 //     String interstitialUnitId() =>
 //       (!kDebugMode && Platform.isIOS) ? dotenv.get("IOS_INTERSTITIAL_UNIT_ID"):
 //       (!kDebugMode && Platform.isAndroid) ? dotenv.get("ANDROID_INTERSTITIAL_UNIT_ID"):
-//       (Platform.isIOS) ? dotenv.get("IOS_INTERSTITIAL_TEST_ID"):
+//       (Platform.isIOS) ? iosInterstitialTestId:
 //       dotenv.get("ANDROID_INTERSTITIAL_UNIT_ID");
 
 //     Future<void> createInterstitialAd() async {

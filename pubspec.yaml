@@ -1,60 +1,81 @@
 name: letselevator
 description: elevatorsimulator
 publish_to: 'none'
-version: 1.5.14+95
+version: 1.5.15+96
 
 environment:
-  sdk: '>=2.18.0 <4.0.0'
-  flutter: '>=3.3.0'
+  # 3.47 is the floor, not 3.3: Android Gradle Plugin 9 rejects the Kotlin
+  # Gradle Plugin being applied on top, and Flutter forces it onto plugin
+  # modules until 3.47 adds the isBuiltInKotlinEnabled guard. Declaring 3.3
+  # let `pub get` succeed and the Android build fail later with an error
+  # that names neither.
+  sdk: '>=3.13.0 <4.0.0'
+  flutter: '>=3.47.0'
 
 dependencies:
   flutter:
     sdk: flutter
   flutter_web_plugins:
     sdk: flutter
-  webview_flutter_android: ^4.10.11
-  webview_flutter: ^4.13.0
+  webview_flutter_android: ^4.14.1
+  webview_flutter: ^4.14.1
 
   # Firebase Analytics
-  firebase_core: ^4.4.0
-  firebase_core_web: ^3.4.0
-  firebase_analytics: ^12.1.2
-  firebase_analytics_web: ^0.6.1+2
-  firebase_app_check: ^0.4.1+4
+  firebase_core: ^4.14.0
+  firebase_core_web: ^3.11.0
+  firebase_analytics: ^12.5.0
+  firebase_analytics_web: ^0.6.1+13
   # App Icon
-  cupertino_icons: ^1.0.8
+  cupertino_icons: ^1.0.9
   flutter_launcher_icons: ^0.14.4
   # HyperLink
   path: ^1.9.1
   url_launcher: ^6.3.2
-  url_launcher_web: ^2.4.2
+  url_launcher_web: ^2.4.3
   # Text to Speech
-  flutter_tts: ^4.2.5
+  # Fork of pub.dev flutter_tts 4.2.5. Upstream has no Swift Package Manager
+  # support and its last commit was 2026-01-05, so waiting for it would keep
+  # CocoaPods in the iOS build. Changes from the published 4.2.5:
+  #   ios/flutter_tts/, macos/flutter_tts/   SPM manifests, added
+  #   android/build.gradle                   branch on android.builtInKotlin so
+  #                                          AGP 9 compiles the Kotlin itself
+  #   example/, gen/, test/                  removed; not needed to build
+  # The Dart sources are unchanged. `diff -rq` against the pub-cache copy shows
+  # exactly the five entries above.
+  flutter_tts:
+    path: packages/flutter_tts
   # Audio Player
-  just_audio: ^0.10.5
-  # audioplayers: ^6.5.0
+  just_audio: ^0.10.6
   # Vibration
-  vibration: ^3.1.7
+  vibration: ^3.2.0
   #  Game Center
-  games_services: ^5.0.0
+  # Pinned: 5.3.0 declares no Kotlin plugin and relies on AGP 9 built-in Kotlin,
+  # which this app disables via android.builtInKotlin=false. Its util/ and models/
+  # classes then fail to resolve. Revisit when the AGP 9 migration is done.
+  games_services: ^5.3.0
   # Shared Preference
-  shared_preferences: ^2.5.4
+  shared_preferences: ^2.5.5
   shared_preferences_web: ^2.4.3
   # Admob
-  google_mobile_ads: ^7.0.0
-  app_tracking_transparency: ^2.0.6+1
+  google_mobile_ads: ^9.1.0
   #env
-  flutter_dotenv: ^6.0.0
+  flutter_dotenv: ^6.0.1
   #MVVM
-  hooks_riverpod: ^3.2.1
+  hooks_riverpod: ^3.4.2
   flutter_hooks: ^0.21.3+1
   # App Splash
-  flutter_native_splash: ^2.4.7
+  flutter_native_splash: ^2.4.8
 
   # Localize
   flutter_localizations:
     sdk: flutter
   intl: ^0.20.2
+
+# 2.6.0 ships no Package.swift while 2.5.1 does, and a single plugin without one
+# makes Flutter fall back to CocoaPods for the whole iOS build
+# (darwin_dependency_management.dart:89). Lift when SPM support returns.
+dependency_overrides:
+  path_provider_foundation: 2.5.1
 
 dev_dependencies:
   flutter_test:

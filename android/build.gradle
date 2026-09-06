@@ -4,14 +4,19 @@ allprojects {
         google()
         mavenCentral()
     }
-    gradle.projectsEvaluated {
+}
+
+rootProject.buildDir = "../build"
+// Lint our own sources only. Inside allprojects these flags also linted every
+// plugin in ~/.pub-cache, producing warnings we cannot act on.
+subprojects {
+    if (name == "app") {
         tasks.withType(JavaCompile).configureEach {
             options.compilerArgs << "-Xlint:deprecation" << "-Xlint:unchecked"
         }
     }
 }
 
-rootProject.buildDir = "../build"
 subprojects {
     project.buildDir = "${rootProject.buildDir}/${project.name}"
     project.evaluationDependsOn(":app")

@@ -120,8 +120,8 @@ extension ContextExt on BuildContext {
   void pushFadeReplacement(Widget page, {Duration duration = const Duration(milliseconds: 500)}) {
     AudioManager().playEffectSound(asset: changeModeSound, volume: 1.0);
     Navigator.pushReplacement(this, PageRouteBuilder(
-      pageBuilder: (_, animation, __) => page,
-      transitionsBuilder: (_, animation, __, child) => FadeTransition(
+      pageBuilder: (_, animation, _) => page,
+      transitionsBuilder: (_, animation, _, child) => FadeTransition(
         opacity: animation,
         child: child,
       ),
@@ -209,6 +209,7 @@ extension ContextExt on BuildContext {
   String unlock() => AppLocalizations.of(this)!.unlock;
   String unlockTitle() => AppLocalizations.of(this)!.unlockTitle;
   String unlockDesc() => AppLocalizations.of(this)!.unlockDesc;
+  String rewardAdUnavailable() => AppLocalizations.of(this)!.rewardAdUnavailable;
   String unlockAllTitle() => AppLocalizations.of(this)!.unlockAllTitle;
   List<String> unlockAll() => [
     AppLocalizations.of(this)!.unlockAll1,
@@ -285,7 +286,7 @@ extension ContextExt on BuildContext {
   // Floor and operation button sizing with responsive margins and typography
   double floorButtonSize() => responsible() * 0.075;
   double operationButtonSize() =>  responsible() * 0.075;
-  double operationButtonMargin() =>  responsible() * 0.02;
+  double operationButtonMargin() =>  responsible() * 0.01;
   double buttonNumberFontSize() => responsible() * 0.025;
   double buttonMargin() => responsible() * 0.03;
   double floorButtonMargin() => widthResponsible() * 0.02;

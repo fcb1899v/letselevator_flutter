@@ -54,16 +54,27 @@ class CommonWidget {
     required void Function() onTap,
   }) => Column(children: [
     const Spacer(flex: 1),
+    // The banner is taller than the button, so the row takes the banner height
+    // and start pins the button to the top of it instead of centring it in the
+    // leftover space
     Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const AdBannerWidget(),
-        // Menu button with gesture handling
-        GestureDetector(
-          onTap: onTap,
-          child: SizedBox(
-            width: context.operationButtonSize(),
-            height: context.operationButtonSize(),
-            child: Image.asset(image),
+        // Expanded gives the banner the width left after the menu button, so the
+        // ad size is derived from the layout instead of a hardcoded inset
+        const Expanded(child: AdBannerWidget()),
+        // Menu button with gesture handling. The padding is horizontal only, so
+        // it keeps the button off the banner and off the screen edge without
+        // undoing the top alignment above
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: context.operationButtonMargin()),
+          child: GestureDetector(
+            onTap: onTap,
+            child: SizedBox(
+              width: context.operationButtonSize(),
+              height: context.operationButtonSize(),
+              child: Image.asset(image),
+            ),
           ),
         ),
       ]

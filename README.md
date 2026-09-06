@@ -41,8 +41,9 @@ LETS ELEVATOR is a simulator app that provides a realistic elevator operation ex
 
 ## 📋 Prerequisites
 
-- Flutter 3.3.0+
-- Dart 2.18.0+
+- Flutter 3.47.0+ (required by Android Gradle Plugin 9: earlier versions
+  force the Kotlin Gradle Plugin onto modules that AGP 9 compiles itself)
+- Dart 3.13.0+
 - Android Studio / VS Code
 - Xcode (for iOS development)
 - Firebase project (optional)
@@ -76,7 +77,11 @@ ANDROID_REWARDED_UNIT_ID="your-android-rewarded-id"
 If using Firebase:
 1. Create a Firebase project
 2. Place `google-services.json` (Android) and `GoogleService-Info.plist` (iOS)
-3. These files are automatically excluded by .gitignore
+3. Both files are tracked here. The Gradle plugin fails the Android build
+   without the json, and the Xcode project lists the plist in its Resources
+   phase, so excluding them only broke fresh clones. They carry the same
+   identifiers as `lib/firebase_options.dart`, which ship inside the app.
+   Real secrets stay out: the keystore, `key.properties` and `.env`
 
 ### 5. Privacy & Compliance (iOS)
 - App Tracking Transparency (ATT) is enabled. On first launch, iOS may prompt for tracking authorization.
@@ -168,8 +173,15 @@ flutter analyze
 ```
 
 ### Run Tests
+
+There are none. The `flutter create` counter test was removed on 2026-09-02
+because it asserted on a widget this app does not have and could only ever fail,
+which made a red `flutter test` indistinguishable from a real failure.
+
+`flutter analyze` is the check that runs clean and is expected to stay that way.
+
 ```bash
-flutter test
+flutter analyze   # expected: No issues found!
 ```
 
 ### Build

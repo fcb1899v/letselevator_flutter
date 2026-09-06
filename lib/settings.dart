@@ -58,7 +58,10 @@ class SettingsPage extends HookConsumerWidget {
 
     // --- Manager Instances ---
     // Reward ad manager for unlocking features
-    final RewardedAd? ad = rewardedAd();
+    // The hook only requests an ad once the SDK allows it, so ad can be null
+    // for a user who has not answered the consent form. prepare covers that
+    final rewarded = useRewardedAd();
+    final RewardedAd? ad = rewarded.ad;
 
     // --- Widget Instances ---
     // Common widgets and settings-specific widget instances
@@ -128,22 +131,51 @@ class SettingsPage extends HookConsumerWidget {
       if (context.mounted) context.pushNoBack(SettingsPage());
     }
 
+    // Confirmation dialog for an ad that is ready to play
+    void showUnlockDialog(int i, RewardedAd loadedAd) {
+      showDialog(context: context,
+        builder: (context) => settings.rewardAdAlertDialog(
+          title: context.unlockTitle(),
+          content: context.unlockDesc(),
+          onPressed: () => loadedAd.show(
+            onUserEarnedReward: (AdWithoutView ad, RewardItem reward) => earnedRewardAd(i, ad, reward)
+          ),
+        )
+      );
+    }
+
     // Show reward ad dialog for feature unlocking
-    void showRewardAdAlertDialog(int i) {
+    //
+    // The press has to answer every time. With no ad loaded this used to do
+    // nothing at all, and gating the request on consent widens that window: a
+    // user who has not answered the consent form has no ad and, without this,
+    // no way to get one. So the press runs the consent flow itself, offers the
+    // privacy options form to anyone who declined earlier, and only when there
+    // is nothing left to ask does it say so
+    void showRewardAdAlertDialog(int i) async {
       Vibration.vibrate(duration: vibTime, amplitude: vibAmp);
       "$ad".debugPrint();
-      // Check if reward ad is available and show dialog
       if (ad != null) {
-        showDialog(context: context,
-          builder: (context) => settings.rewardAdAlertDialog(
-            title: context.unlockTitle(),
-            content: context.unlockDesc(),
-            onPressed: () => ad.show(
-              onUserEarnedReward: (AdWithoutView ad, RewardItem reward) => earnedRewardAd(i, ad, reward)
-            ),
-          )
-        );
+        showUnlockDialog(i, ad);
+        return;
       }
+      // The consent form and the ad request both take a round trip, and the
+      // button looks dead while they run
+      isLoadingData.value = true;
+      final preparedAd = await rewarded.prepare();
+      if (!context.mounted) return;
+      isLoadingData.value = false;
+      if (preparedAd != null) {
+        showUnlockDialog(i, preparedAd);
+        return;
+      }
+      // Either consent was declined and left declined, or nothing filled. Both
+      // are cases the user can act on, so say it rather than going quiet
+      showDialog(context: context,
+        builder: (context) => settings.rewardAdUnavailableDialog(
+          content: context.rewardAdUnavailable(),
+        )
+      );
     }
 
     // --- Settings Category Selection ---
@@ -850,6 +882,26 @@ class SettingsWidget {
       alertOKButton(
         color: blackColor,
         onPressed: onPressed,
+      ),
+    ],
+  );
+
+  // Shown when no rewarded ad can be played. There is nothing to confirm here,
+  // so it carries one button and states the reason instead of closing silently
+  CupertinoAlertDialog rewardAdUnavailableDialog({
+    required String content,
+  }) => CupertinoAlertDialog(
+    content: Text(content,
+      style: TextStyle(
+        color: blackColor,
+        fontSize: context.settingsAlertDescFontSize(),
+        fontFamily: context.font(),
+      ),
+    ),
+    actions: [
+      alertOKButton(
+        color: blackColor,
+        onPressed: () => context.popPage(),
       ),
     ],
   );

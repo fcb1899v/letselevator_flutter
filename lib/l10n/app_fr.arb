@@ -38,6 +38,7 @@
   "unlock": "Déverrouiller",
   "unlockTitle": "Regardez la vidéo pour\ndéverrouiller le nouveau bouton !",
   "unlockDesc": "\nRegardez jusqu'à la fin\npour utiliser le nouveau bouton.\nAppuyez sur OK !",
+  "rewardAdUnavailable": "\nLa vidéo ne peut pas être lue.\nVérifiez votre consentement publicitaire\nou réessayez dans un instant.",
   "unlockAllTitle": "Conditions de déverrouillage : 1. ou 2.",
   "unlockAll1": "1. Obtenez plus de 100 points dans le défi de 30 s.",
   "unlockAll2": "2. Déverrouillez toutes les formes de boutons.",

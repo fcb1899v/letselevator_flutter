@@ -1,5 +1,6 @@
 // ignore: unused_import
 import 'package:intl/intl.dart' as intl;
+
 import 'app_localizations.dart';
 
 // ignore_for_file: type=lint
@@ -107,6 +108,10 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get unlockDesc =>
       '\nRegardez jusqu\'à la fin\npour utiliser le nouveau bouton.\nAppuyez sur OK !';
+
+  @override
+  String get rewardAdUnavailable =>
+      '\nLa vidéo ne peut pas être lue.\nVérifiez votre consentement publicitaire\nou réessayez dans un instant.';
 
   @override
   String get unlockAllTitle => 'Conditions de déverrouillage : 1. ou 2.';
