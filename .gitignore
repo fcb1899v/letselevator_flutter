@@ -61,12 +61,14 @@ ios/Runner.xcworkspace/xcshareddata/
 assets/.env
 
 # Firebase configuration
-# Not google-services.json / GoogleService-Info.plist: this app applies the
-# com.google.gms.google-services Gradle plugin, which fails the Android build
-# when the json is absent, and six of the eight Xcode projects list the plist in
-# their Resources build phase. Both files hold the same identifiers as
-# lib/firebase_options.dart and ship inside the app, so excluding them hid
-# nothing and cost two apps their copy (kawaii and letswashlet, 2026-09-02).
+# google-services.json / GoogleService-Info.plist are ignored since 2026-09-12.
+# Their API key values also ship inside every binary, so this does not make them
+# secret; it keeps them out of a public repo that is scanned automatically. The
+# build needs them, so after a fresh clone download both from the Firebase console
+# (Project settings > Your apps). `git rm --cached` leaves the working copy alone,
+# so an existing checkout keeps building.
+android/app/google-services.json
+ios/Runner/GoogleService-Info.plist
 ios/firebase_app_id_file.json
 
 # Dart files
