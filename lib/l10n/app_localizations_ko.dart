@@ -112,13 +112,7 @@ class AppLocalizationsKo extends AppLocalizations {
       '\n지금은 영상을 재생할 수 없어요.\n광고 동의 설정을 확인하거나\n잠시 후 다시 시도해 주세요.';
 
   @override
-  String get unlockAllTitle => '해제 조건: 1. 또는 2.';
-
-  @override
-  String get unlockAll1 => '1. 30초 챌린지에서 100점 이상 달성!';
-
-  @override
-  String get unlockAll2 => '2. 모든 버튼 모양 해제!!';
+  String get unlockByScore => '30초 챌린지에서 100점 이상 달성';
 
   @override
   String get challenge => '30초 도전';
@@ -146,4 +140,40 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get ranking => '랭킹';
+
+  @override
+  String get premiumTitle => '프리미엄 팩';
+
+  @override
+  String get premiumNoAds => '광고가 표시되지 않습니다';
+
+  @override
+  String get premiumUnlockAll =>
+      '30초 챌린지 100개 이상 달성도\n광고 동영상 시청도 없이\n모든 디자인과 기능을 사용할 수 있습니다';
+
+  @override
+  String get premiumOneTime => '한 번만 결제합니다';
+
+  @override
+  String premiumPrice(Object PRICE) {
+    return '$PRICE에 구매';
+  }
+
+  @override
+  String get premiumBuy => '구매';
+
+  @override
+  String get premiumRestore => '구매 복원';
+
+  @override
+  String get premiumThanks => '감사합니다! 모두 잠금 해제되었습니다.';
+
+  @override
+  String get premiumFailed => '구매를 완료하지 못했습니다.';
+
+  @override
+  String get premiumRestoreFailed => '복원할 구매 내역을 찾을 수 없습니다.';
+
+  @override
+  String get premiumUnavailable => '지금은 구매를 진행할 수 없습니다.\n잠시 후 다시 시도해 주세요.';
 }

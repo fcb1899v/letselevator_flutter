@@ -21,9 +21,8 @@ pluginManagement {
 plugins {
     id("com.android.application") version "9.3.0" apply false
     id("com.android.library") version "9.3.0" apply false
-    // Declared but never applied to this app: AGP 9 compiles Kotlin itself.
-    // Plugins still mid migration look KGP up on the classpath, and audio_session
-    // fails at resolution time even though it only applies KGP when AGP < 9
+    // Declared but never applied: AGP 9 compiles Kotlin itself. Plugins still mid
+    // migration (audio_session) look KGP up on the classpath and fail to resolve otherwise.
     id("org.jetbrains.kotlin.android") version "2.4.10" apply false
     id("dev.flutter.flutter-plugin-loader") version "1.0.0"
     id("com.google.gms.google-services") version "4.4.4" apply false

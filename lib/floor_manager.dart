@@ -1,12 +1,5 @@
-// =============================
-// FloorManager: Floor Configuration and Settings Management
-//
-// This class manages floor-related data persistence and settings changes including:
-// 1. Floor Number Management: Save and validate floor number configurations
-// 2. Floor Stop Management: Save floor stop flag configurations
-// 3. Settings Persistence: Generic string and integer settings management
-// 4. Data Validation: Input validation for floor numbers and settings
-// =============================
+// ===== FloorManager: floor configuration and settings persistence =====
+// Saves floor numbers and stop flags with validation, plus generic string/int settings
 
 import 'package:shared_preferences/shared_preferences.dart';
 import 'constant.dart';
@@ -15,33 +8,30 @@ import 'extension.dart';
 class FloorManager {
 
   // --- Floor Number Management ---
-  // Save floor number with validation and persistence
-  // Validates floor number range and uniqueness before saving
+  // Save floor number after validating range and uniqueness
   Future<List<int>> saveFloorNumber({
     required List<int> currentList,
     required int newValue,
     required int newIndex,
   }) async {
-    if (!currentList.contains(newValue) && newValue != 0 && min <= newValue && newValue <= max) {
-      final prefs = await SharedPreferences.getInstance();
-      final newList = List<int>.from(currentList);
-      newList[newIndex] = newValue;
-      "newNumber: $newValue".debugPrint();
-      "numbersKey".setSharedPrefListInt(prefs, newList);
-      return newList;
-    } else {
-      return currentList;
-    }
+    // The picker only offers the gap between the neighbouring buttons, so the
+    // same gap is the only thing accepted here. Nothing else has to move
+    if (!isInFloorGap(currentList, newIndex, newValue)) return currentList;
+    final newList = List<int>.from(currentList)..[newIndex] = newValue;
+    final prefs = await SharedPreferences.getInstance();
+    "newNumber: $newValue".debugPrint();
+    "numbersKey".setSharedPrefListInt(prefs, newList);
+    return newList;
   }
 
   // --- Floor Stop Management ---
-  // Save floor stop flag with persistence
-  // Updates floor stop configuration for elevator operation
+  // Save floor stop flag for elevator operation
   Future<List<bool>> saveFloorStops({
     required List<bool> currentList,
     required bool newValue,
     required int newIndex,
   }) async {
+    if (!newValue && isOnlyStop(currentList, newIndex)) return currentList;
     final prefs = await SharedPreferences.getInstance();
     final newList = List<bool>.from(currentList);
     newList[newIndex] = newValue;
@@ -51,8 +41,7 @@ class FloorManager {
   }
 
   // --- Settings Persistence ---
-  // Generic string settings management with change detection
-  // Saves string settings only when value changes
+  // Save string settings only when the value changes
   Future<String> changeSettingsStringValue({
     required String key,
     required String current,

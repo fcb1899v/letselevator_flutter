@@ -1,12 +1,5 @@
-// =============================
-// CommonWidget: Shared UI Components
-//
-// This class provides common UI components used across the app including:
-// 1. Background Components: Responsive background image handling
-// 2. Ad Components: Ad banner with menu button integration
-// 3. Button Components: Floor button with number overlay
-// 4. Loading Components: Circular progress indicator overlay
-// =============================
+// ===== CommonWidget: shared UI components =====
+// Background, ad banner with menu button, floor button, loading overlay, purchase dialog
 
 import 'package:flutter/material.dart';
 import 'admob_banner.dart';
@@ -49,23 +42,29 @@ class CommonWidget {
 
   // --- Ad Components ---
   // Ad banner with menu button integration
+  /// isPremium: the banner is gone, so the row shrinks to the button and would
+  /// otherwise sit under the system navigation. The button is the only way into
+  /// the menu, so it is lifted clear of it
   Widget commonAdBanner({
     required String image,
     required void Function() onTap,
+    required bool isPremium,
   }) => Column(children: [
     const Spacer(flex: 1),
-    // The banner is taller than the button, so the row takes the banner height
-    // and start pins the button to the top of it instead of centring it in the
-    // leftover space
-    Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+    Padding(
+      padding: EdgeInsets.only(
+        bottom: isPremium ? MediaQuery.viewPaddingOf(context).bottom : 0,
+      ),
+    // The banner is taller than the button, so the row takes the banner height and
+    // start pins the button to the top of it
+    child: Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         // Expanded gives the banner the width left after the menu button, so the
         // ad size is derived from the layout instead of a hardcoded inset
         const Expanded(child: AdBannerWidget()),
-        // Menu button with gesture handling. The padding is horizontal only, so
-        // it keeps the button off the banner and off the screen edge without
-        // undoing the top alignment above
+        // Menu button. Horizontal padding only, so it stays off the banner and the
+        // screen edge without undoing the top alignment above
         Padding(
           padding: EdgeInsets.symmetric(horizontal: context.operationButtonMargin()),
           child: GestureDetector(
@@ -78,6 +77,7 @@ class CommonWidget {
           ),
         ),
       ]
+    ),
     ),
   ]);
 
@@ -107,6 +107,36 @@ class CommonWidget {
       ],
     ),
   );
+
+  // --- Feedback Components ---
+
+  /// Report the outcome of a purchase or a restore. A silent purchase looks like
+  /// a failed one, so every ending of the flow but a cancel comes through here
+  void commonSnackBar(String text) {
+    "commonSnackBar: $text".debugPrint();
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      // Shrunk rather than wrapped: the text carries its own line breaks, and a
+      // language that overruns should keep them instead of folding a third line
+      content: FittedBox(fit: BoxFit.scaleDown,
+        child: Text(text,
+          style: TextStyle(
+            color: blackColor,
+            fontWeight: FontWeight.bold,
+            fontFamily: context.font(),
+            fontSize: context.settingsAlertDescFontSize(),
+          ),
+          textAlign: TextAlign.center,
+        ),
+      ),
+      backgroundColor: lampColor,
+      behavior: SnackBarBehavior.floating,
+      duration: const Duration(seconds: 3),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(context.settingsLockFreeBorderRadius()),
+      ),
+      margin: EdgeInsets.all(context.settingsLockMargin()),
+    ));
+  }
 
   // --- Loading Components ---
   // Circular progress indicator overlay

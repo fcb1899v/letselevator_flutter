@@ -1,13 +1,4 @@
-// =============================
-// GamesManager: Game Services Integration and Leaderboard Management
-//
-// This file manages game services integration including:
-// 1. Authentication: Game services sign-in and connection management
-// 2. Score Submission: Leaderboard score submission functionality
-// 3. Leaderboard Display: Show leaderboards to users
-// 4. Best Score Management: Retrieve and sync best scores from server
-// 5. Network Connectivity: Internet connection validation
-// =============================
+// ===== GamesManager: game services sign-in, leaderboards, best score sync =====
 
 import 'dart:io';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -16,8 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'extension.dart';
 
 // --- Authentication ---
-// Game services sign-in with connection validation
-// Handles authentication flow and error management
+// Game services sign-in with connection validation and error handling
 Future<bool> gamesSignIn(bool isGamesSignIn) async {
   if (isGamesSignIn) {
     "Already signed in to games services: true".debugPrint();
@@ -47,8 +37,7 @@ Future<bool> gamesSignIn(bool isGamesSignIn) async {
 }
 
 // --- Score Submission ---
-// Submit score to leaderboard with authentication check
-// Handles score submission to both Android and iOS leaderboards
+// Submit score to the Android and iOS leaderboards after an authentication check
 Future<void> gamesSubmitScore(int value, bool isGamesSignIn) async {
   final isSignedIn = (isGamesSignIn) ? isGamesSignIn: await gamesSignIn(isGamesSignIn);
   if (isSignedIn) {
@@ -69,8 +58,7 @@ Future<void> gamesSubmitScore(int value, bool isGamesSignIn) async {
 }
 
 // --- Leaderboard Display ---
-// Show leaderboards to users with authentication check
-// Displays platform-specific leaderboards
+// Show the platform leaderboard after an authentication check
 Future<void> gamesShowLeaderboard(bool isGamesSignIn) async {
   final isSignedIn = (isGamesSignIn) ? isGamesSignIn: await gamesSignIn(isGamesSignIn);
   if (isSignedIn) {
@@ -88,8 +76,7 @@ Future<void> gamesShowLeaderboard(bool isGamesSignIn) async {
 }
 
 // --- Best Score Management ---
-// Retrieve and sync best scores from server and local storage
-// Compares local and server scores, updates local storage if needed
+// Compare local and server best scores, update local storage if needed
 Future<int> getBestScore(bool isGamesSignIn) async {
   final SharedPreferences prefs = await SharedPreferences.getInstance();
   final savedBestScore = "bestScore".getSharedPrefInt(prefs, 0);
@@ -122,8 +109,7 @@ Future<int> getBestScore(bool isGamesSignIn) async {
 }
 
 // --- Network Connectivity ---
-// Check internet connectivity for game services
-// Validates network connection using DNS lookup
+// Check internet connectivity for game services via DNS lookup
 Future<bool> isConnectedToInternet() async {
   try {
     final result = await InternetAddress.lookup('example.com');

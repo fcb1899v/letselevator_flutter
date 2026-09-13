@@ -1,15 +1,5 @@
-// =============================
-// ButtonsPage: 1000 Buttons Challenge Interface
-//
-// This file contains the 1000 buttons challenge interface with:
-// 1. State Management: Challenge state and button selection tracking
-// 2. Initialization: Data loading and lifecycle management
-// 3. Challenge Logic: 30-second challenge with countdown and scoring
-// 4. Button Interactions: Selection and deselection with sound effects
-// 5. Timer Management: Challenge countdown and result handling
-// 6. UI Layout: Button panels and challenge interface
-// 7. Result Display: Score display and ranking integration
-// =============================
+// ===== ButtonsPage: 1000 Buttons Challenge interface =====
+// State, initialization, the 30 second challenge timer, button interactions, result display
 
 import 'dart:async';
 import 'package:flutter/material.dart';
@@ -23,6 +13,7 @@ import 'main.dart';
 import 'menu.dart';
 import 'extension.dart';
 import 'constant.dart';
+import 'plan_provider.dart';
 import 'audio_manager.dart';
 
 class ButtonsPage extends HookConsumerWidget {
@@ -49,6 +40,7 @@ class ButtonsPage extends HookConsumerWidget {
     // --- Riverpod State ---
     // App-wide state providers
     final isMenu = ref.watch(isMenuProvider);
+    final isPremium = ref.watch(planProvider).isPremium;
     final isGamesSignIn = ref.watch(gamesSignInProvider);
     final bestScore = ref.watch(bestScoreProvider);
 
@@ -64,7 +56,6 @@ class ButtonsPage extends HookConsumerWidget {
     final buttons = ButtonsWidget(context: context);
 
     // --- Initialization Functions ---
-    // App initialization and data loading
     // Initialize button states, games sign-in, and best score
     initState() async {
       isLoadingData.value = true;
@@ -122,7 +113,6 @@ class ButtonsPage extends HookConsumerWidget {
     }, const []);
 
     // --- Button Interaction Logic ---
-    // Button selection and deselection with sound effects
     // Select button and increment counter
     buttonSelected(int p, i, j) async {
       if (!isSelectedButtonsList.value[p][i][j] && !p.isTranspButton(i, j)) {
@@ -364,7 +354,8 @@ class ButtonsPage extends HookConsumerWidget {
           // Ad banner with menu toggle functionality
           common.commonAdBanner(
             image: isMenu.buttonChanBackGround(),
-            onTap: () async => ref.read(isMenuProvider.notifier).update(await isMenu.pressedMenu())
+            onTap: () async => ref.read(isMenuProvider.notifier).update(await isMenu.pressedMenu()),
+            isPremium: isPremium,
           ),
           // Loading indicator during data initialization
           if (isLoadingData.value) common.commonCircularProgressIndicator(),
@@ -374,16 +365,8 @@ class ButtonsPage extends HookConsumerWidget {
   }
 }
 
-// =============================
-// ButtonsWidget: 1000 Buttons Challenge Components
-//
-// This class provides 1000 buttons challenge interface components including:
-// 1. Header Components: Logo, challenge controls, and score display
-// 2. Button Components: Normal and large size button widgets
-// 3. Challenge Components: Countdown and start button interfaces
-// 4. Result Components: Challenge result display and navigation
-// 5. Layout Components: Panel dividers and spacing elements
-// =============================
+// ===== ButtonsWidget: 1000 Buttons Challenge components =====
+// Header, button, countdown/start, result, and layout widgets
 
 class ButtonsWidget {
 

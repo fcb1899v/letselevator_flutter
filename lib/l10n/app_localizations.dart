@@ -304,23 +304,11 @@ abstract class AppLocalizations {
   /// **'\nThe video cannot be played now.\nPlease check your ad consent setting,\nor try again in a moment.'**
   String get rewardAdUnavailable;
 
-  /// No description provided for @unlockAllTitle.
+  /// No description provided for @unlockByScore.
   ///
   /// In en, this message translates to:
-  /// **'Unlock Conditions: 1. or 2.'**
-  String get unlockAllTitle;
-
-  /// No description provided for @unlockAll1.
-  ///
-  /// In en, this message translates to:
-  /// **'1. Score 100+ in 30-sec challenge.'**
-  String get unlockAll1;
-
-  /// No description provided for @unlockAll2.
-  ///
-  /// In en, this message translates to:
-  /// **'2. Unlock all button shapes.'**
-  String get unlockAll2;
+  /// **'Score 100+ in the 30-second challenge'**
+  String get unlockByScore;
 
   /// No description provided for @challenge.
   ///
@@ -375,6 +363,72 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'RANKING'**
   String get ranking;
+
+  /// No description provided for @premiumTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Premium Pack'**
+  String get premiumTitle;
+
+  /// No description provided for @premiumNoAds.
+  ///
+  /// In en, this message translates to:
+  /// **'No more ads'**
+  String get premiumNoAds;
+
+  /// No description provided for @premiumUnlockAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Without scoring 100+ in the challenge\nor watching ad videos,\nevery design and feature is yours'**
+  String get premiumUnlockAll;
+
+  /// No description provided for @premiumOneTime.
+  ///
+  /// In en, this message translates to:
+  /// **'A one-time purchase'**
+  String get premiumOneTime;
+
+  /// No description provided for @premiumPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'Buy for {PRICE}'**
+  String premiumPrice(Object PRICE);
+
+  /// No description provided for @premiumBuy.
+  ///
+  /// In en, this message translates to:
+  /// **'Buy'**
+  String get premiumBuy;
+
+  /// No description provided for @premiumRestore.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore'**
+  String get premiumRestore;
+
+  /// No description provided for @premiumThanks.
+  ///
+  /// In en, this message translates to:
+  /// **'Thank you! Everything is unlocked.'**
+  String get premiumThanks;
+
+  /// No description provided for @premiumFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'The purchase could not be completed.'**
+  String get premiumFailed;
+
+  /// No description provided for @premiumRestoreFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'No purchase was found to restore.'**
+  String get premiumRestoreFailed;
+
+  /// No description provided for @premiumUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Purchases are unavailable right now.\nPlease try again later.'**
+  String get premiumUnavailable;
 }
 
 class _AppLocalizationsDelegate

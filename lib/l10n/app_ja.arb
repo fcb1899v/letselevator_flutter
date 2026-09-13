@@ -39,9 +39,7 @@
   "unlockTitle" : "動画を見て\n新ボタンを解放！",
   "unlockDesc" : "\nこの動画を最後まで見ると\n新しいボタンが使えます。\nOKをタップしてね！",
   "rewardAdUnavailable" : "\n今は動画を再生できません。\n広告の同意設定を確認するか、\n少し待ってからもう一度お試しください。",
-  "unlockAllTitle" : "解放条件：1.または2.",
-  "unlockAll1" : "1. 30秒チャレンジで100個以上達成！",
-  "unlockAll2" : "2. 全てのボタン形状を解放!!",
+  "unlockByScore" : "30秒チャレンジで100個以上を達成",
 
   "challenge" : "30秒チャレンジ",
   "best" : "ベスト ",
@@ -52,5 +50,17 @@
   "terms" : "利用規約",
   "officialPage" : "公式ページ",
   "officialShop" : "公式ショップ",
-  "ranking" : "ランキング"
+  "ranking" : "ランキング",
+
+  "premiumTitle" : "プレミアムパック",
+  "premiumNoAds" : "広告表示がなくなります",
+  "premiumUnlockAll" : "30秒チャレンジ100個以上の達成や\n広告動画を見ることなしに\n全てのデザインや機能が使えます",
+  "premiumOneTime" : "1回だけの購入です",
+  "premiumPrice" : "{PRICE}で購入する",
+  "premiumBuy" : "購入する",
+  "premiumRestore" : "購入を復元",
+  "premiumThanks" : "ありがとうございます！すべて解放されました。",
+  "premiumFailed" : "購入を完了できませんでした。",
+  "premiumRestoreFailed" : "復元できる購入が見つかりませんでした。",
+  "premiumUnavailable" : "いま購入手続きを開始できません。\n時間をおいてお試しください。"
 }

@@ -1,14 +1,5 @@
-// =============================
-// MenuPage: Main Menu Interface
-//
-// This file contains the main menu interface with:
-// 1. State Management: Riverpod providers and local state
-// 2. Initialization: Data loading and lifecycle management
-// 3. Menu Navigation: Button interactions and page transitions
-// 4. Data Persistence: Shared preferences for settings
-// 5. External Links: URL launching for external resources
-// 6. UI Layout: Menu buttons and bottom navigation
-// =============================
+// ===== MenuPage: main menu interface =====
+// State, initialization, menu navigation, saved settings, external links, UI layout
 
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -16,6 +7,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:vibration/vibration.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'analytics_manager.dart';
 import 'common_widget.dart';
 import 'games_manager.dart';
 import 'audio_manager.dart';
@@ -24,6 +16,9 @@ import 'extension.dart';
 import 'constant.dart';
 import 'main.dart';
 import 'homepage.dart';
+import 'plan_provider.dart';
+import 'premium_page.dart';
+import 'purchase_manager.dart';
 import 'settings.dart';
 
 class MenuPage extends HookConsumerWidget {
@@ -37,10 +32,12 @@ class MenuPage extends HookConsumerWidget {
     // Riverpod providers for app-wide state
     final isShimada = ref.watch(isShimadaProvider);
     final isGamesSignIn = ref.watch(gamesSignInProvider);
+    final isPremium = ref.watch(planProvider).isPremium;
 
     // --- Local State Variables ---
     // Loading state and app lifecycle management
     final isLoadingData = useState(false);
+    final storePrice = useState("");
     final lifecycle = useAppLifecycleState();
 
     // --- Manager Instances ---
@@ -53,7 +50,6 @@ class MenuPage extends HookConsumerWidget {
     final menu = MenuWidget(context: context);
 
     // --- Initialization Functions ---
-    // App initialization and data loading
     // Initialize games sign-in and best score data
     initState() async {
       isLoadingData.value = true;
@@ -72,6 +68,14 @@ class MenuPage extends HookConsumerWidget {
     useEffect(() {
       WidgetsBinding.instance.addPostFrameCallback((_) async {
         await initState();
+        // The menu is a deliberate tap long after the first frame, so starting
+        // the store SDK here costs the launch nothing
+        final price = await PurchaseManager.fetchPrice();
+        if (!context.mounted) return;
+        if (price != null) {
+          storePrice.value = price;
+          ref.read(planProvider.notifier).setPrice(price);
+        }
       });
       return null;
     }, []);
@@ -85,20 +89,76 @@ class MenuPage extends HookConsumerWidget {
     }, [lifecycle]);
 
     // --- Data Persistence ---
-    // Load and apply saved settings from shared preferences
     // Retrieve saved floor numbers, stops, and button style settings
     getSavedData(bool isShimada) async {
       final prefs = await SharedPreferences.getInstance();
-      final savedFloorNumbers = "numbersKey".getSharedPrefListInt(prefs, initialFloorNumbers);
-      final savedFloorStops = "stopsKey".getSharedPrefListBool(prefs, initialFloorStops);
+      final savedFloorNumbers = normalizedFloorNumbers(
+        "numbersKey".getSharedPrefListInt(prefs, initialFloorNumbers));
+      final savedFloorStops = normalizedFloorStops(
+        "stopsKey".getSharedPrefListBool(prefs, initialFloorStops));
       final savedButtonStyle = "buttonStyleKey".getSharedPrefInt(prefs, initialButtonStyle);
-      ref.read(floorNumbersProvider.notifier).update(isShimada ? initialFloorNumbers : savedFloorNumbers);
+      ref.read(floorNumbersProvider.notifier).update(isShimada ? shimadaFloorNumbers : savedFloorNumbers);
       ref.read(floorStopsProvider.notifier).update(isShimada ? initialFloorStops : savedFloorStops);
       ref.read(buttonStyleProvider.notifier).update(isShimada ? 0 : savedButtonStyle);
     }
 
+    // --- Premium Purchase --- the fifth menu button
+
+    /// Run the purchase or restore flow and report the result to the user
+    Future<void> runPurchase({required bool isRestore}) async {
+      isLoadingData.value = true;
+      try {
+        final purchased = await PurchaseManager.buyPremium(
+          isRestore: isRestore,
+          source: "menu",
+        );
+        if (!context.mounted) return;
+        if (purchased) {
+          await ref.read(planProvider.notifier).setCurrentPlan(true);
+          if (!context.mounted) return;
+          common.commonSnackBar(context.premiumThanks());
+        } else if (isRestore) {
+          common.commonSnackBar(context.premiumRestoreFailed());
+        }
+      } catch (e) {
+        "Purchase error: $e".debugPrint();
+        // Nothing to sell is not a failed purchase. The reviewer sees this one
+        // while the product is still attached to the submission
+        if (context.mounted) {
+          common.commonSnackBar((e is StoreUnavailableException)
+            ? context.premiumUnavailable()
+            : context.premiumFailed());
+        }
+      } finally {
+        isLoadingData.value = false;
+      }
+    }
+
+    /// Open the purchase page. The price is fetched again, since an offering or
+    /// the network can drop meanwhile; an empty answer is said aloud
+    Future<void> openUpgrade() async {
+      isLoadingData.value = true;
+      final price = await PurchaseManager.fetchPrice();
+      if (!context.mounted) return;
+      isLoadingData.value = false;
+      storePrice.value = price ?? "";
+      ref.read(planProvider.notifier).setPrice(price ?? "");
+      await AnalyticsManager.upgradeOffered("menu");
+      if (!context.mounted) return;
+      context.pushPage(PremiumPage(
+        price: price ?? "",
+        onBuy: () async {
+          context.popPage();
+          await runPurchase(isRestore: false);
+        },
+        onRestore: () async {
+          context.popPage();
+          await runPurchase(isRestore: true);
+        },
+      ));
+    }
+
     // --- Menu Navigation Logic ---
-    // Handle menu button interactions with page transitions
     // Process menu button clicks with sound effects and navigation
     pressedMenuLink(int i) async {
       audioManager.playEffectSound(asset: selectSound, volume: 0.8);
@@ -125,6 +185,10 @@ class MenuPage extends HookConsumerWidget {
         ref.read(isShimadaProvider.notifier).update(false);
         if (context.mounted) context.pushFadeReplacement(HomePage());
         if (context.mounted) launchUrl(Uri.parse(context.shimaxLink()));
+      } else if (i == 4) {
+        // The purchase page keeps the menu underneath, so the menu stays open
+        await openUpgrade();
+        return;
       }
       ref.read(isMenuProvider.notifier).update(false);
     }
@@ -134,7 +198,10 @@ class MenuPage extends HookConsumerWidget {
     return Scaffold(
       backgroundColor: blackColor,
       appBar: menu.menuAppBar(),
+      // bottom is left out: the ad space this page reserves has to line up with
+      // the banner HomePage draws outside its own SafeArea
       body: SafeArea(
+        bottom: false,
         child: Stack(alignment: Alignment.topCenter,
           children: [
             // Background image with responsive sizing
@@ -144,10 +211,16 @@ class MenuPage extends HookConsumerWidget {
             ),
             // Main content container with menu buttons and links
             Column(children: [
-              const Spacer(flex: 1),
               // --- Menu Buttons Grid ---
-              // Dynamic menu button grid with gesture handling
-              ...context.menuButtons(isHome, isShimada, isGamesSignIn).asMap().entries.map((row) => Column(children: [
+              // The fifth tile (purchase) made the grid taller than a 667 screen
+              // leaves. Scaled down to fit the space instead of overflowing it;
+              // on a screen with room to spare it stays at full size
+              // The width is pinned to the screen so spaceEvenly spreads the
+              // tiles exactly as before; only the height decides the scale
+              Expanded(child: FittedBox(fit: BoxFit.scaleDown,
+                child: SizedBox(width: context.width(),
+                child: Column(mainAxisSize: MainAxisSize.min, children: [
+              ...context.menuButtons(isHome, isShimada, isGamesSignIn, isPremium).asMap().entries.map((row) => Column(children: [
                 Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: row.value.asMap().entries.map((col) => Row(children: [
                     GestureDetector(
@@ -160,16 +233,23 @@ class MenuPage extends HookConsumerWidget {
                     ),
                   ])).toList(),
                 ),
-                if (row.key == 0) SizedBox(height: context.menuButtonMargin()),
+                if (row.key < (isPremium ? 1 : 2)) SizedBox(height: context.menuButtonMargin()),
               ])),
-              const Spacer(flex: 1),
+              ]),
+              ))),
               // --- Bottom Navigation Links ---
               // External links and social media navigation
               menu.menuBottomLinks(),
-              // Ad space reservation
+              // Space for what HomePage draws over this page: the banner's fixed
+              // ceiling, or, once premium removes it, the round menu button plus
+              // the inset that button is lifted by. admobHeight() is not it: the
+              // banner is always inlineBannerMaxHeight tall
               Container(
                 color: blackColor,
-                height: context.admobHeight(),
+                height: isPremium
+                  ? context.operationButtonSize()
+                      + MediaQuery.viewPaddingOf(context).bottom
+                  : inlineBannerMaxHeight.toDouble(),
               ),
             ]),
             // --- Overlay Elements ---
@@ -182,13 +262,8 @@ class MenuPage extends HookConsumerWidget {
   }
 }
 
-// =============================
-// MenuWidget: Menu Interface Components
-//
-// This class provides menu interface components including:
-// 1. AppBar: Menu header with title and navigation
-// 2. Bottom Links: External navigation links with icons
-// =============================
+// ===== MenuWidget: menu interface components =====
+// AppBar with title, and bottom links to external resources
 
 class MenuWidget {
 
@@ -217,30 +292,54 @@ class MenuWidget {
 
   // --- Bottom Navigation Component ---
   // External links navigation with social media icons
-  BottomNavigationBar menuBottomLinks() => BottomNavigationBar(
-    items: List<BottomNavigationBarItem>.generate(context.linkLogos().length, (i) =>
-      BottomNavigationBarItem(
-        icon: Container(
-          margin: EdgeInsets.only(
-              top: context.menuLinksMargin(),
-              bottom: context.menuLinksTitleMargin()
+  /// A plain Row, not a BottomNavigationBar: the bar added its own padding under
+  /// the labels, which left a gap above the ad banner. There is always something
+  /// reserved below this row, so it never takes the system inset itself
+  Widget menuBottomLinks() => Container(
+    color: blackColor,
+    // The top keeps what the bar gave it: menuLinksMargin, plus the half font
+    // size the bar added itself. The underside matches it; what the bar added
+    // beyond that is gone, which is the gap this replacement was for
+    padding: EdgeInsets.symmetric(
+      vertical: context.menuLinksMargin() + context.menuLinksTitleSize() / 2,
+    ),
+    // The bar clamped text scaling and ellipsized; without both, a large system
+    // font setting overflows the row
+    child: MediaQuery.withClampedTextScaling(
+      maxScaleFactor: 1.0,
+      child: Row(
+        // Expanded, as the bar's tiles were: the whole share is tappable
+        children: List.generate(context.linkLogos().length, (i) => Expanded(
+          child: Semantics(
+            button: true,
+            child: GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: () => launchUrl(Uri.parse(context.linkLinks()[i])),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  SizedBox(
+                    width: context.menuLinksLogoSize(),
+                    child: Image.asset(context.linkLogos()[i]),
+                  ),
+                  SizedBox(height: context.menuLinksTitleMargin()),
+                  Text(
+                    context.linkTitles()[i],
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: lampColor,
+                      fontSize: context.menuLinksTitleSize(),
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ),
-          width: context.menuLinksLogoSize(),
-          child: Image.asset(context.linkLogos()[i]),
-        ),
-        label: context.linkTitles()[i],
+        )),
       ),
     ),
-    currentIndex: 0,
-    type: BottomNavigationBarType.fixed,
-    onTap: (i) => launchUrl(Uri.parse(context.linkLinks()[i])),
-    elevation: 0,
-    selectedItemColor: lampColor,
-    unselectedItemColor: lampColor,
-    selectedFontSize: context.menuLinksTitleSize(),
-    selectedLabelStyle: const TextStyle(fontWeight: FontWeight.bold),
-    unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.bold),
-    unselectedFontSize: context.menuLinksTitleSize(),
-    backgroundColor: blackColor,
   );
 }

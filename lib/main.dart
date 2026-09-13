@@ -1,13 +1,5 @@
-// =============================
-// Main: Elevator Simulator Application Entry Point
-//
-// This file contains the main application entry point with:
-// 1. Dependencies: External packages and local imports
-// 2. State Management: Riverpod providers for app-wide state
-// 3. Initialization: Firebase, ads, and app configuration
-// 4. App Configuration: Theme, localization, and routing setup
-// 5. Privacy: App Tracking Transparency implementation
-// =============================
+// ===== Main: elevator simulator application entry point =====
+// Riverpod providers, Firebase and ads initialization, theme, localization, routing
 
 import 'dart:async';
 import 'package:flutter/material.dart';
@@ -26,6 +18,7 @@ import 'constant.dart';
 import 'extension.dart';
 import 'homepage.dart';
 import 'buttons.dart';
+import 'plan_provider.dart';
 import 'settings.dart';
 
 // --- Configuration Constants ---
@@ -160,11 +153,16 @@ Future<void> main() async {
   // --- Shared Preferences Loading ---
   // Load saved user preferences and settings
   final prefs = await SharedPreferences.getInstance();
-  final savedFloorNumbers = "numbersKey".getSharedPrefListInt(prefs, initialFloorNumbers);
-  final savedFloorStops = "stopsKey".getSharedPrefListBool(prefs, initialFloorStops);
+  final savedFloorNumbers = normalizedFloorNumbers(
+    "numbersKey".getSharedPrefListInt(prefs, initialFloorNumbers));
+  final savedFloorStops = normalizedFloorStops(
+    "stopsKey".getSharedPrefListBool(prefs, initialFloorStops));
   final savedButtonShape = "buttonShapeKey".getSharedPrefString(prefs, initialButtonShape);
   final savedButtonStyle = "buttonStyleKey".getSharedPrefInt(prefs, initialButtonStyle);
   final savedBackgroundStyle = "backgroundStyleKey".getSharedPrefString(prefs, initialBackgroundStyle);
+  // --- Premium Entitlement --- read from the local cache, not the store, so launch
+  // costs nothing; purchase_manager.dart writes the cache on every purchase and restore
+  final savedPremium = premiumKey.getSharedPrefBool(prefs, false);
   // --- Games Services Integration ---
   // Initialize games sign-in and load best score
   final isGamesSignIn = await gamesSignIn(false);
@@ -190,18 +188,15 @@ Future<void> main() async {
       backgroundStyleProvider.overrideWith(BackgroundStyleNotifier.new),
       gamesSignInProvider.overrideWith(GamesSignInNotifier.new),
       bestScoreProvider.overrideWith(BestScoreNotifier.new),
+      planProvider.overrideWith(() => PlanNotifier(PlanState(isPremium: savedPremium))),
     ],
     child: const MyApp())
   );
   // --- Mobile Ads Initialization ---
   // Initialize Google Mobile Ads for monetization
   await MobileAds.instance.initialize();
-  // --- Privacy Configuration ---
-  // Initialize App Tracking Transparency for iOS
-  // No ATT call here. On iOS the UMP form shows Google's IDFA explainer and then
-  // raises the system ATT prompt itself, so asking again from the app put a
-  // second explainer after the user had already answered. Removed in NEO first;
-  // see 03_Developer/technical/2026-08-25_elevatorneo_att_gate_removal.md
+  // --- Privacy Configuration --- no ATT call here: on iOS the UMP form raises the
+  // system ATT prompt itself, so asking again showed a second explainer
 }
 
 // --- Main Application Widget ---

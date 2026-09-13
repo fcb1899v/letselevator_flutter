@@ -3,10 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'extension.dart';
 
-// =============================
-// TtsManager: Text-to-Speech management
-// Handles multi-language TTS for the app
-// =============================
+// ===== TtsManager: multi-language text-to-speech for the app =====
 
 class TtsManager {
   final BuildContext context;

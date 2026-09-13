@@ -1,17 +1,6 @@
-// =============================
-// Extension Methods for LETS ELEVATOR
-//
-// 1. StringExt      : String utilities, SharedPreferences helpers, image path helpers, style helpers
-// 2. ContextExt     : BuildContext utilities, localization, UI helpers
-// 3. IntExt         : Integer utilities for floor, button, and elevator logic
-// 4. ListIntExt     : List<int> helpers for floor and button matrix
-// 5. ListStringExt  : List<String> helpers for room images and names
-// 6. BoolExt        : Boolean helpers for UI and logic
-// 7. ListBoolExt    : List<bool> helpers for button images
-// 8. ListDynamicExt : Generic List<T> matrix helpers
-// =============================
+// ===== Extension methods for LETS ELEVATOR =====
+// String, Context, Int, ListInt, ListString, Bool, ListBool, and ListDynamic extensions
 
-import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:vibration/vibration.dart';
@@ -20,9 +9,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'constant.dart';
 import 'l10n/app_localizations.dart' show AppLocalizations;
 
-// =============================
-// StringExt: String utilities, SharedPreferences helpers, image path helpers, style helpers
-// =============================
+// ===== StringExt: string, SharedPreferences, image path, and style helpers =====
 extension StringExt on String {
 
   // --- Debug Utilities ---
@@ -32,8 +19,7 @@ extension StringExt on String {
   }
 
   // --- SharedPreferences Helpers ---
-  // Comprehensive set of methods for storing and retrieving data from SharedPreferences
-  // All methods include debug logging for development tracking
+  // Store and retrieve data from SharedPreferences, with debug logging
   void setSharedPrefString(SharedPreferences prefs, String value) {
     "Saved ${replaceAll("Key", "")}: $value".debugPrint();
     prefs.setString(this, value);
@@ -110,9 +96,7 @@ extension StringExt on String {
   int buttonShapeIndex() => buttonShapeList.contains(this) ? buttonShapeList.indexOf(this): 0;
 }
 
-// =============================
-// ContextExt: BuildContext utilities, localization, UI helpers
-// =============================
+// ===== ContextExt: BuildContext utilities, localization, UI helpers =====
 extension ContextExt on BuildContext {
 
   // --- Navigation & UI Basics ---
@@ -132,6 +116,20 @@ extension ContextExt on BuildContext {
       MaterialPageRoute(builder: (_) => page),
       (route) => false
     );
+  /// Push over the current screen, keeping it underneath. Not opaque: the ad
+  /// banner the screen below draws stays visible through the strip the page
+  /// leaves at the bottom
+  void pushPage(Widget page) {
+    Navigator.push(this, PageRouteBuilder(
+      opaque: false,
+      pageBuilder: (_, animation, _) => page,
+      transitionsBuilder: (_, animation, _, child) => FadeTransition(
+        opacity: animation,
+        child: child,
+      ),
+      transitionDuration: const Duration(milliseconds: 300),
+    ));
+  }
   void popPage() => Navigator.pop(this);
 
   double width() => MediaQuery.of(this).size.width;
@@ -149,9 +147,7 @@ extension ContextExt on BuildContext {
   double circleSize() => ((height() > width()) ? width(): height()) * 0.1;
   double circleStrokeWidth() => ((height() > width()) ? width(): height()) * 0.012;
 
-  // --- Localized Strings ---
-  // Comprehensive collection of localized strings for all app features
-  // Common app strings
+  // --- Localized Strings --- Common app strings
   // String thisApp() => AppLocalizations.of(this)!.thisApp;
   String rooftop() => AppLocalizations.of(this)!.rooftop;
   String ground() => AppLocalizations.of(this)!.ground;
@@ -210,11 +206,26 @@ extension ContextExt on BuildContext {
   String unlockTitle() => AppLocalizations.of(this)!.unlockTitle;
   String unlockDesc() => AppLocalizations.of(this)!.unlockDesc;
   String rewardAdUnavailable() => AppLocalizations.of(this)!.rewardAdUnavailable;
-  String unlockAllTitle() => AppLocalizations.of(this)!.unlockAllTitle;
-  List<String> unlockAll() => [
-    AppLocalizations.of(this)!.unlockAll1,
-    AppLocalizations.of(this)!.unlockAll2
-  ];
+  String unlockByScore() => AppLocalizations.of(this)!.unlockByScore;
+
+  // --- Premium Purchase ---
+  // The one-off unlock that removes ads and opens every button and background
+  String premiumTitle() => AppLocalizations.of(this)!.premiumTitle;
+  String premiumNoAds() => AppLocalizations.of(this)!.premiumNoAds;
+  String premiumUnlockAll() => AppLocalizations.of(this)!.premiumUnlockAll;
+  String premiumOneTime() => AppLocalizations.of(this)!.premiumOneTime;
+  // The label carries the price when there is one. An empty price would read
+  // as "Unlock for " with nothing after it, so it falls back to the bare verb
+  String premiumBuy(String price) => (price.isEmpty) ?
+      AppLocalizations.of(this)!.premiumBuy:
+      AppLocalizations.of(this)!.premiumPrice(price);
+  String premiumRestore() => AppLocalizations.of(this)!.premiumRestore;
+  String premiumThanks() => AppLocalizations.of(this)!.premiumThanks;
+  String premiumFailed() => AppLocalizations.of(this)!.premiumFailed;
+  String premiumRestoreFailed() => AppLocalizations.of(this)!.premiumRestoreFailed;
+  // Shown when the offer cannot be made at all (no offering, unapproved product, no
+  // network). Distinct from premiumFailed(): nobody has tried to buy anything yet
+  String premiumUnavailable() => AppLocalizations.of(this)!.premiumUnavailable;
 
   // --- Menu and Navigation ---
   // Menu system localization
@@ -237,25 +248,30 @@ extension ContextExt on BuildContext {
 
   // --- Menu Configuration ---
   // Menu button layouts and link configurations for different app states
-  List<List<String>> menuButtons(bool isHome, bool isShimada, bool isGamesSignIn) => [
+  /// The purchase tile is the fifth, alone on its own row and centred. It is
+  /// dropped once premium is owned, which leaves the original four
+  List<List<String>> menuButtons(
+    bool isHome, bool isShimada, bool isGamesSignIn, bool isPremium,
+  ) => [
     [isHome.modeChangeButton(isShimada), isHome.modeChallengeButton(isGamesSignIn)],
     [settingsButton, aboutShimadaButton],
+    if (!isPremium) [purchaseButton],
   ];
 
   List<String> linkLogos() => [
-    if (Platform.isAndroid) youtubeLogo,
+    youtubeLogo,
     landingPageLogo,
     privacyPolicyLogo,
     if (lang() == "ja") shopPageLogo,
   ];
   List<String> linkLinks() => [
-    if (Platform.isAndroid) youtubeLink(),
+    youtubeLink(),
     landingPageLink(),
     privacyPolicyLink(),
     if (lang() == "ja") shopLink,
   ];
   List<String> linkTitles() => [
-    if (Platform.isAndroid) "Youtube",
+    "Youtube",
     officialPage(),
     terms(),
     if (lang() == "ja") officialShop(),
@@ -265,6 +281,29 @@ extension ContextExt on BuildContext {
   // Core responsive sizing utilities for adaptive layouts across different devices
   double responsible() => (height() < 1000) ? height(): 1000;
   double widthResponsible() => (width() < 600) ? width(): 600;
+
+  // --- Premium purchase page ---
+  // 08_Designer/ui/2026-09-11_premium_purchase_page.md の案5A。基準 430dp 幅
+  double premiumContentWidth() => widthResponsible() * 0.888;
+  double premiumSignHeight() => widthResponsible() * 0.242;
+  double premiumSignFontSize() => widthResponsible() * 0.163;
+  double premiumNameFontSize() => widthResponsible() * 0.065;
+  double premiumPlateFontSize() => widthResponsible() * 0.051;
+  double premiumBodyFontSize() => widthResponsible() * 0.044;
+  double premiumNoteFontSize() => widthResponsible() * 0.033;
+  double premiumBuyFontSize() => widthResponsible() * 0.051;
+  double premiumRestoreFontSize() => widthResponsible() * 0.037;
+  double premiumIconSize() => widthResponsible() * 0.172;
+  double premiumIconMargin() => widthResponsible() * 0.019;
+  double premiumCloseSize() => widthResponsible() * 0.065;
+  double premiumBuyHeight() => widthResponsible() * 0.167;
+  double premiumPlatePadding() => widthResponsible() * 0.030;
+  double premiumPlateRadius() => widthResponsible() * 0.019;
+  double premiumBuyRadius() => widthResponsible() * 0.033;
+  double premiumBorderWidth() => widthResponsible() * 0.005;
+  double premiumBuyBorderWidth() => widthResponsible() * 0.012;
+  double premiumGapInner() => widthResponsible() * 0.033;
+  double premiumGapBlock() => widthResponsible() * 0.084;
 
   // --- Display Layout ---
   // Elevator display panel sizing and positioning for floor indicators and arrows
@@ -308,14 +347,13 @@ extension ContextExt on BuildContext {
   double menuAppBarHeight() => height() * 0.07;
   double menuAppBarFontSize() => height() * 0.032;
   double menuButtonSize() => widthResponsible() * 0.33;
-  double menuButtonMargin() => responsible() * 0.05;
+  double menuButtonMargin() => responsible() * 0.035;
   double menuLinksLogoSize() => widthResponsible() * 0.16;
   double menuLinksTitleSize() => widthResponsible() * 0.025;
   double menuLinksTitleMargin() => widthResponsible() * 0.02;
   double menuLinksMargin() => widthResponsible() * 0.04;
 
   // --- Settings Layout ---
-  // Comprehensive settings screen layout with dividers, app bar, locks, and tooltips
   // Divider: Visual separators between settings sections
   double settingsDividerHeight() => height() * 0.015;
   double settingsDividerThickness() => height() * 0.001;
@@ -330,44 +368,45 @@ extension ContextExt on BuildContext {
   double settingsLockIconSize() => height() * 0.035;
   double settingsLockMargin() => height() * 0.01;
   double settingsAllLockIconSize() => height() * 0.1;
+  double settingsLockTextFontSize() => height() * 0.017;
+  double settingsLockTextMargin() => height() * 0.012;
   double settingsAllLockIconMargin() => height() * 0.01;
   double settingsAllLockFontSize() => height() * 0.022;
-  double settingsLockFreeButtonWidth() => height() * 0.08;
+  double settingsLockFreeButtonWidth() => height() * lockPillWidthFactor;
   double settingsLockFreeButtonHeight() => height() * 0.03;
+  /// Invisible margin around the Unlock pill, so a near miss still takes the
+  /// free path instead of the purchase page behind it
+  double settingsLockFreeTapPadding() => height() * lockPillPaddingFactor;
   double settingsLockFreeBorderRadius() => height() * 0.015;
   double settingsLockFreeFontSize() => height() * 0.018;
   // Tooltip: Help text overlays for setting explanations
-  double settingsTooltipIconSize() => widthResponsible() * 0.08;
-  double settingsTooltipHeight() => widthResponsible() * 0.2;
-  double settingsTooltipMargin() => widthResponsible() * 0.185;
-  double settingsTooltipTitleFontSize() => widthResponsible() * 0.05;
-  double settingsTooltipDescFontSize() => widthResponsible() *0.04;
-  double settingsTooltipTitleMargin() => widthResponsible() * 0.01;
-  double settingsTooltipPaddingSize() => widthResponsible() * 0.04;
-  double settingsTooltipMarginSize() => widthResponsible() * 0.02;
-  double settingsTooltipBorderRadius() => widthResponsible() * 0.04;
-  double settingsTooltipOffsetSize() => widthResponsible() * 0.02;
 
   // --- Settings Controls ---
-  // Interactive controls for settings including buttons, number inputs, and toggles
   // Select button: Navigation buttons for different setting categories
   double settingsSelectButtonSize() => height() * 0.06;
   double settingsSelectButtonIconSize() => height() * 0.03;
   double settingsSelectButtonMarginTop() => height() * 0.015;
   double settingsSelectButtonMarginBottom() => height() * 0.007;
   // Change button number: Floor count configuration controls
-  double settingsButtonSize() => height() * 0.07;
+  double settingsButtonSize() => height() * floorButtonFactor;
   double settingsNumberButtonWidth() => height() * 0.07;
   double settingsNumberButtonHeight() => height() * 0.142;
   double settingsNumberButtonFontSize() => height() * 0.03;
   double settingsNumberButtonMargin() => height() * 0.015;
-  double settingsNumberButtonHideWidth() => height() * 0.08;
-  double settingsNumberButtonHideHeight() => height() * 0.145;
+  /// The floor cell the lock plate covers. Derived from the plate, so a narrow
+  /// screen shrinks both together instead of leaving the cell sticking out
+  double settingsNumberButtonHideWidth() => floorCellWidth(width(), height());
+  /// Holds the Unlock pill and its tap padding, capped by the width so four fit
+  /// on a row. Past h/w 2.367 the cap wins and the pill drops below 0.08h
+  double settingsFloorLockWidth() => floorLockPlateWidth(width(), height());
+  /// Tall enough for the floor button, the Stop label and the switch, once the
+  /// switch is sized rather than scaled (see settingsFloorStopToggleWidget)
+  double settingsNumberButtonHideHeight() => floorCellHeight(height());
   double settingsNumberButtonHideMargin() => height() * 0.01;
   // Change floor stop: Toggle switches for floor stop configuration
-  double settingsFloorStopFontSize() => height() * 0.015;
-  double settingsFloorStopMargin() => height() * 0.005;
-  double settingsFloorStopToggleScale() => height() * 0.001;
+  double settingsFloorStopFontSize() => height() * floorStopLabelFactor;
+  double settingsFloorStopMargin() => height() * floorStopMarginFactor;
+  double settingsFloorStopToggleScale() => height() * floorStopSwitchScaleFactor;
   // Change button style: Visual style selection for elevator buttons
   double settingsButtonStyleSize() => height() * 0.07;
   double settingsButtonStyleMargin() => height() * 0.03;
@@ -382,9 +421,6 @@ extension ContextExt on BuildContext {
   double settingsBackgroundSize() => height() * 0.17;
   double settingsBackgroundMargin() => height() * 0.035;
   double settingsBackgroundSelectBorderWidth() =>  height() * 0.007;
-  double settingsBackgroundStyleLockWidth() => width() * 0.90;
-  double settingsBackgroundStyleLockHeight() => height() * 0.4;
-  double settingsBackgroundStyleLockMargin() => height() * 0.23;
   // Settings Alert Dialog: Modal dialogs for configuration changes
   double settingsAlertTitleFontSize() => widthResponsible() * 0.05;
   double settingsAlertDescFontSize() => widthResponsible() * 0.04;
@@ -403,7 +439,6 @@ extension ContextExt on BuildContext {
   double settingsAlertLockBorderRadius() => widthResponsible() * 0.04;
 
   // --- 1000 Button Challenge Layout ---
-  // Challenge mode interface layout for 1000-button speed test
   // Logo and branding elements
   double logo1000ButtonsWidth() => widthResponsible() * 0.5;
   double logo1000ButtonsPadding() => widthResponsible() * 0.01;
@@ -452,7 +487,6 @@ extension ContextExt on BuildContext {
 extension IntExt on int {
 
   // --- Settings UI ---
-  // Settings screen button states and operation button style management
   // Selected number indicator for settings buttons
   String selected(int i) => (this == i) ? "Pressed": "";
   String settingsButton(int i) => "$assetsSettings${settingsItemList[i]}Settings${selected(i)}.png";
@@ -555,7 +589,6 @@ extension IntExt on int {
     'centième ${(this % 100).frRankNumberOver20()} ';
 
   // --- Display Logic ---
-  // Floor number display formatting for elevator display panel
   // Current floor counter display with special symbols
   String displayNumber() =>
       (this == max) ? "R":
@@ -618,7 +651,6 @@ extension IntExt on int {
     isSelected(up: up, down: down).floorButtonNumberColor(shape);
 
   // --- Floor Selection Management ---
-  // Floor selection clearing operations for elevator control logic
   // Clear all floors above current position
   void clearUpperFloor(List<bool> isAboveSelectedList, isUnderSelectedList) {
     for (int j = max; j > this - 1; j--) {
@@ -635,7 +667,6 @@ extension IntExt on int {
   }
 
   // --- Floor Range Generation ---
-  // Generate floor lists for elevator movement sequences
   // Generate ascending floor list from current to target
   List<int> upFromToNumber(int nextFloor) {
     List<int> floorList = [];
@@ -654,7 +685,6 @@ extension IntExt on int {
   }
 
   // --- Next Floor Calculation ---
-  // Intelligent next floor selection based on current position and button states
   // Calculate next floor when moving upward
   int upNextFloor({
     required List<bool> up,
@@ -725,7 +755,6 @@ extension IntExt on int {
   }
 
   // --- Button State Control ---
-  // Direct manipulation of button selection states
   // Set button as selected (true)
   void trueSelected({
     required List<bool> up,
@@ -770,7 +799,6 @@ extension IntExt on int {
   }
 
   // --- 1000 Button Challenge Layout ---
-  // Button visibility and layout configuration for challenge mode panels
   // Transparent button positions for special layout effects
   bool isTranspButton(int i, j) =>
       //panel 2
@@ -986,7 +1014,6 @@ extension IntExt on int {
       1;
 
   // --- Challenge Mode Utilities ---
-  // Number formatting and display utilities for challenge mode
   // Zero-padded number display for score counters
   String countNumber() =>
       (this > 999) ? "$this":
@@ -1004,7 +1031,6 @@ extension IntExt on int {
       greenColor;
 
   // --- List Generation Utilities ---
-  // 3D list generation for button state management
   // Generate 3D list filled with false values
   List<List<List<bool>>> listListAllFalse(int rowMax, int columnMax) =>
       List.generate(this, (_) => List.generate(rowMax, (_) => List.generate(columnMax, (_) => false)));
@@ -1016,7 +1042,6 @@ extension IntExt on int {
 extension BoolExt on bool {
 
   // --- Button State Management ---
-  // Button pressed state utilities for visual feedback and asset selection
   // Pressed state suffix for asset file names
   String pressed() => this ? 'Pressed': '';
   // Button background image selection based on style, shape, and pressed state
@@ -1027,24 +1052,15 @@ extension BoolExt on bool {
   Color floorButtonNumberColor(String buttonShape) => numberColor(buttonShape.buttonShapeIndex());
   // Shimada button image selection for 1000 button challenge
   String shimadaButtonImage(int row, int col) =>
-      '$assets1000${this ? "p": ""}${initialFloorNumbers.toReversedMatrix(4)[row][col].buttonNumber()}.png';
-
-  // --- Floor Configuration ---
-  // Basement floor configuration utilities
-  // Floor symbol multiplier for basement vs above-ground floors
-  int floorSymbol() => this ? -1: 1;
-  // Selected floor number calculation with basement support
-  int selectedFloorNumber(int index) => floorSymbol() * (index + 1);
+      '$assets1000${this ? "p": ""}${shimadaFloorNumbers.toReversedMatrix(4)[row][col].buttonNumber()}.png';
 
   // --- Menu Navigation ---
-  // Home screen menu button configuration
   // Mode change button selection based on current Shimada state
   String modeChangeButton(bool isShimada) => (this && !isShimada) ? modeShimadaButton: modeNormalButton;
   // Challenge mode button selection based on games sign-in status
   String modeChallengeButton(bool isGamesSignIn) => (!this && isGamesSignIn) ? rankingButton: mode1000Button;
 
   // --- Shimada Mode Styling ---
-  // Shimada Electric brand styling for buttons and backgrounds
   // Button channel background selection
   String buttonChanBackGround() => (this) ? pressedButtonChan: buttonChan;
   // Open button background with Shimada or standard styling
@@ -1113,7 +1129,6 @@ extension ListBoolExt on List<bool> {
 extension ListDynamicExt<T> on List<T> {
 
   // --- Matrix Transformation Utilities ---
-  // Generic matrix transformation utilities for data restructuring
   // Convert list to 2D matrix with specified column count
   List<List<T>> toMatrix(int n) =>
       [for (var i = 0; i < length; i += n) sublist(i, (i + n <= length) ? i + n : length)];
@@ -1134,13 +1149,24 @@ extension ListDynamicExt<T> on List<T> {
 extension ListInt on List<int> {
 
   // --- Floor Range Selection ---
-  // Floor range calculation utilities for elevator button configuration
   // Select first floor in range based on button position
-  int selectFirstFloor(int row, int col) =>
-      (row == 3 && col == 3) ? min: this[reversedButtonIndex[row][col] - 1] + 1;
-  // Select last floor in range based on button position
-  int selectLastFloor(int row, int col) =>
-      (row == 0 && col == 3) ? max: this[reversedButtonIndex[row][col] + 1] - 1;
+  /// A button sits between its neighbours, except the two ends. The bottom one
+  /// runs down to min, and the top one up to max; their other limit comes from
+  /// how many buttons have to fit on the far side of the fixed 1F
+  /// The picker stops at the neighbouring buttons, so no other floor has to move
+  int selectFirstFloor(int row, int col) {
+    final i = reversedButtonIndex[row][col];
+    // this[i - 1] is never -1 unless i is 1F, which cannot be selected, so the
+    // result never lands on the floor 0 that does not exist
+    if (i == 0) return min;
+    return this[i - 1] + 1;
+  }
+  int selectLastFloor(int row, int col) {
+    final i = reversedButtonIndex[row][col];
+    if (i == floorButtonCount - 1) return max;
+    final last = this[i + 1] - 1;
+    return (last == 0) ? -1 : last;
+  }
   // Calculate floor range difference for button configuration
   int selectDiffFloor(int row, int col) =>
       selectLastFloor(row, col) - selectFirstFloor(row, col) + 1;

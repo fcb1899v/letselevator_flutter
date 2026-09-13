@@ -111,13 +111,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get rewardAdUnavailable => '\n现在无法播放视频。\n请检查广告同意设置，\n或稍后再试。';
 
   @override
-  String get unlockAllTitle => '解锁条件：1. 或 2.';
-
-  @override
-  String get unlockAll1 => '1. 在30秒挑战中达成100分以上！';
-
-  @override
-  String get unlockAll2 => '2. 解锁所有按钮样式!!';
+  String get unlockByScore => '在30秒挑战中达成100分以上';
 
   @override
   String get challenge => '30秒挑战';
@@ -145,4 +139,39 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get ranking => '排名';
+
+  @override
+  String get premiumTitle => '高级版';
+
+  @override
+  String get premiumNoAds => '不再显示广告';
+
+  @override
+  String get premiumUnlockAll => '无需在30秒挑战中达成100个以上，\n也无需观看广告视频，\n即可使用所有设计和功能';
+
+  @override
+  String get premiumOneTime => '一次性购买';
+
+  @override
+  String premiumPrice(Object PRICE) {
+    return '以$PRICE购买';
+  }
+
+  @override
+  String get premiumBuy => '购买';
+
+  @override
+  String get premiumRestore => '恢复购买';
+
+  @override
+  String get premiumThanks => '感谢您！已全部解锁。';
+
+  @override
+  String get premiumFailed => '购买未能完成。';
+
+  @override
+  String get premiumRestoreFailed => '未找到可恢复的购买记录。';
+
+  @override
+  String get premiumUnavailable => '目前无法进行购买。\n请稍后再试。';
 }

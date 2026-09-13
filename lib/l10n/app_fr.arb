@@ -39,9 +39,7 @@
   "unlockTitle": "Regardez la vidéo pour\ndéverrouiller le nouveau bouton !",
   "unlockDesc": "\nRegardez jusqu'à la fin\npour utiliser le nouveau bouton.\nAppuyez sur OK !",
   "rewardAdUnavailable": "\nLa vidéo ne peut pas être lue.\nVérifiez votre consentement publicitaire\nou réessayez dans un instant.",
-  "unlockAllTitle": "Conditions de déverrouillage : 1. ou 2.",
-  "unlockAll1": "1. Obtenez plus de 100 points dans le défi de 30 s.",
-  "unlockAll2": "2. Déverrouillez toutes les formes de boutons.",
+  "unlockByScore" : "Obtenez plus de 100 points dans le défi de 30 s",
 
   "challenge": "Défi 30 s",
   "best": "MEILLEUR",
@@ -52,5 +50,17 @@
   "terms": "Conditions",
   "officialPage": "Page officielle",
   "officialShop": "Boutique officielle",
-  "ranking": "Classement"
+  "ranking": "Classement",
+
+  "premiumTitle" : "Pack Premium",
+  "premiumNoAds" : "Plus de publicité",
+  "premiumUnlockAll" : "Sans atteindre 100+ au défi\nni regarder de vidéo publicitaire,\ntous les designs et fonctions sont à vous",
+  "premiumOneTime" : "Achat unique",
+  "premiumPrice" : "Acheter pour {PRICE}",
+  "premiumBuy" : "Acheter",
+  "premiumRestore" : "Restaurer l'achat",
+  "premiumThanks" : "Merci ! Tout est débloqué.",
+  "premiumFailed" : "L'achat n'a pas pu être finalisé.",
+  "premiumRestoreFailed" : "Aucun achat à restaurer n'a été trouvé.",
+  "premiumUnavailable" : "Les achats sont indisponibles.\nRéessayez plus tard."
 }

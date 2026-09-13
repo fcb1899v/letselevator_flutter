@@ -152,6 +152,34 @@ assets/
 - Normal Mode: Standard floor numbers
 - 1000 Buttons Challenge: Speed challenge with large button grid
 - Shimada Mode: Special configuration
+- Every button except 1F can be renumbered. The picker offers only the gap
+  between the neighbouring buttons, inside B6..163F, so the panel always reads
+  bottom to top. With sixteen buttons the top therefore stops at 12F and the
+  bottom at B4
+- Each button can be set to stop or to bypass, except 1F. At least one floor
+  above 1F and one below it must stop, so the last remaining switch on a side
+  is disabled
+- Backgrounds unlock one at a time: the first two are free, each of the rest
+  costs its own rewarded video
+- Floors unlock one at a time as well. Above ground and below it are two
+  independent orders (8F, 14F, 100F, 154F, R / B2, B4, B6), and each side offers
+  its button only on the next one in its own order. One unlock covers both the
+  floor number and the stop switch of that button
+- Shimada mode keeps its own panel (`shimadaFloorNumbers`). It draws one artwork
+  per floor from `assets/images/1000Mode/`, which holds B1..B4 only, so it must
+  not follow `initialFloorNumbers` — a mismatch shows up at runtime, not in
+  `flutter analyze` or `flutter test`
+- Button shapes unlock per shape; the button style section opens on a best score
+  of 100 in the 30-second challenge
+
+## 💳 Premium
+
+A single non-consumable purchase (`premium`), sold through RevenueCat.
+
+- Removes the banner ad and opens every lock at once
+- Reached from the PREMIUM tile in the menu, and from any padlock in settings.
+  The padlock is the paid path; the Unlock button beside it is the free one
+- Restoring is offered on the same page, as the store guidelines require
 
 ## 🌐 Localization
 
@@ -178,13 +206,26 @@ flutter analyze
 
 ### Run Tests
 
-There are none. The `flutter create` counter test was removed on 2026-09-02
-because it asserted on a widget this app does not have and could only ever fail,
-which made a red `flutter test` indistinguishable from a real failure.
+`test/floor_test.dart` covers the rules the panel has to keep: the picker range,
+the save guard, the stop toggles, the one-off unlock migrations, and the lock
+plate geometry. They are pure functions, so they are checked exhaustively.
 
-`flutter analyze` is the check that runs clean and is expected to stay that way.
+The pure checks cannot see how the widgets are wired, so these draw the real
+widgets and fail on any overflow:
+
+- `floor_panel_layout_test.dart` — the floor panel, from 320x568 up to 412x915
+- `panel_debug_probe_test.dart` — the floor panel in all six languages, with the
+  app's own fonts
+- `menu_layout_test.dart` — the menu, including the fifth (purchase) tile
+
+`switch_size_probe_test.dart` does not draw anything: it checks that
+CupertinoSwitch still has the natural size the floor cell is built around.
+
+The `flutter create` counter test was removed on 2026-09-02 because it asserted
+on a widget this app does not have and could only ever fail.
 
 ```bash
+flutter test      # expected: All tests passed!
 flutter analyze   # expected: No issues found!
 ```
 

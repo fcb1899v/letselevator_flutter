@@ -39,9 +39,7 @@
   "unlockTitle": "观看视频解锁新按钮！",
   "unlockDesc": "\n看完视频就能使用新按钮。\n请点击「确定」！",
   "rewardAdUnavailable": "\n现在无法播放视频。\n请检查广告同意设置，\n或稍后再试。",
-  "unlockAllTitle": "解锁条件：1. 或 2.",
-  "unlockAll1": "1. 在30秒挑战中达成100分以上！",
-  "unlockAll2": "2. 解锁所有按钮样式!!",
+  "unlockByScore" : "在30秒挑战中达成100分以上",
 
   "challenge": "30秒挑战",
   "best": "最高",
@@ -52,5 +50,17 @@
   "terms": "使用条款",
   "officialPage": "官方页面",
   "officialShop": "官方商店",
-  "ranking": "排名"
+  "ranking": "排名",
+
+  "premiumTitle" : "高级版",
+  "premiumNoAds" : "不再显示广告",
+  "premiumUnlockAll" : "无需在30秒挑战中达成100个以上，\n也无需观看广告视频，\n即可使用所有设计和功能",
+  "premiumOneTime" : "一次性购买",
+  "premiumPrice" : "以{PRICE}购买",
+  "premiumBuy" : "购买",
+  "premiumRestore" : "恢复购买",
+  "premiumThanks" : "感谢您！已全部解锁。",
+  "premiumFailed" : "购买未能完成。",
+  "premiumRestoreFailed" : "未找到可恢复的购买记录。",
+  "premiumUnavailable" : "目前无法进行购买。\n请稍后再试。"
 }

@@ -114,14 +114,7 @@ class AppLocalizationsFr extends AppLocalizations {
       '\nLa vidéo ne peut pas être lue.\nVérifiez votre consentement publicitaire\nou réessayez dans un instant.';
 
   @override
-  String get unlockAllTitle => 'Conditions de déverrouillage : 1. ou 2.';
-
-  @override
-  String get unlockAll1 =>
-      '1. Obtenez plus de 100 points dans le défi de 30 s.';
-
-  @override
-  String get unlockAll2 => '2. Déverrouillez toutes les formes de boutons.';
+  String get unlockByScore => 'Obtenez plus de 100 points dans le défi de 30 s';
 
   @override
   String get challenge => 'Défi 30 s';
@@ -150,4 +143,41 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get ranking => 'Classement';
+
+  @override
+  String get premiumTitle => 'Pack Premium';
+
+  @override
+  String get premiumNoAds => 'Plus de publicité';
+
+  @override
+  String get premiumUnlockAll =>
+      'Sans atteindre 100+ au défi\nni regarder de vidéo publicitaire,\ntous les designs et fonctions sont à vous';
+
+  @override
+  String get premiumOneTime => 'Achat unique';
+
+  @override
+  String premiumPrice(Object PRICE) {
+    return 'Acheter pour $PRICE';
+  }
+
+  @override
+  String get premiumBuy => 'Acheter';
+
+  @override
+  String get premiumRestore => 'Restaurer l\'achat';
+
+  @override
+  String get premiumThanks => 'Merci ! Tout est débloqué.';
+
+  @override
+  String get premiumFailed => 'L\'achat n\'a pas pu être finalisé.';
+
+  @override
+  String get premiumRestoreFailed => 'Aucun achat à restaurer n\'a été trouvé.';
+
+  @override
+  String get premiumUnavailable =>
+      'Les achats sont indisponibles.\nRéessayez plus tard.';
 }

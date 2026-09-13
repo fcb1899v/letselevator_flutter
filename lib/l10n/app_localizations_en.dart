@@ -114,13 +114,7 @@ class AppLocalizationsEn extends AppLocalizations {
       '\nThe video cannot be played now.\nPlease check your ad consent setting,\nor try again in a moment.';
 
   @override
-  String get unlockAllTitle => 'Unlock Conditions: 1. or 2.';
-
-  @override
-  String get unlockAll1 => '1. Score 100+ in 30-sec challenge.';
-
-  @override
-  String get unlockAll2 => '2. Unlock all button shapes.';
+  String get unlockByScore => 'Score 100+ in the 30-second challenge';
 
   @override
   String get challenge => '30s Challenge';
@@ -148,4 +142,41 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get ranking => 'RANKING';
+
+  @override
+  String get premiumTitle => 'Premium Pack';
+
+  @override
+  String get premiumNoAds => 'No more ads';
+
+  @override
+  String get premiumUnlockAll =>
+      'Without scoring 100+ in the challenge\nor watching ad videos,\nevery design and feature is yours';
+
+  @override
+  String get premiumOneTime => 'A one-time purchase';
+
+  @override
+  String premiumPrice(Object PRICE) {
+    return 'Buy for $PRICE';
+  }
+
+  @override
+  String get premiumBuy => 'Buy';
+
+  @override
+  String get premiumRestore => 'Restore';
+
+  @override
+  String get premiumThanks => 'Thank you! Everything is unlocked.';
+
+  @override
+  String get premiumFailed => 'The purchase could not be completed.';
+
+  @override
+  String get premiumRestoreFailed => 'No purchase was found to restore.';
+
+  @override
+  String get premiumUnavailable =>
+      'Purchases are unavailable right now.\nPlease try again later.';
 }

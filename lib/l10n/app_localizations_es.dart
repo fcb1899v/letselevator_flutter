@@ -113,13 +113,7 @@ class AppLocalizationsEs extends AppLocalizations {
       '\nAhora no se puede reproducir el vídeo.\nRevisa tu consentimiento de anuncios\no inténtalo de nuevo en un momento.';
 
   @override
-  String get unlockAllTitle => 'Condiciones de desbloqueo: 1. o 2.';
-
-  @override
-  String get unlockAll1 => '1. Consigue más de 100 puntos en el reto de 30s.';
-
-  @override
-  String get unlockAll2 => '2. Desbloquea todas las formas de botones.';
+  String get unlockByScore => 'Consigue más de 100 puntos en el reto de 30 s';
 
   @override
   String get challenge => 'Reto de 30s';
@@ -147,4 +141,42 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get ranking => 'Clasificación';
+
+  @override
+  String get premiumTitle => 'Pack Premium';
+
+  @override
+  String get premiumNoAds => 'Sin anuncios';
+
+  @override
+  String get premiumUnlockAll =>
+      'Sin conseguir 100+ en el reto\nni ver vídeos publicitarios,\ntodos los diseños y funciones son tuyos';
+
+  @override
+  String get premiumOneTime => 'Una compra única';
+
+  @override
+  String premiumPrice(Object PRICE) {
+    return 'Comprar por $PRICE';
+  }
+
+  @override
+  String get premiumBuy => 'Comprar';
+
+  @override
+  String get premiumRestore => 'Restaurar compra';
+
+  @override
+  String get premiumThanks => '¡Gracias! Todo está desbloqueado.';
+
+  @override
+  String get premiumFailed => 'No se pudo completar la compra.';
+
+  @override
+  String get premiumRestoreFailed =>
+      'No se encontró ninguna compra para restaurar.';
+
+  @override
+  String get premiumUnavailable =>
+      'Las compras no están disponibles.\nInténtalo de nuevo más tarde.';
 }

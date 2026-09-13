@@ -1,14 +1,5 @@
-// =============================
-// HomePage: Main Elevator Simulator Interface
-//
-// This file contains the main elevator simulator interface with:
-// 1. State Management: Riverpod providers and local state management
-// 2. Initialization: App lifecycle and data loading
-// 3. Elevator Movement: Up/down movement logic and floor selection
-// 4. Door Control: Opening/closing door operations
-// 5. Button Interactions: Floor and operation button handling
-// 6. UI Layout: Display, buttons, and responsive design
-// =============================
+// ===== HomePage: main elevator simulator interface =====
+// State, initialization, elevator movement, door control, button handling, UI layout
 
 import 'package:flutter/material.dart';
 import 'package:vibration/vibration.dart';
@@ -18,6 +9,7 @@ import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'common_widget.dart';
 import 'extension.dart';
 import 'constant.dart';
+import 'plan_provider.dart';
 import 'games_manager.dart';
 import 'main.dart';
 import 'menu.dart';
@@ -35,6 +27,7 @@ class HomePage extends HookConsumerWidget {
     final isGamesSignIn = ref.watch(gamesSignInProvider);
     final isShimada = ref.watch(isShimadaProvider);
     final isMenu = ref.watch(isMenuProvider);
+    final isPremium = ref.watch(planProvider).isPremium;
     final floorNumbers = ref.watch(floorNumbersProvider);
     final floorStops = ref.watch(floorStopsProvider);
     final buttonShape = ref.watch(buttonShapeProvider);
@@ -74,7 +67,6 @@ class HomePage extends HookConsumerWidget {
     );
 
     // --- Initialization Functions ---
-    // App initialization and lifecycle management
     // Initialize app data including TTS, games sign-in, and best score
     initState() async {
       isLoadingData.value = true;
@@ -118,7 +110,6 @@ class HomePage extends HookConsumerWidget {
     }, [lifecycle, context.mounted]);
 
     // --- Elevator Movement Logic ---
-    // Core elevator movement functions for up and down travel
     // Move elevator upward to target floor with speed calculation
     counterUp() async {
       if (!isMoving.value && isDoorState.value == closedState) {
@@ -192,7 +183,6 @@ class HomePage extends HookConsumerWidget {
     }
 
     // --- Floor Selection Logic ---
-    // Floor button selection and deselection handling
     // Handle floor button selection with validation and movement logic
     floorSelected(int i, bool selectFlag) async {
       audioManager.playEffectSound(asset: selectSound, volume: 0.8);
@@ -272,7 +262,6 @@ class HomePage extends HookConsumerWidget {
     }
 
     // --- Operation Button Logic ---
-    // Open, close, and alert button handling with state management
     // Handle open button press with door opening logic
     pressedOpenAction(bool isLongPressed) async {
       if (!isPressedOperationButtons.value[0] && !isMoving.value) {
@@ -473,7 +462,8 @@ class HomePage extends HookConsumerWidget {
           // Ad banner with menu toggle functionality
           common.commonAdBanner(
             image: isMenu.buttonChanBackGround(),
-            onTap: () async => ref.read(isMenuProvider.notifier).update(await isMenu.pressedMenu())
+            onTap: () async => ref.read(isMenuProvider.notifier).update(await isMenu.pressedMenu()),
+            isPremium: isPremium,
           ),
           // Loading indicator during data initialization
           if (isLoadingData.value) common.commonCircularProgressIndicator(),
@@ -483,14 +473,8 @@ class HomePage extends HookConsumerWidget {
   }
 }
 
-// =============================
-// HomeWidget: Display Components for Elevator Interface
-//
-// This class provides display widgets for the elevator interface including:
-// 1. Display Arrow: Direction indicator for elevator movement
-// 2. Display Number: Floor number display with different styles
-// 3. Shimada Logo: Brand logo display for Shimada mode
-// =============================
+// ===== HomeWidget: display widgets for the elevator interface =====
+// Display arrow, display number, and Shimada logo
 
 class HomeWidget {
 

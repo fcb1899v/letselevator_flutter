@@ -1,14 +1,5 @@
-// =============================
-// SettingsPage: App Settings and Configuration Interface
-//
-// This file contains the settings interface with:
-// 1. State Management: Riverpod providers and local state management
-// 2. Initialization: Data loading and lifecycle management
-// 3. Settings Categories: Button style, shape, numbers, and background
-// 4. Floor Management: Floor number and stop configuration
-// 5. Reward System: Ad-based unlocking mechanism
-// 6. UI Components: Settings widgets and dialogs
-// =============================
+// ===== SettingsPage: app settings and configuration interface =====
+// Button style, shape, numbers, background, floor management, reward unlocks, dialogs
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -18,6 +9,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:vibration/vibration.dart';
 import 'admob_rewarded.dart';
+import 'analytics_manager.dart';
 import 'common_widget.dart';
 import 'floor_manager.dart';
 import 'extension.dart';
@@ -26,9 +18,16 @@ import 'games_manager.dart';
 import 'homepage.dart';
 import 'main.dart';
 import 'menu.dart';
+import 'plan_provider.dart';
+import 'premium_page.dart';
+import 'purchase_manager.dart';
 
 class SettingsPage extends HookConsumerWidget {
-  const SettingsPage({super.key});
+  /// initialTab: a rewarded ad rebuilds this page, and landing back on the
+  /// first tab hides the design the video just unlocked
+  const SettingsPage({super.key, this.initialTab = 0});
+
+  final int initialTab;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -45,21 +44,30 @@ class SettingsPage extends HookConsumerWidget {
     final buttonShape = ref.watch(buttonShapeProvider);
     final buttonStyle = ref.watch(buttonStyleProvider);
     final backgroundStyle = ref.watch(backgroundStyleProvider);
+    final isPremium = ref.watch(planProvider).isPremium;
 
     // --- Local State Variables ---
     // Settings interface state and animation
     final floorManager = useMemoized(() => FloorManager());
     final isButtonOn = useState(List.generate(4, (_) => List.generate(4, (_) => false)));
     final selectedNumber = useState(0);
-    final showSettingNumber = useState(0);
+    final showSettingNumber = useState(initialTab);
     final buttonLockList = useState(initialButtonLock);
+    final backgroundLockList = useState(initialBackgroundLock);
+    final floorLockList = useState(initialFloorLock);
+    // Premium and the test build open everything. Derived once, so the plate and
+    // the guards below can never disagree and leave a dead button
+    bool isFloorLocked(int index) =>
+      !isTest && !isPremium && floorLockList.value[index];
+    final isStyleUnlocked = useState(false);
     final isLoadingData = useState(false);
+    // The price the store returned, empty until it answers. Every purchase entry point
+    // is drawn from this, never from the SDK having started
+    final storePrice = useState("");
     final animationController = useAnimationController(duration:Duration(milliseconds: flashTime))..repeat(reverse: true);
 
-    // --- Manager Instances ---
-    // Reward ad manager for unlocking features
-    // The hook only requests an ad once the SDK allows it, so ad can be null
-    // for a user who has not answered the consent form. prepare covers that
+    // --- Manager Instances --- rewarded ad for unlocking features. The hook only
+    // requests once the SDK allows it, so ad is null before consent; prepare covers that
     final rewarded = useRewardedAd();
     final RewardedAd? ad = rewarded.ad;
 
@@ -73,10 +81,10 @@ class SettingsPage extends HookConsumerWidget {
       buttonStyle: buttonStyle,
       buttonShape: buttonShape,
       backgroundStyle: backgroundStyle,
+      isPremium: isPremium,
     );
 
     // --- Data Persistence ---
-    // Load button lock status from shared preferences
     // Retrieve saved lock states for premium features
     Future<List<bool>> getButtonLockList() async {
       final prefs = await SharedPreferences.getInstance();
@@ -89,8 +97,82 @@ class SettingsPage extends HookConsumerWidget {
       return lockList;
     }
 
+    // The button style section used to open on the bulk unlock the old rule gave
+    // away. That path is gone, but a user who already had it keeps it
+    Future<bool> getStyleUnlocked(List<bool> shapeLocks) async {
+      final prefs = await SharedPreferences.getInstance();
+      if (!styleMigratedKey.getSharedPrefBool(prefs, false)) {
+        final granted = hadBulkUnlock(
+          savedBestScore: "bestScore".getSharedPrefInt(prefs, 0),
+          shapeLocks: shapeLocks,
+        );
+        if (granted) styleUnlockedKey.setSharedPrefBool(prefs, true);
+        styleMigratedKey.setSharedPrefBool(prefs, true);
+      }
+      return styleUnlockedKey.getSharedPrefBool(prefs, false);
+    }
+
+    // Floors are locked one at a time too, and in a fixed order. One lock covers
+    // the floor number and the stop switch of the same button
+    Future<List<bool>> getFloorLockList() async {
+      final prefs = await SharedPreferences.getInstance();
+      if (!floorMigratedKey.getSharedPrefBool(prefs, false)) {
+        // A panel saved before the locks existed. Whatever the user had already
+        // changed stays theirs. A fresh install has saved nothing to compare,
+        // and its basement differs from the old default anyway
+        final grants = floorMigrationGrants(
+          hadPanel: prefs.containsKey("numbersKey0")
+            || prefs.containsKey("stopsKey0"),
+          savedNumbers: "numbersKey".getSharedPrefListInt(prefs, preLockFloorNumbers),
+          savedStops: "stopsKey".getSharedPrefListBool(prefs, initialFloorStops),
+        );
+        for (int i = 0; i < grants.length; i++) {
+          if (grants[i]) floorLockKey(i).setSharedPrefBool(prefs, false);
+        }
+        floorMigratedKey.setSharedPrefBool(prefs, true);
+      }
+      return List<bool>.generate(initialFloorLock.length, (i) => initialFloorLock[i]
+        && floorLockKey(i).getSharedPrefBool(prefs, true));
+    }
+
+    // Backgrounds are locked one at a time, under their own keys so the shapes
+    // a user has already paid a video for are untouched.
+    //
+    // Until today the whole section opened at once, on a best score of 100 or on
+    // every shape being unlocked. Anyone who had reached that keeps the
+    // backgrounds: taking them back is not what the new rule is for. The result
+    // is written the first time this screen opens, so it no longer depends on a
+    // score that can be reset
+    Future<List<bool>> getBackgroundLockList(List<bool> shapeLocks) async {
+      final prefs = await SharedPreferences.getInstance();
+      if (!backgroundMigratedKey.getSharedPrefBool(prefs, false)) {
+        // Read the score from storage, not from the provider. getBestScore
+        // writes the larger of local and leaderboard but returns the smaller on
+        // the launch that first pulls it down, and the migration runs only once
+        final grant = hadBulkUnlock(
+          savedBestScore: "bestScore".getSharedPrefInt(prefs, 0),
+          shapeLocks: shapeLocks,
+        );
+        if (grant) {
+          for (int i = 0; i < initialBackgroundLock.length; i++) {
+            backgroundLockKey(i).setSharedPrefBool(prefs, false);
+          }
+        }
+        backgroundMigratedKey.setSharedPrefBool(prefs, true);
+      }
+      final locks = List<bool>.generate(initialBackgroundLock.length,
+        (i) => initialBackgroundLock[i]
+          && backgroundLockKey(i).getSharedPrefBool(prefs, true));
+      // Never leave the design in use behind a lock
+      final inUse = backgroundStyleList.indexOf(backgroundStyle);
+      if (inUse >= 0 && locks[inUse]) {
+        locks[inUse] = false;
+        backgroundLockKey(inUse).setSharedPrefBool(prefs, false);
+      }
+      return locks;
+    }
+
     // --- Initialization Functions ---
-    // App initialization and data loading
     // Initialize games sign-in, best score, and button lock states
     initState() async {
       isLoadingData.value = true;
@@ -98,6 +180,9 @@ class SettingsPage extends HookConsumerWidget {
         ref.read(gamesSignInProvider.notifier).update(await gamesSignIn(isGamesSignIn));
         ref.read(bestScoreProvider.notifier).update(await getBestScore(isGamesSignIn));
         buttonLockList.value = await getButtonLockList();
+        backgroundLockList.value = await getBackgroundLockList(buttonLockList.value);
+        floorLockList.value = await getFloorLockList();
+        isStyleUnlocked.value = await getStyleUnlocked(buttonLockList.value);
         isLoadingData.value = false;
       } catch (e) {
         "Error: $e".debugPrint();
@@ -110,53 +195,151 @@ class SettingsPage extends HookConsumerWidget {
     useEffect(() {
       WidgetsBinding.instance.addPostFrameCallback((_) async {
         await initState();
+        // Settings is a deliberate navigation long after the first frame, so starting the
+        // store SDK here costs the launch nothing. The price decides whether to show the offer
+        final price = await PurchaseManager.fetchPrice();
+        if (!context.mounted) return;
+        if (price != null) {
+          storePrice.value = price;
+          ref.read(planProvider.notifier).setPrice(price);
+        }
       });
       return null;
     }, []);
 
-    // --- Reward System ---
-    // Ad-based feature unlocking mechanism
-    // Handle reward ad completion and unlock features
-    void earnedRewardAd(int i, AdWithoutView ad, RewardItem reward) async {
-      "showRewardedAd".debugPrint();
-      if (reward.amount > 0) {
-        'rewardEarned: ${reward.type}, rewardAmount: ${reward.amount}'.debugPrint();
-        final newList = List<bool>.from(buttonLockList.value);
-        newList[i] = false;
-        final prefs = await SharedPreferences.getInstance();
-        "lockKey$i".setSharedPrefBool(prefs, false);
-        buttonLockList.value = newList;
-        "newList: $newList".debugPrint();
+    // --- Premium Purchase --- the paid way out of every lock. The rewarded ad below
+    // stays the free one: buying is a shortcut past the video, not a replacement
+
+    /// Run the purchase or restore flow and report the result to the user
+    Future<void> runPurchase({required bool isRestore, required String source}) async {
+      isLoadingData.value = true;
+      try {
+        final purchased = await PurchaseManager.buyPremium(
+          isRestore: isRestore,
+          source: source,
+        );
+        if (!context.mounted) return;
+        if (purchased) {
+          await ref.read(planProvider.notifier).setCurrentPlan(true);
+          if (!context.mounted) return;
+          common.commonSnackBar(context.premiumThanks());
+        } else if (isRestore) {
+          common.commonSnackBar(context.premiumRestoreFailed());
+        }
+      } catch (e) {
+        "Purchase error: $e".debugPrint();
+        // Nothing to sell is not a failed purchase. The reviewer sees this one
+        // while the product is still attached to the submission
+        if (context.mounted) {
+          common.commonSnackBar((e is StoreUnavailableException)
+            ? context.premiumUnavailable()
+            : context.premiumFailed());
+        }
+      } finally {
+        isLoadingData.value = false;
       }
-      if (context.mounted) context.pushNoBack(SettingsPage());
     }
 
-    // Confirmation dialog for an ad that is ready to play
-    void showUnlockDialog(int i, RewardedAd loadedAd) {
+    /// Open the upgrade dialog, shared by every purchase entry point. The price is
+    /// fetched again since the offering or network can vanish; an empty answer is reported
+    Future<void> openUpgrade(String source) async {
+      isLoadingData.value = true;
+      final price = await PurchaseManager.fetchPrice();
+      if (!context.mounted) return;
+      isLoadingData.value = false;
+      // An empty price still opens the page: the button says "Buy" without an
+      // amount, and pressing it reports why nothing happened
+      storePrice.value = price ?? "";
+      ref.read(planProvider.notifier).setPrice(price ?? "");
+      await AnalyticsManager.upgradeOffered(source);
+      if (!context.mounted) return;
+      context.pushPage(PremiumPage(
+        price: price ?? "",
+        onBuy: () async {
+          context.popPage();
+          await runPurchase(isRestore: false, source: source);
+        },
+        onRestore: () async {
+          context.popPage();
+          await runPurchase(isRestore: true, source: source);
+        },
+      ));
+    }
+
+    /// Offer the purchase from a lock that has no video behind it. The tap is
+    /// logged first, always, so the demand signal survives a build with no store
+    Future<void> showUpgrade(String feature) async {
+      // Backgrounds and floors do not open on a score, so there is no shortage
+      await AnalyticsManager.unlockBlocked(
+        feature: feature,
+        requiredPoint: (feature == "button_shape" || feature == "button_style")
+          ? unlockAllBestScore : 0,
+        currentPoint: bestScore,
+      );
+      await openUpgrade(feature);
+    }
+
+
+    // --- Reward System ---
+    // Handle reward ad completion and unlock features
+    void earnedRewardAd(String kind, int i, AdWithoutView ad, RewardItem reward) async {
+      "showRewardedAd".debugPrint();
+      final isShape = (kind == "button_shape");
+      final isFloor = (kind == "floor_number");
+      if (reward.amount > 0) {
+        'rewardEarned: ${reward.type}, rewardAmount: ${reward.amount}'.debugPrint();
+        final current = isShape ? buttonLockList.value
+          : isFloor ? floorLockList.value : backgroundLockList.value;
+        final newList = List<bool>.from(current)..[i] = false;
+        final prefs = await SharedPreferences.getInstance();
+        (isShape ? "lockKey$i"
+          : isFloor ? floorLockKey(i) : backgroundLockKey(i)
+        ).setSharedPrefBool(prefs, false);
+        if (isShape) {
+          buttonLockList.value = newList;
+        } else if (isFloor) {
+          floorLockList.value = newList;
+        } else {
+          backgroundLockList.value = newList;
+        }
+        "newList: $newList".debugPrint();
+      }
+      if (context.mounted) {
+        context.pushNoBack(SettingsPage(initialTab: isShape ? 0 : isFloor ? 1 : 2));
+      }
+    }
+
+    // Confirmation dialog for an ad that is ready to play. It offers the purchase as a
+    // third choice; the video stays the default and the paid option needs a store price
+    void showUnlockDialog(String kind, int i, RewardedAd loadedAd) {
       showDialog(context: context,
         builder: (context) => settings.rewardAdAlertDialog(
           title: context.unlockTitle(),
           content: context.unlockDesc(),
           onPressed: () => loadedAd.show(
-            onUserEarnedReward: (AdWithoutView ad, RewardItem reward) => earnedRewardAd(i, ad, reward)
+            onUserEarnedReward: (AdWithoutView ad, RewardItem reward) =>
+              earnedRewardAd(kind, i, ad, reward)
           ),
         )
       );
     }
 
-    // Show reward ad dialog for feature unlocking
-    //
-    // The press has to answer every time. With no ad loaded this used to do
-    // nothing at all, and gating the request on consent widens that window: a
-    // user who has not answered the consent form has no ad and, without this,
-    // no way to get one. So the press runs the consent flow itself, offers the
-    // privacy options form to anyone who declined earlier, and only when there
-    // is nothing left to ask does it say so
-    void showRewardAdAlertDialog(int i) async {
+    // Show reward ad dialog for feature unlocking. The press must answer every time:
+    // run the consent flow, offer the privacy options form, only then say there is no ad
+    void showRewardAdAlertDialog(String kind, int i) async {
       Vibration.vibrate(duration: vibTime, amplitude: vibAmp);
       "$ad".debugPrint();
+      // Logged before anything can fail, so the demand signal survives a build with
+      // no ad and no store. required/current: best score threshold and this user's score
+      // Backgrounds no longer open on a score, so there is no shortage to report
+      await AnalyticsManager.unlockBlocked(
+        feature: kind,
+        requiredPoint: (kind == "button_shape" || kind == "button_style")
+          ? unlockAllBestScore : 0,
+        currentPoint: bestScore,
+      );
       if (ad != null) {
-        showUnlockDialog(i, ad);
+        showUnlockDialog(kind, i, ad);
         return;
       }
       // The consent form and the ad request both take a round trip, and the
@@ -166,11 +349,11 @@ class SettingsPage extends HookConsumerWidget {
       if (!context.mounted) return;
       isLoadingData.value = false;
       if (preparedAd != null) {
-        showUnlockDialog(i, preparedAd);
+        showUnlockDialog(kind, i, preparedAd);
         return;
       }
-      // Either consent was declined and left declined, or nothing filled. Both
-      // are cases the user can act on, so say it rather than going quiet
+      // Consent stayed declined or nothing filled; both are actionable, so say it.
+      // The purchase is offered too, so the user has something to press
       showDialog(context: context,
         builder: (context) => settings.rewardAdUnavailableDialog(
           content: context.rewardAdUnavailable(),
@@ -232,10 +415,14 @@ class SettingsPage extends HookConsumerWidget {
 
     // Handle floor number button changes
     void changeButtonNumber(int row, int col) {
+      if (isFloorLocked(reversedButtonIndex[row][col])) return;
       if (!isNotSelectFloor(row, col)) {
         Vibration.vibrate(duration: vibTime, amplitude: vibAmp);
         isButtonOn.value[row][col] = true;
         isButtonOn.value = List.from(isButtonOn.value);
+        // The picker does not report the row it opens on, so seed it here or OK
+        // would save whatever the previous dialog left behind
+        selectedNumber.value = floorNumbers[reversedButtonIndex[row][col]];
         settings.floorNumberSelectDialog(row, col,
           select: (int index) => floorNumberSelect(index, row, col),
           action: () => floorNumberSelectOKAction(row, col),
@@ -247,6 +434,7 @@ class SettingsPage extends HookConsumerWidget {
     // --- Floor Stop Management ---
     // Change floor stop flag with persistence
     Future<void> changeFloorStopFlag(bool value, int row, int col) async {
+      if (isFloorLocked(reversedButtonIndex[row][col])) return;
       if (!isNotSelectFloor(row, col)) {
         Vibration.vibrate(duration: vibTime, amplitude: vibAmp);
         ref.read(floorStopsProvider.notifier).update(await floorManager.saveFloorStops(
@@ -282,7 +470,7 @@ class SettingsPage extends HookConsumerWidget {
       backgroundColor: blackColor,
       appBar: isMenu ? null: settings.settingsAppBar(
         animation: animationController,
-        onPressed: pressedBack
+        onPressed: pressedBack,
       ),
       body: Stack(alignment: Alignment.center,
         children: [
@@ -309,28 +497,33 @@ class SettingsPage extends HookConsumerWidget {
             (showSettingNumber.value == 0) ? Stack(alignment: Alignment.center,
               children: [
                 settings.settingsButtonStyleWidget(onTap: changeButtonStyle),
-                if (!buttonLockList.value.every((e) => e == false) && !isTest && bestScore < 100) settings.settingsLockContainer(
+                // Score or purchase. Unlocking every shape no longer opens this
+                if (!isTest && !isPremium && !isStyleUnlocked.value && bestScore < unlockAllBestScore) settings.settingsLockContainer(
                   width: context.settingsButtonStyleLockWidth(),
                   height: context.settingsButtonStyleLockHeight(),
                   top: context.settingsButtonStyleLockMargin(),
+                  onTap: () => showUpgrade("button_style"),
                 ),
               ]
             ):
             // Floor number and stop configuration
             (showSettingNumber.value == 1) ? settings.settingsButtonNumberWidget(
               isButtonOn: isButtonOn.value,
+              floorLockList: List<bool>.generate(
+                initialFloorLock.length, isFloorLocked,
+              ),
               changeButtonNumber: changeButtonNumber,
-              changeFloorStopFlag: changeFloorStopFlag
-            // Background style selection with lock overlay
-            ): Stack(alignment: Alignment.topCenter,
-              children: [
-                settings.settingsBackgroundSelectWidget(onTap: (value) => changeBackgroundStyle(value)),
-                if (!buttonLockList.value.every((e) => e == false) && !isTest && bestScore < 100) settings.settingsLockContainer(
-                  width: context.settingsBackgroundStyleLockWidth(),
-                  height: context.settingsBackgroundStyleLockHeight(),
-                  top: context.settingsBackgroundStyleLockMargin(),
-                ),
-              ]
+              changeFloorStopFlag: changeFloorStopFlag,
+              showRewardAdAlertDialog: (i) => showRewardAdAlertDialog("floor_number", i),
+              onBuy: () => showUpgrade("floor_number"),
+            // Background style selection, one lock per design
+            ): settings.settingsBackgroundSelectWidget(
+              backgroundLockList: (isTest || isPremium)
+                ? List.filled(initialBackgroundLock.length, false)
+                : backgroundLockList.value,
+              onTap: (value) => changeBackgroundStyle(value),
+              showRewardAdAlertDialog: (i) => showRewardAdAlertDialog("background", i),
+              onBuy: () => showUpgrade("background"),
             ),
             if (showSettingNumber.value == 0) settings.settingsDivider(),
             // Button shape selection with reward system
@@ -338,7 +531,8 @@ class SettingsPage extends HookConsumerWidget {
               bestScore: bestScore,
               buttonLockList: buttonLockList.value,
               changeButtonShape: changeButtonShape,
-              showRewardAdAlertDialog: showRewardAdAlertDialog
+              showRewardAdAlertDialog: (i) => showRewardAdAlertDialog("button_shape", i),
+              onBuy: () => showUpgrade("button_shape"),
             ),
           ]),
           // --- Overlay Elements ---
@@ -347,7 +541,8 @@ class SettingsPage extends HookConsumerWidget {
           // Ad banner with menu toggle functionality
           common.commonAdBanner(
             image: isMenu.buttonChanBackGround(),
-            onTap: pressedBack
+            onTap: pressedBack,
+            isPremium: isPremium,
           ),
           // Loading indicator during data initialization
           if (isLoadingData.value) common.commonCircularProgressIndicator(),
@@ -358,18 +553,8 @@ class SettingsPage extends HookConsumerWidget {
 }
 
 
-// =============================
-// SettingsWidget: Settings Interface Components
-//
-// This class provides settings interface components including:
-// 1. AppBar: Settings header with animated back button
-// 2. Category Selection: Settings category buttons
-// 3. Button Style: Button style selection interface
-// 4. Button Shape: Button shape selection with reward system
-// 5. Floor Management: Floor number and stop configuration
-// 6. Background Selection: Background style selection interface
-// 7. Dialogs: Alert dialogs and reward ad dialogs
-// =============================
+// ===== SettingsWidget: settings interface components =====
+// AppBar, category selection, button style/shape, floor management, background, dialogs
 
 class SettingsWidget {
   final BuildContext context;
@@ -378,6 +563,8 @@ class SettingsWidget {
   final int buttonStyle;
   final String buttonShape;
   final String backgroundStyle;
+  /// Premium opens every lock at once, so no overlay is drawn for these users
+  final bool isPremium;
 
   SettingsWidget({
     required this.context,
@@ -386,6 +573,7 @@ class SettingsWidget {
     required this.buttonStyle,
     required this.buttonShape,
     required this.backgroundStyle,
+    required this.isPremium,
   });
 
   // --- Common Components ---
@@ -429,6 +617,8 @@ class SettingsWidget {
         ),
       ),
     ),
+    // No purchase action here on purpose: a bare padlock in the bar reads as a
+    // status, the same glyph the lock overlays use. the lock overlay is the only offer on this screen
   );
 
   // --- Category Selection Component ---
@@ -479,17 +669,44 @@ class SettingsWidget {
     required double width,
     required double height,
     required double top,
-  }) => Container(
-    alignment: Alignment.center,
-    color: transpDarkColor,
-    margin: EdgeInsets.only(top: top),
-    width: width,
-    height: height,
-    child: Stack(alignment: Alignment.center,
-      children: [
-        lockIcon(context.settingsAllLockIconSize()),
-        settingsTooltip()
-      ],
+    required void Function() onTap,
+  }) => GestureDetector(
+    // The lock used to be scenery. Pressing it is the only purchase path the
+    // settings screen offers, so it has to answer
+    onTap: onTap,
+    child: Container(
+      alignment: Alignment.center,
+      color: transpLockColor,
+      margin: EdgeInsets.only(top: top),
+      width: width,
+      height: height,
+      // The one way out besides buying, said plainly under the padlock
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          lockIcon(context.settingsAllLockIconSize()),
+          SizedBox(height: context.settingsLockTextMargin()),
+          Padding(
+            padding: EdgeInsets.symmetric(
+              horizontal: context.settingsLockTextMargin(),
+            ),
+            // Shrunk rather than wrapped: the French line is the longest and
+            // does not fit the plate at full size
+            child: FittedBox(fit: BoxFit.scaleDown,
+              child: Text(
+                context.unlockByScore(),
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: whiteColor,
+                  fontSize: context.settingsLockTextFontSize(),
+                  fontWeight: FontWeight.bold,
+                  fontFamily: context.font(),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
     ),
   );
 
@@ -500,6 +717,7 @@ class SettingsWidget {
     required List<bool> buttonLockList,
     required void Function(String) changeButtonShape,
     required void Function(int) showRewardAdAlertDialog,
+    required void Function() onBuy,
   }) => Column(children: [
     ...buttonShapeList.toMatrix(3).asMap().entries.map((row) =>
       Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -528,8 +746,9 @@ class SettingsWidget {
                   marginBottom: context.floorButtonNumberMarginBottom(3 * row.key + col.key),
                 ),
               ),
-              if (buttonLockList[3 * row.key + col.key] && !isTest && bestScore < 100) settingsButtonLockContainer(
-                onTap: () => showRewardAdAlertDialog(3 * row.key + col.key)
+              if (buttonLockList[3 * row.key + col.key] && !isTest && !isPremium && bestScore < unlockAllBestScore) settingsButtonLockContainer(
+                onUnlock: () => showRewardAdAlertDialog(3 * row.key + col.key),
+                onBuy: onBuy,
               )
             ]
           ),
@@ -540,20 +759,43 @@ class SettingsWidget {
 
   // --- Button Lock Container Component ---
   // Individual button lock overlay with unlock button
+  /// Two targets, not one. The padlock goes to the purchase page; only the
+  /// Unlock pill starts a video, so the free path is never pressed by accident
   Widget settingsButtonLockContainer({
-    required void Function() onTap,
-  }) => Container(
+    required void Function() onUnlock,
+    required void Function() onBuy,
+    double? size,
+    double? height,
+    EdgeInsets margin = EdgeInsets.zero,
+    Color color = transpLockColor,
+    bool showUnlock = true,
+  }) {
+    final box = size ?? context.settingsLockSize();
+    // The padlock keeps its share of the box. Fixed, it looked adrift on the
+    // background tiles, which are larger than the button shapes it was sized for
+    final icon = box
+      * context.settingsLockIconSize() / context.settingsLockSize();
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: onBuy,
+      child: Container(
     alignment: Alignment.center,
-    color: transpDarkColor,
-    width: context.settingsLockSize(),
-    height: context.settingsLockSize(),
-    child: GestureDetector(
-      onTap: onTap,
-      child: Column(
+    color: color,
+    margin: margin,
+    width: box,
+    height: height ?? box,
+    child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          lockIcon(context.settingsLockIconSize()),
-          Container(
+          lockIcon(icon),
+          // Padded so the free path has a target the thumb can hit. Missing the
+          // pill would otherwise open the purchase page, which is the paid one
+          if (showUnlock) GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: onUnlock,
+            child: Padding(
+            padding: EdgeInsets.all(context.settingsLockFreeTapPadding()),
+            child: Container(
             alignment: Alignment.center,
             width: context.settingsLockFreeButtonWidth(),
             height: context.settingsLockFreeButtonHeight(),
@@ -561,78 +803,29 @@ class SettingsWidget {
               borderRadius: BorderRadius.circular(context.settingsLockFreeBorderRadius()),
               color: lampColor,
             ),
-            child: Text(
-              context.unlock(),
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                color: whiteColor,
-                fontSize: context.settingsLockFreeFontSize(),
-                fontFamily: context.font(),
+            // Spanish and French run past the pill on one line. Shrunk rather
+            // than wrapped: a second line would spill out of its height
+            child: FittedBox(fit: BoxFit.scaleDown,
+              child: Text(
+                context.unlock(),
+                maxLines: 1,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: whiteColor,
+                  fontSize: context.settingsLockFreeFontSize(),
+                  fontFamily: context.font(),
+                ),
               ),
             ),
           ),
+          ),
+          ),
         ],
       ),
     ),
-  );
+    );
+  }
 
-  // --- Tooltip Component ---
-  // Information tooltip for premium features
-  Container settingsTooltip() => Container(
-    height: context.settingsTooltipHeight(),
-    alignment: Alignment.topCenter,
-    margin: EdgeInsets.only(top: context.settingsTooltipMargin()),
-    child: Tooltip(
-      richMessage: TextSpan(
-        children: <InlineSpan>[
-          TextSpan(
-            text: "${context.unlockAllTitle()}\n",
-            style: TextStyle(
-              color: lampColor,
-              fontFamily: context.font(),
-              decorationColor: whiteColor,
-              fontSize: context.settingsTooltipTitleFontSize(),
-            ),
-          ),
-          TextSpan(
-            text: "${context.unlockAll()[0]}\n",
-            style: TextStyle(
-              color: blackColor,
-              fontStyle: FontStyle.normal,
-              fontFamily: context.font(),
-              decoration: TextDecoration.none,
-              fontSize: context.settingsTooltipDescFontSize(),
-            ),
-          ),
-          TextSpan(
-            text: context.unlockAll()[1],
-            style: TextStyle(
-              color: blackColor,
-              fontStyle: FontStyle.normal,
-              fontFamily: context.font(),
-              decoration: TextDecoration.none,
-              fontSize: context.settingsTooltipDescFontSize(),
-            ),
-          ),
-        ],
-      ),
-      padding: EdgeInsets.all(context.settingsTooltipPaddingSize()),
-      margin: EdgeInsets.all(context.settingsTooltipMarginSize()),
-      verticalOffset: context.settingsTooltipOffsetSize(),
-      preferBelow: true, //isBelow for tooltip position
-      decoration: BoxDecoration(
-        color: transpWhiteColor,
-        borderRadius: BorderRadius.all(Radius.circular(context.settingsTooltipBorderRadius()))
-      ),
-      showDuration: const Duration(milliseconds: toolTipTime),
-      triggerMode: TooltipTriggerMode.tap,
-      enableFeedback: true,
-      child: Icon(CupertinoIcons.question_circle,
-        color: Colors.white,
-        size: context.settingsTooltipIconSize(),
-      ),
-    ),
-  );
 
 
   // --- Floor Management Components ---
@@ -664,13 +857,19 @@ class SettingsWidget {
   // Floor number configuration interface
   Widget settingsButtonNumberWidget({
     required List<List<bool>> isButtonOn,
+    required List<bool> floorLockList,
     required void Function(int, int) changeButtonNumber,
     required void Function(bool, int, int) changeFloorStopFlag,
+    required void Function(int) showRewardAdAlertDialog,
+    required void Function() onBuy,
   }) => Column(children: [
     ...floorNumbers.toReversedMatrix(4).asMap().entries.map((row) =>
       Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: row.value.asMap().entries.map((col) => Container(
           alignment: Alignment.center,
+          // Every cell is the lock's width, locked or not. Sizing to the widest
+          // child instead would shift the unlocked cells out of line
+          width: context.settingsFloorLockWidth(),
           margin: EdgeInsets.only(top: (row.key == 0) ? context.settingsNumberButtonMargin(): 0.0),
           child: Stack(alignment: Alignment.center,
             children: [
@@ -679,29 +878,49 @@ class SettingsWidget {
                 height: context.settingsNumberButtonHideHeight(),
                 margin: EdgeInsets.only(top: context.settingsNumberButtonHideMargin()),
                 child: Column(children: [
-                  GestureDetector(
-                    child: CommonWidget(context: context).floorButtonImage(
-                      image: isButtonOn[row.key][col.key].numberBackground(1, "normal"),
-                      size: context.settingsButtonSize(),
-                      number: col.value.buttonNumber(),
-                      fontSize: context.settingsNumberButtonFontSize(),
-                      color: blackColor,
-                      marginTop: 0.0,
-                      marginBottom: 0.0
+                  // 1F never moves and always stops. Fade the button and the
+                  // switch; the plate that used to cover the cell hid the floor
+                  // number too, and the Stop label stays readable
+                  Opacity(
+                    opacity: isNotSelectFloor(row.key, col.key) ? fixedFloorOpacity : 1.0,
+                    child: GestureDetector(
+                      child: CommonWidget(context: context).floorButtonImage(
+                        image: isButtonOn[row.key][col.key].numberBackground(1, "normal"),
+                        size: context.settingsButtonSize(),
+                        number: col.value.buttonNumber(),
+                        fontSize: context.settingsNumberButtonFontSize(),
+                        color: blackColor,
+                        marginTop: 0.0,
+                        marginBottom: 0.0
+                      ),
+                      onTap: () => changeButtonNumber(row.key, col.key) ,
                     ),
-                    onTap: () => changeButtonNumber(row.key, col.key) ,
                   ),
                   settingsFloorStopToggleWidget(row.key, col.key,
                     changeFloorStopFlag: changeFloorStopFlag
                   )
                 ]),
               ),
-              if (isNotSelectFloor(row.key, col.key)) Container(
-                alignment: Alignment.center,
-                width: context.settingsNumberButtonHideWidth(),
-                height: context.settingsNumberButtonHideHeight(),
-                color: transpBlackColor,
-              ),
+              // One lock over the whole cell: the floor number and the stop
+              // switch open together. Only the next one in the order carries the
+              // button, so the floors open one at a time
+              if (floorLockList[reversedButtonIndex[row.key][col.key]])
+                settingsButtonLockContainer(
+                  onUnlock: () => showRewardAdAlertDialog(
+                    reversedButtonIndex[row.key][col.key],
+                  ),
+                  onBuy: onBuy,
+                  // The box the number and the switch share, widened to hold
+                  // the Unlock pill and its tap padding without squeezing them
+                  size: context.settingsFloorLockWidth(),
+                  height: context.settingsNumberButtonHideHeight(),
+                  margin: EdgeInsets.only(
+                    top: context.settingsNumberButtonHideMargin(),
+                  ),
+                  showUnlock: nextFloorToUnlock(
+                    floorLockList, reversedButtonIndex[row.key][col.key],
+                  ) == reversedButtonIndex[row.key][col.key],
+                ),
             ])
         )).toList()
       )
@@ -719,18 +938,20 @@ class SettingsWidget {
         initialItem: floorNumbers[reversedButtonIndex[row][col]] - floorNumbers.selectFirstFloor(row, col),
       ),
       onSelectedItemChanged: (int index) => onSelectedItemChanged(index),
+      // No filtering here: the range never contains floor 0, so dropping an item
+      // would only make the index disagree with the value it reports
       children: List.generate(floorNumbers.selectDiffFloor(row, col), (int index) =>
-      (floorNumbers.selectedFloor(index, row, col) != 0) ? Container(
+        Container(
           alignment: Alignment.center,
-          child: Text('${(floorNumbers.selectedFloor(index, row, col) < 0 ? -1: 1) * floorNumbers.selectedFloor(index, row, col)}',
+          child: Text('${floorNumbers.selectedFloor(index, row, col).abs()}',
             style: TextStyle(
               color: lampColor,
               fontSize: context.settingsAlertFloorNumberFontSize(),
               fontFamily: numberFont[1],
             ),
           )
-      ): null
-      ).whereType<Container>().toList(),
+        )
+      ),
     ),
   );
 
@@ -741,21 +962,39 @@ class SettingsWidget {
     margin: EdgeInsets.only(top: context.settingsFloorStopMargin()),
     child: Column(mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
-        Text(floorStops[reversedButtonIndex[row][col]] ? context.stop(): context.bypass(),
-          style: TextStyle(
-            color: whiteColor,
-            fontSize: context.settingsFloorStopFontSize(),
-            fontFamily: context.font(),
+        // One line, always: a wrapped label would make the cell taller than its
+        // reserved height. Today's six labels fit; this guards a longer one
+        FittedBox(fit: BoxFit.scaleDown,
+          child: Text(floorStops[reversedButtonIndex[row][col]] ? context.stop(): context.bypass(),
+            maxLines: 1,
+            style: TextStyle(
+              color: whiteColor,
+              fontSize: context.settingsFloorStopFontSize(),
+              fontFamily: context.font(),
+            ),
           ),
         ),
-        Transform.scale(
-          scale: context.settingsFloorStopToggleScale(),
-          child: CupertinoSwitch(
-            activeTrackColor: lampColor,
-            inactiveTrackColor: blackColor,
-            thumbColor: whiteColor,
-            value: floorStops[reversedButtonIndex[row][col]],
-            onChanged: (value) => changeFloorStopFlag(value, row, col),
+        // Only the switch is faded for 1F. The Stop label above it stays legible
+        Opacity(
+          opacity: isNotSelectFloor(row, col) ? fixedFloorSwitchOpacity : 1.0,
+          // Sized, not just scaled: Transform.scale leaves the layout at the
+          // switch's full height, which pushed the cell over on a short screen
+          child: SizedBox(
+            width: cupertinoSwitchSize.width * context.settingsFloorStopToggleScale(),
+            height: cupertinoSwitchSize.height * context.settingsFloorStopToggleScale(),
+            child: FittedBox(
+            child: CupertinoSwitch(
+              activeTrackColor: lampColor,
+              inactiveTrackColor: blackColor,
+              thumbColor: whiteColor,
+              value: floorStops[reversedButtonIndex[row][col]],
+              // The last stop on its side of 1F stays on, so the switch is disabled
+              onChanged: (isNotSelectFloor(row, col)
+                  || isOnlyStop(floorStops, reversedButtonIndex[row][col]))
+                ? null
+                : (value) => changeFloorStopFlag(value, row, col),
+            ),
+            ),
           ),
         ),
       ]
@@ -765,7 +1004,10 @@ class SettingsWidget {
   // --- Background Selection Component ---
   // Background style selection interface
   Widget settingsBackgroundSelectWidget({
-    required void Function(String) onTap
+    required List<bool> backgroundLockList,
+    required void Function(String) onTap,
+    required void Function(int) showRewardAdAlertDialog,
+    required void Function() onBuy,
   }) => Column(mainAxisAlignment: MainAxisAlignment.center,
       children: [...backgroundStyleList.toMatrix(2).asMap().entries.map((row) =>
         Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -795,6 +1037,12 @@ class SettingsWidget {
                   ),
                 ),
               ),
+              // One video per design: nothing here unlocks the others
+              if (backgroundLockList[2 * row.key + col.key]) settingsButtonLockContainer(
+                onUnlock: () => showRewardAdAlertDialog(2 * row.key + col.key),
+                onBuy: onBuy,
+                size: context.settingsBackgroundSize(),
+              ),
             ]),
           )).toList(),
         )),
@@ -807,13 +1055,17 @@ class SettingsWidget {
   Widget alertDialogTitle(String title) => Row(
     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
     children: [
-      Text(title,
-        style: TextStyle(
-          fontSize: context.settingsAlertTitleFontSize(),
-          fontFamily: context.font(),
-          color: whiteColor,
+      // Scaled down rather than clipped: the basement title is long in some languages
+      Flexible(child: FittedBox(fit: BoxFit.scaleDown,
+        child: Text(title,
+          maxLines: 1,
+          style: TextStyle(
+            fontSize: context.settingsAlertTitleFontSize(),
+            fontFamily: context.font(),
+            color: whiteColor,
+          ),
         ),
-      ),
+      )),
       SizedBox(width: context.settingsAlertCloseIconSpace()),
       // Close button for dialog
       GestureDetector(
@@ -855,7 +1107,8 @@ class SettingsWidget {
     ),
   );
 
-  // Reward ad alert dialog
+  /// No purchase button here: the padlock behind this dialog is the paid path,
+  /// and the Unlock pill that opened it is the free one
   CupertinoAlertDialog rewardAdAlertDialog({
     required String title,
     required String content,

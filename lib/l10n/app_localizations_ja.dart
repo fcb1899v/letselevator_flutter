@@ -112,13 +112,7 @@ class AppLocalizationsJa extends AppLocalizations {
       '\n今は動画を再生できません。\n広告の同意設定を確認するか、\n少し待ってからもう一度お試しください。';
 
   @override
-  String get unlockAllTitle => '解放条件：1.または2.';
-
-  @override
-  String get unlockAll1 => '1. 30秒チャレンジで100個以上達成！';
-
-  @override
-  String get unlockAll2 => '2. 全てのボタン形状を解放!!';
+  String get unlockByScore => '30秒チャレンジで100個以上を達成';
 
   @override
   String get challenge => '30秒チャレンジ';
@@ -146,4 +140,40 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get ranking => 'ランキング';
+
+  @override
+  String get premiumTitle => 'プレミアムパック';
+
+  @override
+  String get premiumNoAds => '広告表示がなくなります';
+
+  @override
+  String get premiumUnlockAll =>
+      '30秒チャレンジ100個以上の達成や\n広告動画を見ることなしに\n全てのデザインや機能が使えます';
+
+  @override
+  String get premiumOneTime => '1回だけの購入です';
+
+  @override
+  String premiumPrice(Object PRICE) {
+    return '$PRICEで購入する';
+  }
+
+  @override
+  String get premiumBuy => '購入する';
+
+  @override
+  String get premiumRestore => '購入を復元';
+
+  @override
+  String get premiumThanks => 'ありがとうございます！すべて解放されました。';
+
+  @override
+  String get premiumFailed => '購入を完了できませんでした。';
+
+  @override
+  String get premiumRestoreFailed => '復元できる購入が見つかりませんでした。';
+
+  @override
+  String get premiumUnavailable => 'いま購入手続きを開始できません。\n時間をおいてお試しください。';
 }
