@@ -7,9 +7,9 @@
 // shortcut, not the only road. Taking the free road away to sell the paid one
 // would make the app worse for everyone who does not pay.
 //
-// The store SDK is NOT started during launch. configure() runs the first time
-// something actually needs the store, behind a shared future, so a launch that
-// never opens the settings screen never touches RevenueCat. Same shape as
+// The store SDK is NOT started during launch. configure() runs behind a shared
+// future when the home screen prefetches the price, a few seconds after its
+// launch work is done, or earlier if a screen needs the store first. Same shape as
 // elevatorneo_flutter/lib/purchase_manager.dart, and for the same reason: the
 // startup path is kept empty on purpose.
 //
@@ -109,12 +109,42 @@ class PurchaseManager {
   /// 1.5.25 shipped: 499 presses over nine days and not one purchase
   /// (00_Corporate_Planning/decisions/active/DEC-20260906-neo-purchase-test-mode-release.md)
   ///
-  /// Null no longer hides the purchase entry points. An app's first In-App
-  /// Purchase has to be attached to the same submission as the binary, and
-  /// Apple documents that StoreKit can return no products in the App Review
-  /// sandbox in exactly that state. Hiding on null would show the reviewer an
-  /// app with no purchase at all, and the purchase would be rejected with it
-  static Future<String?> fetchPrice() async {
+  /// Null hides every purchase entry point: the offer is drawn only from a real price.
+  /// Always a network round-trip; the answer, null included, replaces the known price
+  static Future<String?> fetchPrice() async => _knownPrice = await priceSource();
+
+  /// The store lookup behind fetchPrice. Tests replace it so a screen's own fetch cannot race their pumps
+  @visibleForTesting
+  static Future<String?> Function() priceSource = _fetchPrice;
+
+  /// Forgets the known price and any fetch, so each test starts from a fresh launch
+  @visibleForTesting
+  static void resetPrice() {
+    _knownPrice = null;
+    _pricing = null;
+    _prefetch = null;
+    priceSource = _fetchPrice;
+  }
+
+  // --- Price cache ---
+
+  /// The last answer fetchPrice got, so a screen opened later needs no round-trip
+  static String? _knownPrice;
+  static String? get knownPrice => _knownPrice;
+  /// The fetch in flight, joined by a second caller instead of starting another
+  static Future<String?>? _pricing;
+  /// The one prefetch per process, however often the home screen is rebuilt
+  static Future<String?>? _prefetch;
+
+  /// Fetches the price once, a few seconds after launch, so the menu opens with it
+  static Future<String?> prefetchPrice() =>
+    _prefetch ??= Future.delayed(pricePrefetchDelay, loadPrice);
+
+  /// The known price, else the fetch in flight, else a new fetch
+  static Future<String?> loadPrice() async =>
+    _knownPrice ?? await (_pricing ??= fetchPrice().whenComplete(() => _pricing = null));
+
+  static Future<String?> _fetchPrice() async {
     try {
       if (!await _ensureConfigured()) return null;
       final Offerings offerings = await Purchases.getOfferings();

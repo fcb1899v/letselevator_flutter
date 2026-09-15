@@ -21,7 +21,7 @@
   "notStop": "本层不停。",
   "emergency": "检查电梯状态，紧急停车。",
   "return1st": "检查已完成。返回一楼。",
-  "bypass": "跳过层",
+  "bypass": "限制层",
   "stop": "停靠层",
 
   "changeNumber": "更改楼层",
@@ -52,9 +52,9 @@
   "officialShop": "官方商店",
   "ranking": "排名",
 
-  "premiumTitle" : "高级版",
+  "premiumTitle" : "完整版",
   "premiumNoAds" : "不再显示广告",
-  "premiumUnlockAll" : "无需在30秒挑战中达成100个以上，\n也无需观看广告视频，\n即可使用所有设计和功能",
+  "premiumUnlockAll" : "所有设计和功能立即可用\n无需观看视频广告\n也无需完成30秒挑战",
   "premiumOneTime" : "一次性购买",
   "premiumPrice" : "以{PRICE}购买",
   "premiumBuy" : "购买",

@@ -67,7 +67,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'Elevator status check complete. Returning to the first floor. ';
 
   @override
-  String get bypass => 'Bypass';
+  String get bypass => 'Restricted';
 
   @override
   String get stop => 'Stop';
@@ -151,7 +151,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get premiumUnlockAll =>
-      'Without scoring 100+ in the challenge\nor watching ad videos,\nevery design and feature is yours';
+      'Every design and feature,\nyours right now\nno video ads, no 30-second challenge';
 
   @override
   String get premiumOneTime => 'A one-time purchase';

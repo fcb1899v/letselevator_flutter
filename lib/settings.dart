@@ -63,7 +63,7 @@ class SettingsPage extends HookConsumerWidget {
     final isLoadingData = useState(false);
     // The price the store returned, empty until it answers. Every purchase entry point
     // is drawn from this, never from the SDK having started
-    final storePrice = useState("");
+    final storePrice = ref.watch(planProvider).priceString;
     final animationController = useAnimationController(duration:Duration(milliseconds: flashTime))..repeat(reverse: true);
 
     // --- Manager Instances --- rewarded ad for unlocking features. The hook only
@@ -103,7 +103,7 @@ class SettingsPage extends HookConsumerWidget {
       final prefs = await SharedPreferences.getInstance();
       if (!styleMigratedKey.getSharedPrefBool(prefs, false)) {
         final granted = hadBulkUnlock(
-          savedBestScore: "bestScore".getSharedPrefInt(prefs, 0),
+          savedBestScore: storedBestScore(prefs),
           shapeLocks: shapeLocks,
         );
         if (granted) styleUnlockedKey.setSharedPrefBool(prefs, true);
@@ -146,11 +146,10 @@ class SettingsPage extends HookConsumerWidget {
     Future<List<bool>> getBackgroundLockList(List<bool> shapeLocks) async {
       final prefs = await SharedPreferences.getInstance();
       if (!backgroundMigratedKey.getSharedPrefBool(prefs, false)) {
-        // Read the score from storage, not from the provider. getBestScore
-        // writes the larger of local and leaderboard but returns the smaller on
-        // the launch that first pulls it down, and the migration runs only once
+        // Read the score from storage, not from the provider: getBestScore has already
+        // copied a higher leaderboard best there, and the migration runs only once
         final grant = hadBulkUnlock(
-          savedBestScore: "bestScore".getSharedPrefInt(prefs, 0),
+          savedBestScore: storedBestScore(prefs),
           shapeLocks: shapeLocks,
         );
         if (grant) {
@@ -195,14 +194,11 @@ class SettingsPage extends HookConsumerWidget {
     useEffect(() {
       WidgetsBinding.instance.addPostFrameCallback((_) async {
         await initState();
-        // Settings is a deliberate navigation long after the first frame, so starting the
-        // store SDK here costs the launch nothing. The price decides whether to show the offer
-        final price = await PurchaseManager.fetchPrice();
+        // Reuses the home screen's prefetch, or joins it. The price decides whether to show the offer
+        if (!context.mounted || ref.read(planProvider).isPremium) return;
+        final price = await PurchaseManager.loadPrice();
         if (!context.mounted) return;
-        if (price != null) {
-          storePrice.value = price;
-          ref.read(planProvider.notifier).setPrice(price);
-        }
+        ref.read(planProvider.notifier).setPrice(price ?? "");
       });
       return null;
     }, []);
@@ -247,14 +243,16 @@ class SettingsPage extends HookConsumerWidget {
       final price = await PurchaseManager.fetchPrice();
       if (!context.mounted) return;
       isLoadingData.value = false;
-      // An empty price still opens the page: the button says "Buy" without an
-      // amount, and pressing it reports why nothing happened
-      storePrice.value = price ?? "";
       ref.read(planProvider.notifier).setPrice(price ?? "");
+      // No price, no purchase page
+      if (price == null) {
+        common.commonSnackBar(context.premiumUnavailable());
+        return;
+      }
       await AnalyticsManager.upgradeOffered(source);
       if (!context.mounted) return;
       context.pushPage(PremiumPage(
-        price: price ?? "",
+        price: price,
         onBuy: () async {
           context.popPage();
           await runPurchase(isRestore: false, source: source);
@@ -276,6 +274,8 @@ class SettingsPage extends HookConsumerWidget {
           ? unlockAllBestScore : 0,
         currentPoint: bestScore,
       );
+      // No price, no purchase page; the Unlock pill on the lock stays the free way
+      if (storePrice.isEmpty) return;
       await openUpgrade(feature);
     }
 
@@ -309,8 +309,7 @@ class SettingsPage extends HookConsumerWidget {
       }
     }
 
-    // Confirmation dialog for an ad that is ready to play. It offers the purchase as a
-    // third choice; the video stays the default and the paid option needs a store price
+    // Confirmation dialog for an ad that is ready to play. The video only; the padlock is the paid path
     void showUnlockDialog(String kind, int i, RewardedAd loadedAd) {
       showDialog(context: context,
         builder: (context) => settings.rewardAdAlertDialog(
@@ -352,8 +351,7 @@ class SettingsPage extends HookConsumerWidget {
         showUnlockDialog(kind, i, preparedAd);
         return;
       }
-      // Consent stayed declined or nothing filled; both are actionable, so say it.
-      // The purchase is offered too, so the user has something to press
+      // Consent stayed declined or nothing filled; both are actionable, so say it
       showDialog(context: context,
         builder: (context) => settings.rewardAdUnavailableDialog(
           content: context.rewardAdUnavailable(),
@@ -671,8 +669,7 @@ class SettingsWidget {
     required double top,
     required void Function() onTap,
   }) => GestureDetector(
-    // The lock used to be scenery. Pressing it is the only purchase path the
-    // settings screen offers, so it has to answer
+    // The settings screen's purchase path; it opens the page only once a store price is known
     onTap: onTap,
     child: Container(
       alignment: Alignment.center,
@@ -759,8 +756,8 @@ class SettingsWidget {
 
   // --- Button Lock Container Component ---
   // Individual button lock overlay with unlock button
-  /// Two targets, not one. The padlock goes to the purchase page; only the
-  /// Unlock pill starts a video, so the free path is never pressed by accident
+  /// Two targets, not one. The padlock goes to the purchase page (only with a price);
+  /// only the Unlock pill starts a video, so the free path is never pressed by accident
   Widget settingsButtonLockContainer({
     required void Function() onUnlock,
     required void Function() onBuy,
@@ -789,7 +786,7 @@ class SettingsWidget {
         children: [
           lockIcon(icon),
           // Padded so the free path has a target the thumb can hit. Missing the
-          // pill would otherwise open the purchase page, which is the paid one
+          // pill hits the padlock, which opens the purchase page when a price is known
           if (showUnlock) GestureDetector(
             behavior: HitTestBehavior.opaque,
             onTap: onUnlock,

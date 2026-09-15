@@ -1,6 +1,8 @@
+import 'dart:async';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_tts/flutter_tts.dart';
+import 'constant.dart';
 import 'extension.dart';
 
 // ===== TtsManager: multi-language text-to-speech for the app =====
@@ -60,13 +62,67 @@ class TtsManager {
     }
   }
 
-  /// Speak text if sound is on
+  /// Longest a speech waits on the first init; past it, that speech is skipped
+  static const Duration initWait = Duration(seconds: 3);
+  Future<bool>? _ready;
+  bool _isInitDone = false;
+
+  Future<bool> get _sharedInit => _ready ??= _initOnce();
+
+  /// Initializes once, shared by every caller; false if it failed
+  Future<bool> ensureReady() => _sharedInit;
+
+  Future<bool> _initOnce() async {
+    try {
+      await initTts();
+      return true;
+    } catch (e) {
+      "TTS init failed: $e".debugPrint();
+      return false;
+    } finally {
+      _isInitDone = true;
+    }
+  }
+
+  /// Background init after launch, then the greeting once, not awaited.
+  /// Skipped, not queued, while the app is not visible (the guard in _speak)
+  Future<bool> warmUp() async {
+    final isReady = await _sharedInit;
+    if (isReady && context.mounted) {
+      unawaited(_speak(context.pushNumber()).catchError((Object e) => "TTS greeting failed: $e".debugPrint()));
+    }
+    return isReady;
+  }
+
+  /// Speak text if sound is on, once TTS is ready
   Future<void> speakText(String text, bool isSoundOn) async {
     if (isSoundOn) {
-      await flutterTts.stop();
-      await flutterTts.speak(text);
-      text.debugPrint();
+      final wait = _isInitDone ? null: (Stopwatch()..start());
+      if (!await ensureReady().timeout(initWait, onTimeout: () => false)) {
+        "TTS not ready after ${wait?.elapsedMilliseconds} ms: skipped $text".debugPrint();
+        return;
+      }
+      if (wait != null) "TTS waited ${wait.elapsedMilliseconds} ms for init: $text".debugPrint();
+      await _speak(text);
     }
+  }
+
+  /// True while the app is visible; a skip is logged
+  static bool _isVisible(String text) {
+    final state = WidgetsBinding.instance.lifecycleState;
+    if (!notVisibleStates.contains(state)) return true;
+    "Speech skipped, app is $state: $text".debugPrint();
+    return false;
+  }
+
+  /// Every speech ends here: a new one starts only while the app is visible
+  Future<void> _speak(String text) async {
+    if (!_isVisible(text)) return;
+    await flutterTts.stop();
+    // The app may have been hidden while the previous speech stopped
+    if (!_isVisible(text)) return;
+    await flutterTts.speak(text);
+    text.debugPrint();
   }
 
   /// Stop TTS
@@ -75,7 +131,7 @@ class TtsManager {
     "Stop TTS".debugPrint();
   }
 
-  /// Initialize TTS
+  /// Initialize TTS; callers go through ensureReady so it runs once
   Future<void> initTts() async {
     await flutterTts.setSharedInstance(true);
     if (Platform.isIOS || Platform.isMacOS) {
@@ -96,6 +152,5 @@ class TtsManager {
     if (context.mounted) await setTtsVoice();
     await flutterTts.setVolume(1);
     await flutterTts.setSpeechRate(0.5);
-    if (context.mounted) speakText(context.pushNumber(), true);
   }
 }

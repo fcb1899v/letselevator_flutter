@@ -66,7 +66,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get return1st => '점검이 완료되었습니다. 1층으로 돌아갑니다. ';
 
   @override
-  String get bypass => '통과 층';
+  String get bypass => '제한 층';
 
   @override
   String get stop => '정차 층';
@@ -99,7 +99,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get dog => '개 층에 도착하셨습니다. ';
 
   @override
-  String get unlock => '해제';
+  String get unlock => '잠금 해제';
 
   @override
   String get unlockTitle => '영상을 보고\n새 버튼 잠금 해제!';
@@ -145,11 +145,11 @@ class AppLocalizationsKo extends AppLocalizations {
   String get premiumTitle => '프리미엄 팩';
 
   @override
-  String get premiumNoAds => '광고가 표시되지 않습니다';
+  String get premiumNoAds => '광고가 제거됩니다';
 
   @override
   String get premiumUnlockAll =>
-      '30초 챌린지 100개 이상 달성도\n광고 동영상 시청도 없이\n모든 디자인과 기능을 사용할 수 있습니다';
+      '모든 디자인과 기능을\n동영상 광고도 30초 챌린지도 없이\n지금 바로 사용할 수 있습니다';
 
   @override
   String get premiumOneTime => '한 번만 결제합니다';

@@ -21,7 +21,7 @@
   "notStop" : "ただいま押されたかいにはとまりません。　",
   "emergency" : "エレベーターの状態を確認するため、緊急停止します。 ",
   "return1st" : "確認が完了しました。一階に戻ります。 ",
-  "bypass" : "通過階",
+  "bypass" : "制限階",
   "stop" : "停止階",
 
   "changeNumber" : "行き先階数の変更",
@@ -54,7 +54,7 @@
 
   "premiumTitle" : "プレミアムパック",
   "premiumNoAds" : "広告表示がなくなります",
-  "premiumUnlockAll" : "30秒チャレンジ100個以上の達成や\n広告動画を見ることなしに\n全てのデザインや機能が使えます",
+  "premiumUnlockAll" : "全てのデザインと機能が\n今すぐ使えます\n動画広告も30秒チャレンジも不要",
   "premiumOneTime" : "1回だけの購入です",
   "premiumPrice" : "{PRICE}で購入する",
   "premiumBuy" : "購入する",
@@ -62,5 +62,5 @@
   "premiumThanks" : "ありがとうございます！すべて解放されました。",
   "premiumFailed" : "購入を完了できませんでした。",
   "premiumRestoreFailed" : "復元できる購入が見つかりませんでした。",
-  "premiumUnavailable" : "いま購入手続きを開始できません。\n時間をおいてお試しください。"
+  "premiumUnavailable" : "いま購入手続きを開始できません。\n時間をおいてもう一度お試しください。"
 }

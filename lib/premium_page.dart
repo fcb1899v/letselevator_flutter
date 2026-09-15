@@ -57,11 +57,11 @@ class PremiumPage extends StatelessWidget {
                 ),
               ),
             ),
-            // Centred in what the close button leaves. The scroll view never
-            // scrolls on a phone; it is there so an unusually short screen
-            // shows the page instead of an overflow stripe
+            // Centred in what the close button leaves, and scaled down where it does not fit
+            // (iPad landscape): a scroll view hid Buy and Restore below the fold there
             Expanded(child: Center(
-              child: SingleChildScrollView(
+              child: FittedBox(fit: BoxFit.scaleDown,
+                child: SizedBox(width: context.width(),
                 child: Column(mainAxisSize: MainAxisSize.min, children: [
             // Identity
             _sign(context),
@@ -90,6 +90,7 @@ class PremiumPage extends StatelessWidget {
             SizedBox(height: context.premiumGapBlock()),
             // Action
             Text(context.premiumOneTime(),
+              textAlign: TextAlign.center,
               style: TextStyle(
                 color: whiteColor,
                 fontSize: context.premiumNoteFontSize(),
@@ -110,7 +111,7 @@ class PremiumPage extends StatelessWidget {
               ),
             ),
                 ]),
-              ),
+              )),
             )),
           ]),
         ),

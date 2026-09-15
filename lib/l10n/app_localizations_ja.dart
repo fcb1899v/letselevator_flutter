@@ -66,7 +66,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get return1st => '確認が完了しました。一階に戻ります。 ';
 
   @override
-  String get bypass => '通過階';
+  String get bypass => '制限階';
 
   @override
   String get stop => '停止階';
@@ -148,8 +148,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get premiumNoAds => '広告表示がなくなります';
 
   @override
-  String get premiumUnlockAll =>
-      '30秒チャレンジ100個以上の達成や\n広告動画を見ることなしに\n全てのデザインや機能が使えます';
+  String get premiumUnlockAll => '全てのデザインと機能が\n今すぐ使えます\n動画広告も30秒チャレンジも不要';
 
   @override
   String get premiumOneTime => '1回だけの購入です';
@@ -175,5 +174,5 @@ class AppLocalizationsJa extends AppLocalizations {
   String get premiumRestoreFailed => '復元できる購入が見つかりませんでした。';
 
   @override
-  String get premiumUnavailable => 'いま購入手続きを開始できません。\n時間をおいてお試しください。';
+  String get premiumUnavailable => 'いま購入手続きを開始できません。\n時間をおいてもう一度お試しください。';
 }

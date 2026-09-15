@@ -172,6 +172,40 @@ assets/
 - Button shapes unlock per shape; the button style section opens on a best score
   of 100 in the 30-second challenge
 
+## 🏆 Launch and Leaderboard
+
+- After the first frame, games sync (then the pending run resend) and the price
+  prefetch (3 s delay) start independently; neither waits for the other or for sound
+- No loading overlay at launch. TTS init and the `selectSound` load run in the
+  background 3 s after the first frame, audio first (waited on for at most 2 s), then TTS
+- TTS init runs once per process. A floor tap starts it if it has not started; a speech
+  waits up to 3 s for it and is skipped if init fails or is still pending
+- A sound played during the background load waits for it for up to 2 s
+- The launch prompt ("press the button") is spoken once when the background TTS init is
+  ready, even if TTS was already used or the menu is open. If the app is not visible at
+  that moment, it is skipped, not queued
+- A new sound or speech starts only while the app is visible: blocked in hidden, paused and
+  detached (`notVisibleStates`), allowed in resumed and inactive (split screen, notification
+  shade). Checked in `AudioManager.playEffectSound` and `TtsManager._speak`, which every speech
+  goes through. A ride that arrives in the background plays no door sound or announcement;
+  nothing is replayed on return
+- Once the app is not visible, audio and TTS stop, in separate try blocks. This runs from
+  `useOnAppLifecycleStateChange`, not an effect: hidden and paused draw no frame
+- The first frame never waits for Game Center / Play Games. Sign-in and the
+  leaderboard best load after it (`syncGamesAfterLaunch`); a late answer is still applied
+- One native sign-in runs at a time and every caller shares it, each waiting at most 10 s
+- A score is submitted only when a 30-second run finishes. The launch no longer
+  resends the stored best
+- A run counts if its score is at most the selectable button count (1049). Time is
+  not checked: a stalled or interrupted run is still genuine
+- A new best must beat the shown best, the stored best and any unsent pending run,
+  so the stored best never goes down
+- A new best whose submission fails stays in a pending record. It is resent once,
+  3 s after the home screen's launch work, and at the next finish, while it is
+  still valid, unsent and the stored best. The resend never starts a sign-in
+- A leaderboard or stored best over 1049 is ignored (read as 0; the key is kept)
+- Tests have no Game Center: `test/flutter_test_config.dart` makes sign-in answer "signed out"
+
 ## 💳 Premium
 
 A single non-consumable purchase (`premium`), sold through RevenueCat.
@@ -217,6 +251,10 @@ widgets and fail on any overflow:
 - `panel_debug_probe_test.dart` — the floor panel in all six languages, with the
   app's own fonts
 - `menu_layout_test.dart` — the menu, including the fifth (purchase) tile
+- `ipad_layout_test.dart` — the purchase page, menu and settings locks at iPad
+  Air 11-inch size in portrait and landscape (iPadOS can ignore the portrait
+  lock); the purchase page must show Buy and Restore without scrolling, also
+  at 375x667
 
 `switch_size_probe_test.dart` does not draw anything: it checks that
 CupertinoSwitch still has the natural size the floor cell is built around.

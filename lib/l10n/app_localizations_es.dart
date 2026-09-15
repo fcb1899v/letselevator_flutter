@@ -35,7 +35,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String floor(Object NUMBER) {
-    return 'Piso $NUMBER, ';
+    return '${NUMBER}piso, ';
   }
 
   @override
@@ -66,7 +66,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get return1st => 'Verificación completada. Regresando al primer piso.';
 
   @override
-  String get bypass => 'Omitir';
+  String get bypass => 'Restringido';
 
   @override
   String get stop => 'Detener';
@@ -150,7 +150,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get premiumUnlockAll =>
-      'Sin conseguir 100+ en el reto\nni ver vídeos publicitarios,\ntodos los diseños y funciones son tuyos';
+      'Todos los diseños y funciones,\ntuyos ahora mismo\nsin vídeos recompensados ni reto';
 
   @override
   String get premiumOneTime => 'Una compra única';
@@ -164,7 +164,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get premiumBuy => 'Comprar';
 
   @override
-  String get premiumRestore => 'Restaurar compra';
+  String get premiumRestore => 'Restaurar compras';
 
   @override
   String get premiumThanks => '¡Gracias! Todo está desbloqueado.';

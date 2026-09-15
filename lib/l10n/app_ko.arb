@@ -21,7 +21,7 @@
   "notStop": "정차하지 않습니다.",
   "emergency" : "엘리베이터 점검을 위해 비상 정지합니다. ",
   "return1st" : "점검이 완료되었습니다. 1층으로 돌아갑니다. ",
-  "bypass" : "통과 층",
+  "bypass" : "제한 층",
   "stop" : "정차 층",
 
   "changeNumber" : "목적지 층수 변경",
@@ -35,7 +35,7 @@
   "paradise" : "낙원 층에 도착하셨습니다. ",
   "dog" : "개 층에 도착하셨습니다. ",
 
-  "unlock" : "해제",
+  "unlock" : "잠금 해제",
   "unlockTitle": "영상을 보고\n새 버튼 잠금 해제!",
   "unlockDesc": "\n영상을 끝까지 보면\n새 버튼을 사용할 수 있어요.\n확인을 눌러주세요!",
   "rewardAdUnavailable": "\n지금은 영상을 재생할 수 없어요.\n광고 동의 설정을 확인하거나\n잠시 후 다시 시도해 주세요.",
@@ -53,8 +53,8 @@
   "ranking" : "랭킹",
 
   "premiumTitle" : "프리미엄 팩",
-  "premiumNoAds" : "광고가 표시되지 않습니다",
-  "premiumUnlockAll" : "30초 챌린지 100개 이상 달성도\n광고 동영상 시청도 없이\n모든 디자인과 기능을 사용할 수 있습니다",
+  "premiumNoAds" : "광고가 제거됩니다",
+  "premiumUnlockAll" : "모든 디자인과 기능을\n동영상 광고도 30초 챌린지도 없이\n지금 바로 사용할 수 있습니다",
   "premiumOneTime" : "한 번만 결제합니다",
   "premiumPrice" : "{PRICE}에 구매",
   "premiumBuy" : "구매",

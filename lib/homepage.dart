@@ -1,6 +1,7 @@
 // ===== HomePage: main elevator simulator interface =====
 // State, initialization, elevator movement, door control, button handling, UI layout
 
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:vibration/vibration.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -10,6 +11,7 @@ import 'common_widget.dart';
 import 'extension.dart';
 import 'constant.dart';
 import 'plan_provider.dart';
+import 'purchase_manager.dart';
 import 'games_manager.dart';
 import 'main.dart';
 import 'menu.dart';
@@ -24,7 +26,6 @@ class HomePage extends HookConsumerWidget {
 
     // --- State Management ---
     // Riverpod providers for app-wide state management
-    final isGamesSignIn = ref.watch(gamesSignInProvider);
     final isShimada = ref.watch(isShimadaProvider);
     final isMenu = ref.watch(isMenuProvider);
     final isPremium = ref.watch(planProvider).isPremium;
@@ -45,10 +46,8 @@ class HomePage extends HookConsumerWidget {
     final isPressedOperationButtons = useState([false, false, false]);  //open, close, alert
     final isAboveSelectedList = useState(List.generate(max + 1, (_) => false));
     final isUnderSelectedList = useState(List.generate(min * (-1) + 1, (_) => false));
-    final isLoadingData = useState(false);
     final waitTime = useState(initialWaitTime);
     final openTime = useState(initialOpenTime);
-    final lifecycle = useAppLifecycleState();
 
     // --- Manager Instances ---
     // Audio and text-to-speech managers for sound effects
@@ -67,47 +66,98 @@ class HomePage extends HookConsumerWidget {
     );
 
     // --- Initialization Functions ---
-    // Initialize app data including TTS, games sign-in, and best score
-    initState() async {
-      isLoadingData.value = true;
+    // TTS init and the first sound's load, in the background once launch settles.
+    // Nothing waits on them: a first use waits on the same shared work instead
+    Future<void> warmUpSound() async {
+      await Future.delayed(soundWarmUpDelay);
+      if (!context.mounted) return;
+      "Launch: sound warm-up starts at ${launchClock.elapsedMilliseconds} ms".debugPrint();
       try {
-        await ttsManager.initTts();
-        ref.read(gamesSignInProvider.notifier).update(await gamesSignIn(isGamesSignIn));
-        ref.read(bestScoreProvider.notifier).update(await getBestScore(isGamesSignIn));
+        // One after the other, the tap sound first; a load past the bound no longer holds TTS
+        await audioManager.warmUp(selectSound).timeout(AudioManager.warmUpWait, onTimeout: () {});
+        "Launch: audio warm-up done at ${launchClock.elapsedMilliseconds} ms".debugPrint();
+        final isReady = await ttsManager.warmUp();
+        "Launch: TTS ready $isReady at ${launchClock.elapsedMilliseconds} ms".debugPrint();
       } catch (e) {
-        "Error: $e".debugPrint();
-      } finally {
-        isLoadingData.value = false;
-        FlutterNativeSplash.remove();
+        "Launch: sound warm-up error: $e".debugPrint();
       }
+    }
+
+    // Games sign-in and best score, applied as each arrives; then the pending run resend
+    Future<void> syncGames() async {
+      try {
+        await syncGamesAfterLaunch(
+          onSignIn: (isSignedIn) {
+            "Launch: games sign-in $isSignedIn at ${launchClock.elapsedMilliseconds} ms".debugPrint();
+            if (context.mounted) ref.read(gamesSignInProvider.notifier).update(isSignedIn);
+          },
+          // Never lower: a challenge may have set a new best while this was pending
+          onBestScore: (score) {
+            "Launch: best score $score at ${launchClock.elapsedMilliseconds} ms".debugPrint();
+            if (!context.mounted || score <= ref.read(bestScoreProvider)) return;
+            ref.read(bestScoreProvider.notifier).update(score);
+          },
+        );
+      } catch (e) {
+        "Launch: games sync error: $e".debugPrint();
+      }
+      // Only with an unsent pending run; never in the launch path itself
+      if (!context.mounted) return;
+      try {
+        await resendPendingRunAfterLaunch(() => context.mounted && ref.read(gamesSignInProvider));
+      } catch (e) {
+        "Launch: pending run resend error: $e".debugPrint();
+      }
+    }
+
+    // Price prefetch once the splash is gone, plus its delay; never in the launch path
+    // (iOS 1.5.24 launch-crash rejection). The menu then opens with it
+    Future<void> prefetchPrice() async {
+      if (!context.mounted || ref.read(planProvider).isPremium) return;
+      "Launch: price prefetch scheduled at ${launchClock.elapsedMilliseconds} ms".debugPrint();
+      try {
+        await PurchaseManager.prefetchPrice();
+      } catch (e) {
+        "Launch: price prefetch error: $e".debugPrint();
+      }
+      "Launch: price answered at ${launchClock.elapsedMilliseconds} ms".debugPrint();
+      // The latest answer, not the prefetch's: a refetch since may have changed it
+      if (context.mounted) ref.read(planProvider.notifier).setPrice(PurchaseManager.knownPrice ?? "");
     }
 
     // --- Lifecycle Management ---
     // Initialize app on first build
     useEffect(() {
-      WidgetsBinding.instance.addPostFrameCallback((_) async {
-        await initState();
+      WidgetsBinding.instance.waitUntilFirstFrameRasterized.then((_) =>
+        "Launch: first frame rasterized at ${launchClock.elapsedMilliseconds} ms".debugPrint());
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        // The frame is built: show it now. Held until TTS and sign-in, it was a blank launch
+        FlutterNativeSplash.remove();
+        // Independent flows: none waits on another, and each handles its own errors
+        unawaited(warmUpSound());
+        unawaited(syncGames());
+        unawaited(prefetchPrice());
       });
       return null;
     }, []);
 
     // --- App Lifecycle Effect ---
-    // Handle app lifecycle changes (pause, resume) to stop audio and TTS
-    useEffect(() {
-      Future<void> handleLifecycleChange() async {
-        if (!context.mounted) return;
-        if (lifecycle == AppLifecycleState.inactive || lifecycle == AppLifecycleState.paused) {
-          try {
-            await audioManager.stopAudio();
-            await ttsManager.stopTts();
-          } catch (e) {
-            'Error handling stop for player: $e'.debugPrint();
-          }
-        }
+    // Stop audio and TTS once the app is not visible; inactive (split screen, shade) keeps playing.
+    // Called on the change itself: hidden and paused draw no frame, so an effect would not run
+    useOnAppLifecycleStateChange((_, state) async {
+      if (!context.mounted || !notVisibleStates.contains(state)) return;
+      // Separately, so a failure in one cannot leave the other playing
+      try {
+        await audioManager.stopAudio();
+      } catch (e) {
+        'Error stopping audio: $e'.debugPrint();
       }
-      handleLifecycleChange();
-      return null;
-    }, [lifecycle, context.mounted]);
+      try {
+        await ttsManager.stopTts();
+      } catch (e) {
+        'Error stopping TTS: $e'.debugPrint();
+      }
+    });
 
     // --- Elevator Movement Logic ---
     // Move elevator upward to target floor with speed calculation
@@ -185,6 +235,8 @@ class HomePage extends HookConsumerWidget {
     // --- Floor Selection Logic ---
     // Handle floor button selection with validation and movement logic
     floorSelected(int i, bool selectFlag) async {
+      // A ride will speak: start the shared TTS init now if the warm-up has not
+      unawaited(ttsManager.ensureReady());
       audioManager.playEffectSound(asset: selectSound, volume: 0.8);
       Vibration.vibrate(duration: vibTime, amplitude: vibAmp);
       if (!isEmergency.value) {
@@ -465,8 +517,6 @@ class HomePage extends HookConsumerWidget {
             onTap: () async => ref.read(isMenuProvider.notifier).update(await isMenu.pressedMenu()),
             isPremium: isPremium,
           ),
-          // Loading indicator during data initialization
-          if (isLoadingData.value) common.commonCircularProgressIndicator(),
         ]
       ),
     );

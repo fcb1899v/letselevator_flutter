@@ -32,8 +32,10 @@ List<bool>? _overrideFloorStops;
 int? _overrideButtonStyle;
 String? _overrideButtonShape;
 String? _overrideBackgroundStyle;
-bool? _overrideGamesSignIn;
 int? _overrideBestScore;
+
+/// Time since main() started, for the launch logs
+final Stopwatch launchClock = Stopwatch();
 
 // Notifier classes for app-wide state (Riverpod 3 Notifier API)
 // Each notifier exposes an update method for external state changes.
@@ -99,13 +101,10 @@ class BackgroundStyleNotifier extends Notifier<String> {
   void update(String value) => state = value;
 }
 
+// Signed out until the post-launch sync answers (homepage.dart)
 class GamesSignInNotifier extends Notifier<bool> {
   @override
-  bool build() {
-    final override = _overrideGamesSignIn;
-    _overrideGamesSignIn = null;
-    return override ?? false;
-  }
+  bool build() => false;
   void update(bool value) => state = value;
 }
 
@@ -133,6 +132,7 @@ final bestScoreProvider = NotifierProvider<BestScoreNotifier, int>(BestScoreNoti
 // --- Application Entry Point ---
 // Main function for app initialization and configuration
 Future<void> main() async {
+  launchClock.start();
   // Initialize Flutter bindings for platform integration
   final widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
   FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
@@ -163,10 +163,9 @@ Future<void> main() async {
   // --- Premium Entitlement --- read from the local cache, not the store, so launch
   // costs nothing; purchase_manager.dart writes the cache on every purchase and restore
   final savedPremium = premiumKey.getSharedPrefBool(prefs, false);
-  // --- Games Services Integration ---
-  // Initialize games sign-in and load best score
-  final isGamesSignIn = await gamesSignIn(false);
-  final savedBestScore = await getBestScore(isGamesSignIn);
+  // --- Games Services --- only the stored best here. Sign-in waits on Game Center and
+  // held the first frame, so it runs after it (homepage.dart)
+  final savedBestScore = storedBestScore(prefs);
   // --- Firebase Configuration ---
   // Initialize Firebase with platform-specific options
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
@@ -177,8 +176,8 @@ Future<void> main() async {
   _overrideButtonStyle = savedButtonStyle;
   _overrideButtonShape = savedButtonShape;
   _overrideBackgroundStyle = savedBackgroundStyle;
-  _overrideGamesSignIn = isGamesSignIn;
   _overrideBestScore = savedBestScore;
+  "Launch: runApp at ${launchClock.elapsedMilliseconds} ms".debugPrint();
   runApp(ProviderScope(
     overrides: [
       floorNumbersProvider.overrideWith(FloorNumbersNotifier.new),
@@ -186,7 +185,6 @@ Future<void> main() async {
       buttonStyleProvider.overrideWith(ButtonStyleNotifier.new),
       buttonShapeProvider.overrideWith(ButtonShapeNotifier.new),
       backgroundStyleProvider.overrideWith(BackgroundStyleNotifier.new),
-      gamesSignInProvider.overrideWith(GamesSignInNotifier.new),
       bestScoreProvider.overrideWith(BestScoreNotifier.new),
       planProvider.overrideWith(() => PlanNotifier(PlanState(isPremium: savedPremium))),
     ],

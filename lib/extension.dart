@@ -180,8 +180,10 @@ extension ContextExt on BuildContext {
       (counter == max) ? rooftop():
       (counter == 0) ? ground():
       (lang() == "en") ? floor("${counter.enRankNumber()}${basement(counter)}"):
-      (lang() == "es") ? "${counter.esRankNumber()}${basement(counter)}":
-      (lang() == "fr") ? "${counter.frRankNumber()}${basement(counter)}":
+      // es / fr put the ordinal before the noun. A basement already carries its
+      // own noun (Sotano / Sous-sol), so the floor noun is added above ground only
+      (lang() == "es") ? (counter < 0) ? "${counter.esRankNumber()}${basement(counter)}": floor(counter.esRankNumber()):
+      (lang() == "fr") ? (counter < 0) ? "${counter.frRankNumber()}${basement(counter)}": floor(counter.frRankNumber()):
       floor("${basement(counter)}${counter.abs()}");
   String openingSound(int counter, bool isShimada) =>
       "${soundFloor(counter)}${soundPlace(counter, isShimada)}${openDoor()}";
@@ -249,13 +251,13 @@ extension ContextExt on BuildContext {
   // --- Menu Configuration ---
   // Menu button layouts and link configurations for different app states
   /// The purchase tile is the fifth, alone on its own row and centred. It is
-  /// dropped once premium is owned, which leaves the original four
+  /// dropped once premium is owned or while no store price is known
   List<List<String>> menuButtons(
-    bool isHome, bool isShimada, bool isGamesSignIn, bool isPremium,
+    bool isHome, bool isShimada, bool isGamesSignIn, bool hasPurchase,
   ) => [
     [isHome.modeChangeButton(isShimada), isHome.modeChallengeButton(isGamesSignIn)],
     [settingsButton, aboutShimadaButton],
-    if (!isPremium) [purchaseButton],
+    if (hasPurchase) [purchaseButton],
   ];
 
   List<String> linkLogos() => [
@@ -375,7 +377,7 @@ extension ContextExt on BuildContext {
   double settingsLockFreeButtonWidth() => height() * lockPillWidthFactor;
   double settingsLockFreeButtonHeight() => height() * 0.03;
   /// Invisible margin around the Unlock pill, so a near miss still takes the
-  /// free path instead of the purchase page behind it
+  /// free path instead of the padlock behind it (the purchase page, when priced)
   double settingsLockFreeTapPadding() => height() * lockPillPaddingFactor;
   double settingsLockFreeBorderRadius() => height() * 0.015;
   double settingsLockFreeFontSize() => height() * 0.018;

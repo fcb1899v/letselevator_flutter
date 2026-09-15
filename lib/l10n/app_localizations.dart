@@ -217,7 +217,7 @@ abstract class AppLocalizations {
   /// No description provided for @bypass.
   ///
   /// In en, this message translates to:
-  /// **'Bypass'**
+  /// **'Restricted'**
   String get bypass;
 
   /// No description provided for @stop.
@@ -379,7 +379,7 @@ abstract class AppLocalizations {
   /// No description provided for @premiumUnlockAll.
   ///
   /// In en, this message translates to:
-  /// **'Without scoring 100+ in the challenge\nor watching ad videos,\nevery design and feature is yours'**
+  /// **'Every design and feature,\nyours right now\nno video ads, no 30-second challenge'**
   String get premiumUnlockAll;
 
   /// No description provided for @premiumOneTime.

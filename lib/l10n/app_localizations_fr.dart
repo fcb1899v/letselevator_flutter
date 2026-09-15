@@ -35,7 +35,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String floor(Object NUMBER) {
-    return '$NUMBERᵉ étage, ';
+    return '$NUMBERétage, ';
   }
 
   @override
@@ -66,7 +66,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get return1st => 'Vérification terminée. Retour au premier étage.';
 
   @override
-  String get bypass => 'Passer';
+  String get bypass => 'Restreint';
 
   @override
   String get stop => 'Arrêter';
@@ -99,11 +99,11 @@ class AppLocalizationsFr extends AppLocalizations {
   String get dog => 'Étage animaux, ';
 
   @override
-  String get unlock => 'Déverrouiller';
+  String get unlock => 'Débloquer';
 
   @override
   String get unlockTitle =>
-      'Regardez la vidéo pour\ndéverrouiller le nouveau bouton !';
+      'Regardez la vidéo pour\ndébloquer le nouveau bouton !';
 
   @override
   String get unlockDesc =>
@@ -148,11 +148,11 @@ class AppLocalizationsFr extends AppLocalizations {
   String get premiumTitle => 'Pack Premium';
 
   @override
-  String get premiumNoAds => 'Plus de publicité';
+  String get premiumNoAds => 'Sans publicité';
 
   @override
   String get premiumUnlockAll =>
-      'Sans atteindre 100+ au défi\nni regarder de vidéo publicitaire,\ntous les designs et fonctions sont à vous';
+      'Tous les designs et fonctions,\ntout de suite\nsans vidéo publicitaire ni défi';
 
   @override
   String get premiumOneTime => 'Achat unique';
@@ -166,7 +166,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get premiumBuy => 'Acheter';
 
   @override
-  String get premiumRestore => 'Restaurer l\'achat';
+  String get premiumRestore => 'Restaurer les achats';
 
   @override
   String get premiumThanks => 'Merci ! Tout est débloqué.';

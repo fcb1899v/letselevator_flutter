@@ -11,7 +11,7 @@
   "cancel": "CANCELAR",
 
   "basement": "Sótano ",
-  "floor": "Piso {NUMBER}, ",
+  "floor": "{NUMBER}piso, ",
   "ground": "Planta baja, ",
   "openDoor": "Abriendo puertas.",
   "closeDoor": "Cerrando puertas.",
@@ -21,7 +21,7 @@
   "notStop": "No se detiene en este piso.",
   "emergency": "Parada de emergencia para revisión.",
   "return1st": "Verificación completada. Regresando al primer piso.",
-  "bypass": "Omitir",
+  "bypass": "Restringido",
   "stop": "Detener",
 
   "changeNumber": "Cambiar piso",
@@ -54,11 +54,11 @@
 
   "premiumTitle" : "Pack Premium",
   "premiumNoAds" : "Sin anuncios",
-  "premiumUnlockAll" : "Sin conseguir 100+ en el reto\nni ver vídeos publicitarios,\ntodos los diseños y funciones son tuyos",
+  "premiumUnlockAll" : "Todos los diseños y funciones,\ntuyos ahora mismo\nsin vídeos recompensados ni reto",
   "premiumOneTime" : "Una compra única",
   "premiumPrice" : "Comprar por {PRICE}",
   "premiumBuy" : "Comprar",
-  "premiumRestore" : "Restaurar compra",
+  "premiumRestore" : "Restaurar compras",
   "premiumThanks" : "¡Gracias! Todo está desbloqueado.",
   "premiumFailed" : "No se pudo completar la compra.",
   "premiumRestoreFailed" : "No se encontró ninguna compra para restaurar.",

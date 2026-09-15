@@ -1,7 +1,7 @@
 name: letselevator
 description: elevatorsimulator
 publish_to: 'none'
-version: 1.5.16+97
+version: 1.6.0+98
 
 environment:
   # 3.47 is the floor, not 3.3: Android Gradle Plugin 9 rejects the Kotlin

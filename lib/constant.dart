@@ -15,6 +15,15 @@ String revenueCatApiKey = (Platform.isIOS || Platform.isMacOS) ?
   "REVENUE_CAT_IOS_API_KEY":
   "REVENUE_CAT_ANDROID_API_KEY";
 const String premiumEntitlementID = "premium";
+/// Wait after the home screen's launch work (splash removed) before fetching the price
+const Duration pricePrefetchDelay = Duration(seconds: 3);
+/// Lifecycle states in which the app is not visible: no new sound, and playing ones stop.
+/// Inactive is still visible (split screen, notification shade), so it is not here
+const Set<AppLifecycleState> notVisibleStates = {
+  AppLifecycleState.hidden, AppLifecycleState.paused, AppLifecycleState.detached,
+};
+/// Wait after the splash is removed before TTS init and the first sound's load
+const Duration soundWarmUpDelay = Duration(seconds: 3);
 
 /// Game Center best score that unlocks every button without paying or watching
 /// an ad. Named here because the lock checks and the analytics both need it

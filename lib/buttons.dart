@@ -3,7 +3,6 @@
 
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:vibration/vibration.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -44,7 +43,6 @@ class ButtonsPage extends HookConsumerWidget {
     final isGamesSignIn = ref.watch(gamesSignInProvider);
     final bestScore = ref.watch(bestScoreProvider);
 
-    final lifecycle = useAppLifecycleState();
 
     // --- Manager Instances ---
     // Audio manager for sound effects
@@ -71,45 +69,47 @@ class ButtonsPage extends HookConsumerWidget {
     }
 
     // --- Lifecycle Management ---
-    // Handle app lifecycle changes (pause/inactive states)
-    useEffect(() {
-      if (lifecycle == AppLifecycleState.inactive || lifecycle == AppLifecycleState.paused) {
-        if (context.mounted) audioManager.stopAudio();
-      }
-      return null;
-    }, [lifecycle]);
+    // Stop audio once the app is not visible (hidden/paused/detached), on the change itself:
+    // those states draw no frame, so an effect would not run
+    useOnAppLifecycleStateChange((_, state) {
+      if (context.mounted && notVisibleStates.contains(state)) audioManager.stopAudio();
+    });
 
     // --- Timer Management ---
     // Challenge countdown timer and result handling
+    // One timer for the page: it drives every run, so it is cancelled on dispose, not at finish
     useEffect(() {
-      WidgetsBinding.instance.addPostFrameCallback((_) async {
-        initState();
-        final timer = Timer.periodic(const Duration(seconds: 1), (Timer timer) async {
-          if (currentSeconds.value < 0 && isChallengeStart.value) {
-            // Challenge finished - handle results
-            isDarkBack.value = true;
-            isChallengeStart.value = false;
-            isChallengeFinish.value = true;
-            if (counter.value > bestScore) {
-              // New best score achieved
-              audioManager.playEffectSound(asset: bestScoreSound, volume: 1.0);
-              ref.read(bestScoreProvider.notifier).update(counter.value);
-              await gamesSubmitScore(bestScore, isGamesSignIn);
-              final SharedPreferences prefs = await SharedPreferences.getInstance();
-              'bestScore'.setSharedPrefInt(prefs, bestScore);
-            }
-            "Your Score: ${counter.value}, Best score: $bestScore".debugPrint();
-            timer.cancel;
-          } else if (isChallengeStart.value) {
-            // Challenge countdown in progress
-            currentSeconds.value = currentSeconds.value - 1;
-            if (currentSeconds.value < 4) audioManager.playEffectSound(asset: countdown, volume: 1.0);
-            if (currentSeconds.value == 0) audioManager.playEffectSound(asset: countdownFinish, volume: 1.0);
+      WidgetsBinding.instance.addPostFrameCallback((_) => initState());
+      final timer = Timer.periodic(const Duration(seconds: 1), (Timer timer) async {
+        if (currentSeconds.value < 0 && isChallengeStart.value) {
+          // Challenge finished - handle results
+          isDarkBack.value = true;
+          isChallengeStart.value = false;
+          isChallengeFinish.value = true;
+          // Read at finish time: the values captured by this closure are from the first build
+          final score = counter.value;
+          final currentBest = ref.read(bestScoreProvider);
+          final run = ChallengeRun(score: score);
+          // Beats the stored best and any unsent run too, not only what the page shows.
+          // An invalid run is not a best: no sound, no provider, no prefs, no submission
+          final isNewBest = await isNewBestRun(run, currentBest);
+          if (isNewBest) {
+            audioManager.playEffectSound(asset: bestScoreSound, volume: 1.0);
+            ref.read(bestScoreProvider.notifier).update(score);
+            await saveAndSubmitBestRun(run, ref.read(gamesSignInProvider));
+          } else {
+            // A new best replaces the pending run; otherwise the unsent one gets another try
+            await resendPendingRun(ref.read(gamesSignInProvider));
           }
-        });
-        timer.cancel;
+          "Your Score: $score, Best score: ${isNewBest ? score : currentBest}".debugPrint();
+        } else if (isChallengeStart.value) {
+          // Challenge countdown in progress
+          currentSeconds.value = currentSeconds.value - 1;
+          if (currentSeconds.value < 4) audioManager.playEffectSound(asset: countdown, volume: 1.0);
+          if (currentSeconds.value == 0) audioManager.playEffectSound(asset: countdownFinish, volume: 1.0);
+        }
       });
-      return null;
+      return timer.cancel;
     }, const []);
 
     // --- Button Interaction Logic ---
@@ -400,22 +400,27 @@ class ButtonsWidget {
       borderRadius: BorderRadius.circular(context.startCornerRadius()),
       border: Border.all(color: whiteColor, width: context.startBorderWidth()),
     ),
+    // Each line shrinks only if too wide for the box: fr DÉMARRER wrapped to two lines
     child: Column(mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Text(context.challenge(),
-          textAlign: TextAlign.center,
-          style: TextStyle(
-            fontSize: context.challengeButtonFontSize(),
-            fontWeight: FontWeight.bold,
-            color: whiteColor,
+        FittedBox(fit: BoxFit.scaleDown,
+          child: Text(context.challenge(),
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: context.challengeButtonFontSize(),
+              fontWeight: FontWeight.bold,
+              color: whiteColor,
+            ),
           ),
         ),
-        Text(context.start(),
-          textAlign: TextAlign.center,
-          style: TextStyle(
-            fontSize: context.challengeStartFontSize(),
-            fontWeight: FontWeight.bold,
-            color: whiteColor,
+        FittedBox(fit: BoxFit.scaleDown,
+          child: Text(context.start(),
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: context.challengeStartFontSize(),
+              fontWeight: FontWeight.bold,
+              color: whiteColor,
+            ),
           ),
         ),
       ],

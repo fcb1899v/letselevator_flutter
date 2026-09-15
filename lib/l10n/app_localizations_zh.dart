@@ -66,7 +66,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get return1st => '检查已完成。返回一楼。';
 
   @override
-  String get bypass => '跳过层';
+  String get bypass => '限制层';
 
   @override
   String get stop => '停靠层';
@@ -141,13 +141,13 @@ class AppLocalizationsZh extends AppLocalizations {
   String get ranking => '排名';
 
   @override
-  String get premiumTitle => '高级版';
+  String get premiumTitle => '完整版';
 
   @override
   String get premiumNoAds => '不再显示广告';
 
   @override
-  String get premiumUnlockAll => '无需在30秒挑战中达成100个以上，\n也无需观看广告视频，\n即可使用所有设计和功能';
+  String get premiumUnlockAll => '所有设计和功能立即可用\n无需观看视频广告\n也无需完成30秒挑战';
 
   @override
   String get premiumOneTime => '一次性购买';

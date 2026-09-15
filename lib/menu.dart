@@ -37,8 +37,9 @@ class MenuPage extends HookConsumerWidget {
     // --- Local State Variables ---
     // Loading state and app lifecycle management
     final isLoadingData = useState(false);
-    final storePrice = useState("");
-    final lifecycle = useAppLifecycleState();
+    // Watched, so a prefetch that lands while the menu is open brings the tile in
+    final storePrice = ref.watch(planProvider).priceString;
+    final hasPurchase = !isPremium && storePrice.isNotEmpty;
 
     // --- Manager Instances ---
     // Audio manager for sound effects
@@ -68,25 +69,20 @@ class MenuPage extends HookConsumerWidget {
     useEffect(() {
       WidgetsBinding.instance.addPostFrameCallback((_) async {
         await initState();
-        // The menu is a deliberate tap long after the first frame, so starting
-        // the store SDK here costs the launch nothing
-        final price = await PurchaseManager.fetchPrice();
+        // Reuses the home screen's prefetch, or joins it if the menu opened first
+        if (ref.read(planProvider).isPremium) return;
+        final price = await PurchaseManager.loadPrice();
         if (!context.mounted) return;
-        if (price != null) {
-          storePrice.value = price;
-          ref.read(planProvider.notifier).setPrice(price);
-        }
+        ref.read(planProvider.notifier).setPrice(price ?? "");
       });
       return null;
     }, []);
 
-    // Handle app lifecycle changes (pause/inactive states)
-    useEffect(() {
-      if (lifecycle == AppLifecycleState.inactive || lifecycle == AppLifecycleState.paused) {
-        if (context.mounted) audioManager.stopAudio();
-      }
-      return null;
-    }, [lifecycle]);
+    // Stop audio once the app is not visible (hidden/paused/detached), on the change itself:
+    // those states draw no frame, so an effect would not run
+    useOnAppLifecycleStateChange((_, state) {
+      if (context.mounted && notVisibleStates.contains(state)) audioManager.stopAudio();
+    });
 
     // --- Data Persistence ---
     // Retrieve saved floor numbers, stops, and button style settings
@@ -135,18 +131,21 @@ class MenuPage extends HookConsumerWidget {
     }
 
     /// Open the purchase page. The price is fetched again, since an offering or
-    /// the network can drop meanwhile; an empty answer is said aloud
+    /// the network can drop meanwhile; with none, the tile goes and the tap is answered
     Future<void> openUpgrade() async {
       isLoadingData.value = true;
       final price = await PurchaseManager.fetchPrice();
       if (!context.mounted) return;
       isLoadingData.value = false;
-      storePrice.value = price ?? "";
       ref.read(planProvider.notifier).setPrice(price ?? "");
+      if (price == null) {
+        common.commonSnackBar(context.premiumUnavailable());
+        return;
+      }
       await AnalyticsManager.upgradeOffered("menu");
       if (!context.mounted) return;
       context.pushPage(PremiumPage(
-        price: price ?? "",
+        price: price,
         onBuy: () async {
           context.popPage();
           await runPurchase(isRestore: false);
@@ -220,7 +219,7 @@ class MenuPage extends HookConsumerWidget {
               Expanded(child: FittedBox(fit: BoxFit.scaleDown,
                 child: SizedBox(width: context.width(),
                 child: Column(mainAxisSize: MainAxisSize.min, children: [
-              ...context.menuButtons(isHome, isShimada, isGamesSignIn, isPremium).asMap().entries.map((row) => Column(children: [
+              ...context.menuButtons(isHome, isShimada, isGamesSignIn, hasPurchase).asMap().entries.map((row) => Column(children: [
                 Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: row.value.asMap().entries.map((col) => Row(children: [
                     GestureDetector(
@@ -233,7 +232,7 @@ class MenuPage extends HookConsumerWidget {
                     ),
                   ])).toList(),
                 ),
-                if (row.key < (isPremium ? 1 : 2)) SizedBox(height: context.menuButtonMargin()),
+                if (row.key < (hasPurchase ? 2 : 1)) SizedBox(height: context.menuButtonMargin()),
               ])),
               ]),
               ))),
