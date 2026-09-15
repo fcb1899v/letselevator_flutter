@@ -21,9 +21,9 @@ dependencies:
   webview_flutter: ^4.14.1
 
   # Firebase Analytics
-  firebase_core: ^4.14.0
-  firebase_core_web: ^3.11.0
-  firebase_analytics: ^12.5.0
+  firebase_core: ^4.15.0
+  firebase_core_web: ^3.12.0
+  firebase_analytics: ^12.6.0
   firebase_analytics_web: ^0.6.1+13
   # App Icon
   cupertino_icons: ^1.0.9
@@ -71,7 +71,7 @@ dependencies:
   # Localize
   flutter_localizations:
     sdk: flutter
-  intl: ^0.20.2
+  intl: ^0.20.3
 
 dev_dependencies:
   flutter_test:
