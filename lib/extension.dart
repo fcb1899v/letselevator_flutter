@@ -332,12 +332,9 @@ extension ContextExt on BuildContext {
   double buttonMargin() => responsible() * 0.03;
   double floorButtonMargin() => widthResponsible() * 0.02;
   double floorButtonNumberFontSize(int i) => widthResponsible() * 0.03;
-  double floorButtonNumberBottomMargin(int i) =>
-      widthResponsible() * floorButtonNumberMarginFactor[i] * 0.01;
-  double floorButtonNumberMarginTop(int i) =>
-      floorButtonNumberMarginFactor[i] < 0 ? 0: widthResponsible() * floorButtonNumberMarginFactor[i];
-  double floorButtonNumberMarginBottom(int i) =>
-      floorButtonNumberMarginFactor[i] > 0 ? 0: -1 * widthResponsible() * floorButtonNumberMarginFactor[i];
+  // Fraction of the button, so the nudge holds at any button size
+  double floorButtonNumberOffsetOf(String shape) =>
+      floorButtonNumberOffset[shape.buttonShapeIndex()];
 
   // --- Advertisement Layout ---
   // AdMob banner sizing for different screen heights

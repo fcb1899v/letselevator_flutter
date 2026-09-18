@@ -739,8 +739,7 @@ class SettingsWidget {
                   color: (buttonStyle != 0) ? blackColor:
                   buttonShape != buttonShapeList[3 * row.key + col.key] ? whiteColor:
                   numberColorList[3 * row.key + col.key],
-                  marginTop: context.floorButtonNumberMarginTop(3 * row.key + col.key),
-                  marginBottom: context.floorButtonNumberMarginBottom(3 * row.key + col.key),
+                  numberOffset: floorButtonNumberOffset[3 * row.key + col.key],
                 ),
               ),
               if (buttonLockList[3 * row.key + col.key] && !isTest && !isPremium && bestScore < unlockAllBestScore) settingsButtonLockContainer(
@@ -887,8 +886,7 @@ class SettingsWidget {
                         number: col.value.buttonNumber(),
                         fontSize: context.settingsNumberButtonFontSize(),
                         color: blackColor,
-                        marginTop: 0.0,
-                        marginBottom: 0.0
+                        numberOffset: 0.0
                       ),
                       onTap: () => changeButtonNumber(row.key, col.key) ,
                     ),

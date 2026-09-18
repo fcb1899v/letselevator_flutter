@@ -89,19 +89,27 @@ class CommonWidget {
     required String number,
     required double fontSize,
     required Color color,
-    required double marginTop,
-    required double marginBottom,
+    required double numberOffset,
   }) => SizedBox(
     width: size,
     height: size,
     child: Stack(alignment: Alignment.center,
       children: [
         Image.asset(image),
-        Text(number,
-          style: TextStyle(
-            color: color,
-            fontSize: fontSize,
-            fontFamily: "roboto"
+        // Star, heart and cat have their visual centre off the geometric one.
+        // The margin sits on one side only, so centring halves it: double it
+        // to move the number by numberOffset of the button
+        Container(
+          margin: EdgeInsets.only(
+            top: (numberOffset > 0) ? 2 * size * numberOffset : 0,
+            bottom: (numberOffset < 0) ? -2 * size * numberOffset : 0,
+          ),
+          child: Text(number,
+            style: TextStyle(
+              color: color,
+              fontSize: fontSize,
+              fontFamily: "roboto"
+            ),
           ),
         ),
       ],

@@ -376,11 +376,16 @@ const List<String> backgroundStyleList = [
   "metal", "dark", "plastic", "wood", "marble", "old"
 ];
 
-/// Margin adjustment factors for floor button numbers
-const List<double> floorButtonNumberMarginFactor = [
+/// How far the number moves off the button's geometric centre, as a fraction of
+/// the button size. Positive is downwards. Measured as the centroid of each
+/// shape's opaque area: the six symmetric shapes need none, star sits low,
+/// heart high. Button-relative, so it holds on any screen.
+/// Heart is held below its centroid (-0.071): the lobes carry the area, but the
+/// number reads better nearer the middle
+const List<double> floorButtonNumberOffset = [
   0.0, 0.0, 0.0,
   0.0, 0.0, 0.0,
-  0.02, -0.016, 0.004,
+  0.047, -0.050, -0.009,
 ];
 
 /// Initial button lock states for premium features
