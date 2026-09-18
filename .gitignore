@@ -80,6 +80,11 @@ ios/firebase_app_id_file.json
 # two days later. Run `flutterfire configure` after a fresh clone to regenerate it.
 lib/firebase_options.dart
 
+# Anything regenerable stays out (2026-09-19): `flutterfire configure` writes
+# firebase.json, and this app's copy holds nothing but the generated flutter
+# section, so nothing is lost by regenerating it.
+firebase.json
+
 # Development tools configuration
 devtools_options.yaml
 
