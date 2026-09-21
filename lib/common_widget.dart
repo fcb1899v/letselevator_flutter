@@ -40,8 +40,6 @@ class CommonWidget {
     ),
   );
 
-  // --- Ad Components ---
-  // Ad banner with menu button integration
   /// isPremium: the banner is gone, so the row shrinks to the button and would
   /// otherwise sit under the system navigation. The button is the only way into
   /// the menu, so it is lifted clear of it
@@ -96,9 +94,8 @@ class CommonWidget {
     child: Stack(alignment: Alignment.center,
       children: [
         Image.asset(image),
-        // Star, heart and cat have their visual centre off the geometric one.
-        // The margin sits on one side only, so centring halves it: double it
-        // to move the number by numberOffset of the button
+        // Star, heart and cat have their visual centre off the geometric one. The
+        // margin sits on one side only, so centring halves it: double it to undo that
         Container(
           margin: EdgeInsets.only(
             top: (numberOffset > 0) ? 2 * size * numberOffset : 0,

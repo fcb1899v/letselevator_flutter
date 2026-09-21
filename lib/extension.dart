@@ -248,8 +248,6 @@ extension ContextExt on BuildContext {
   String privacyPolicyLink() => (lang() == "ja") ? privacyPolicyJa: privacyPolicyEn;
   String youtubeLink() => (lang() == "ja") ? youtubeJa: youtubeEn;
 
-  // --- Menu Configuration ---
-  // Menu button layouts and link configurations for different app states
   /// The purchase tile is the fifth, alone on its own row and centred. It is
   /// dropped once premium is owned or while no store price is known
   List<List<String>> menuButtons(
@@ -284,8 +282,7 @@ extension ContextExt on BuildContext {
   double responsible() => (height() < 1000) ? height(): 1000;
   double widthResponsible() => (width() < 600) ? width(): 600;
 
-  // --- Premium purchase page ---
-  // 08_Designer/ui/2026-09-11_premium_purchase_page.md の案5A。基準 430dp 幅
+  // Premium purchase page, laid out against a 430 dp reference width
   double premiumContentWidth() => widthResponsible() * 0.888;
   double premiumSignHeight() => widthResponsible() * 0.242;
   double premiumSignFontSize() => widthResponsible() * 0.163;
@@ -1147,8 +1144,6 @@ extension ListDynamicExt<T> on List<T> {
 
 extension ListInt on List<int> {
 
-  // --- Floor Range Selection ---
-  // Select first floor in range based on button position
   /// A button sits between its neighbours, except the two ends. The bottom one
   /// runs down to min, and the top one up to max; their other limit comes from
   /// how many buttons have to fit on the far side of the fixed 1F

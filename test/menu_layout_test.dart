@@ -1,6 +1,5 @@
-// Draws the real menu at small screen sizes and fails on any overflow. The
-// purchase tile made the grid taller than a 667 screen leaves; the grid now
-// scales down to fit, and this is what keeps it that way.
+// Draws the real menu at small screen sizes and fails on any overflow. The purchase tile
+// made the grid taller than a 667 screen leaves; this keeps the grid scaling down to fit.
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';

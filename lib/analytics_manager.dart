@@ -1,15 +1,5 @@
-// =============================
-// AnalyticsManager: Firebase Analytics event logging
-//
-// Centralizes the custom events that make the purchase funnel measurable:
-// locked feature reached -> offer shown -> purchase started -> purchased.
-//
-// The event names and parameter names are deliberately identical to the ones
-// LETS ELEVATOR NEO sends (elevatorneo_flutter/lib/analytics_manager.dart).
-// Both apps sell the same one-off unlock, so a per-app conversion rate is only
-// comparable, and a combined LTV only computable, while the names match.
-// Renaming an event here silently splits the funnel in two.
-// =============================
+// AnalyticsManager: the purchase funnel, locked feature -> offer -> started -> purchased.
+// Event AND parameter names match NEO exactly; renaming one here splits the funnel in two.
 
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'extension.dart';

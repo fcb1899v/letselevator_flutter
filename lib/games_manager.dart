@@ -87,7 +87,6 @@ Future<void> syncGamesAfterLaunch({
     onTimeout: () => "Games sync still pending after ${timeout.inSeconds} s".debugPrint());
 }
 
-// --- Challenge Runs ---
 /// Buttons a run can select, so the highest possible score: the 9x11x11 grid less
 /// the cells rowMinus removes and the two transparent ones (1089 - 38 - 2 = 1049)
 final int selectableButtonCount = [

@@ -1,7 +1,5 @@
-// The number on a floor button is centred on the shape's visual centre, not on
-// the bounding box. Star, heart and cat carry a per-shape offset in
-// floorButtonNumberOffset; dropping the margin from floorButtonImage made
-// every shape draw the number in the geometric centre, which this catches.
+// The floor button number is centred on the shape's visual centre, not the bounding box.
+// Star, heart and cat carry a per-shape offset; this catches a build that loses it.
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';

@@ -1,6 +1,5 @@
-// Measures the 1000 Buttons Start and countdown labels in their fixed box with the
-// bundled fonts, for every locale on three screens. Fails on overflow or a wrapped line.
-// The default test font draws every glyph a full em wide, so it cannot judge this.
+// Measures the 1000 Buttons Start and countdown labels in their fixed box with the bundled
+// fonts, every locale on three screens. Fails on overflow or a wrap; test fonts cannot judge.
 
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';

@@ -9,12 +9,12 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 /// Application title displayed throughout the app
 const String appTitle = "LETS ELEVATOR";
 
-/// RevenueCat configuration. Keys come from assets/.env; the entitlement id matches
-/// LETS ELEVATOR NEO on purpose so both apps report into the same shape
+/// RevenueCat configuration. Keys come from assets/.env. The entitlement id must equal the
+/// dashboard's; "premium" is taken by another app in the shared project, so this one is prefixed
 String revenueCatApiKey = (Platform.isIOS || Platform.isMacOS) ?
   "REVENUE_CAT_IOS_API_KEY":
   "REVENUE_CAT_ANDROID_API_KEY";
-const String premiumEntitlementID = "premium";
+const String premiumEntitlementID = "letselevator_premium";
 /// Wait after the home screen's launch work (splash removed) before fetching the price
 const Duration pricePrefetchDelay = Duration(seconds: 3);
 /// Lifecycle states in which the app is not visible: no new sound, and playing ones stop.
@@ -385,7 +385,7 @@ const List<String> backgroundStyleList = [
 const List<double> floorButtonNumberOffset = [
   0.0, 0.0, 0.0,
   0.0, 0.0, 0.0,
-  0.047, -0.050, -0.009,
+  0.047, -0.050, 0.016,
 ];
 
 /// Initial button lock states for premium features
@@ -405,7 +405,7 @@ const String styleUnlockedKey = "styleUnlockedKey";
 
 /// Did this user already have the bulk unlock the old rule gave away?
 ///
-/// Until 2026-09-12 the whole background section opened at once, on a best score
+/// Under the old rule the whole background section opened at once, on a best score
 /// of 100 or on every shape being unlocked. An upgrade keeps what it had.
 ///
 /// Only what this install holds is consulted. A reinstall has none of it, and
@@ -492,12 +492,8 @@ const List<Color> numberColorList = [
   yellowColor, pinkLightColor, goldLightColor,
 ];
 
-/// Color calculation notes
-
-// Shimada's lamp color F7B249: R = F7 = 247, G = B2 = 178, B = 49 = 73
-
-// Lamp color from temperature, 3000 K -> FFB16E: R = FF,
-// G = 99.47080 * ln(30) - 161.11957 = B1, B = 138.51773 * ln(30-10) - 305.04480 = 6E
+// Lamp colours. Shimada's F7B249 is R 247 / G 178 / B 73; from temperature at 3000 K the
+// same formula gives FFB16E (G = 99.47080*ln(30) - 161.11957, B = 138.51773*ln(20) - 305.04480)
 
 // --- AdMob banner ceiling --- only the inline adaptive size takes one; anchored
 // sizes derive height from slot width. Trade screen space against ad area here

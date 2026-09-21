@@ -1,6 +1,5 @@
-// Leaderboard submission: only a valid finished run is saved and submitted, a failed
-// submission is resent a delay after launch or at the next finish, and nothing else is sent.
-// games_services is answered by a mock channel; no Game Center or Play Games.
+// Leaderboard submission: only a valid finished run is sent, and a failure is resent after
+// launch or at the next finish. games_services is a mock channel; no Game Center or Play.
 
 import 'dart:async';
 import 'package:flutter/services.dart';
@@ -199,7 +198,7 @@ void main() {
       _leaderboardBest = 100;
       await _signedInSync();
       await resendPendingRun(true);
-      expect(_submitted, isEmpty, reason: "the launch no longer resends the local best");
+      expect(_submitted, isEmpty, reason: "the launch does not resend the local best");
     });
   });
 

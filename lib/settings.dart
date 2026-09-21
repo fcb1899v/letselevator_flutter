@@ -97,8 +97,8 @@ class SettingsPage extends HookConsumerWidget {
       return lockList;
     }
 
-    // The button style section used to open on the bulk unlock the old rule gave
-    // away. That path is gone, but a user who already had it keeps it
+    // Under the old rule the bulk unlock opened the button style section. That
+    // path is closed, but a user who already had it keeps it
     Future<bool> getStyleUnlocked(List<bool> shapeLocks) async {
       final prefs = await SharedPreferences.getInstance();
       if (!styleMigratedKey.getSharedPrefBool(prefs, false)) {
@@ -117,9 +117,8 @@ class SettingsPage extends HookConsumerWidget {
     Future<List<bool>> getFloorLockList() async {
       final prefs = await SharedPreferences.getInstance();
       if (!floorMigratedKey.getSharedPrefBool(prefs, false)) {
-        // A panel saved before the locks existed. Whatever the user had already
-        // changed stays theirs. A fresh install has saved nothing to compare,
-        // and its basement differs from the old default anyway
+        // A panel saved before the locks existed: whatever the user already changed
+        // stays theirs. A fresh install has saved nothing to compare against
         final grants = floorMigrationGrants(
           hadPanel: prefs.containsKey("numbersKey0")
             || prefs.containsKey("stopsKey0"),
@@ -135,14 +134,8 @@ class SettingsPage extends HookConsumerWidget {
         && floorLockKey(i).getSharedPrefBool(prefs, true));
     }
 
-    // Backgrounds are locked one at a time, under their own keys so the shapes
-    // a user has already paid a video for are untouched.
-    //
-    // Until today the whole section opened at once, on a best score of 100 or on
-    // every shape being unlocked. Anyone who had reached that keeps the
-    // backgrounds: taking them back is not what the new rule is for. The result
-    // is written the first time this screen opens, so it no longer depends on a
-    // score that can be reset
+    // Backgrounds lock one at a time, under their own keys. Anyone who met the old
+    // bulk rule keeps them; the result is written once, so a reset score cannot undo it
     Future<List<bool>> getBackgroundLockList(List<bool> shapeLocks) async {
       final prefs = await SharedPreferences.getInstance();
       if (!backgroundMigratedKey.getSharedPrefBool(prefs, false)) {
@@ -328,9 +321,8 @@ class SettingsPage extends HookConsumerWidget {
     void showRewardAdAlertDialog(String kind, int i) async {
       Vibration.vibrate(duration: vibTime, amplitude: vibAmp);
       "$ad".debugPrint();
-      // Logged before anything can fail, so the demand signal survives a build with
-      // no ad and no store. required/current: best score threshold and this user's score
-      // Backgrounds no longer open on a score, so there is no shortage to report
+      // Logged before anything can fail, so the demand signal survives a build with no
+      // ad or store. required/current: the score threshold and this user's score
       await AnalyticsManager.unlockBlocked(
         feature: kind,
         requiredPoint: (kind == "button_shape" || kind == "button_style")
@@ -495,7 +487,7 @@ class SettingsPage extends HookConsumerWidget {
             (showSettingNumber.value == 0) ? Stack(alignment: Alignment.center,
               children: [
                 settings.settingsButtonStyleWidget(onTap: changeButtonStyle),
-                // Score or purchase. Unlocking every shape no longer opens this
+                // Score or purchase. Unlocking every shape does not open this
                 if (!isTest && !isPremium && !isStyleUnlocked.value && bestScore < unlockAllBestScore) settings.settingsLockContainer(
                   width: context.settingsButtonStyleLockWidth(),
                   height: context.settingsButtonStyleLockHeight(),
@@ -753,8 +745,6 @@ class SettingsWidget {
     ),
   ]);
 
-  // --- Button Lock Container Component ---
-  // Individual button lock overlay with unlock button
   /// Two targets, not one. The padlock goes to the purchase page (only with a price);
   /// only the Unlock pill starts a video, so the free path is never pressed by accident
   Widget settingsButtonLockContainer({
@@ -874,9 +864,8 @@ class SettingsWidget {
                 height: context.settingsNumberButtonHideHeight(),
                 margin: EdgeInsets.only(top: context.settingsNumberButtonHideMargin()),
                 child: Column(children: [
-                  // 1F never moves and always stops. Fade the button and the
-                  // switch; the plate that used to cover the cell hid the floor
-                  // number too, and the Stop label stays readable
+                  // 1F never moves and always stops. Fade the button and the switch;
+                  // a plate over the cell would hide the floor number and Stop label
                   Opacity(
                     opacity: isNotSelectFloor(row.key, col.key) ? fixedFloorOpacity : 1.0,
                     child: GestureDetector(
@@ -896,9 +885,8 @@ class SettingsWidget {
                   )
                 ]),
               ),
-              // One lock over the whole cell: the floor number and the stop
-              // switch open together. Only the next one in the order carries the
-              // button, so the floors open one at a time
+              // One lock over the whole cell: floor number and stop switch open together.
+              // Only the next one in the order carries the button, so they open singly
               if (floorLockList[reversedButtonIndex[row.key][col.key]])
                 settingsButtonLockContainer(
                   onUnlock: () => showRewardAdAlertDialog(

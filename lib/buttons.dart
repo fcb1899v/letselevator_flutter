@@ -68,15 +68,12 @@ class ButtonsPage extends HookConsumerWidget {
       }
     }
 
-    // --- Lifecycle Management ---
     // Stop audio once the app is not visible (hidden/paused/detached), on the change itself:
     // those states draw no frame, so an effect would not run
     useOnAppLifecycleStateChange((_, state) {
       if (context.mounted && notVisibleStates.contains(state)) audioManager.stopAudio();
     });
 
-    // --- Timer Management ---
-    // Challenge countdown timer and result handling
     // One timer for the page: it drives every run, so it is cancelled on dispose, not at finish
     useEffect(() {
       WidgetsBinding.instance.addPostFrameCallback((_) => initState());

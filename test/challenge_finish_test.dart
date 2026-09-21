@@ -1,7 +1,5 @@
-// The 30 s challenge finish: a new best saves and shows the score that was
-// achieved, not the best the page was built with. No Game Center: the sign-in
-// answers signed out and the leaderboard call is skipped, so what is
-// checked is the value handed to the provider and to SharedPreferences.
+// The 30 s challenge finish: a new best saves and shows the score achieved, not the one the
+// page was built with. No Game Center: what is checked is the value handed to the provider.
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -14,10 +12,8 @@ import 'package:letselevator/games_manager.dart';
 import 'package:letselevator/l10n/app_localizations.dart';
 import 'package:letselevator/main.dart';
 
-// The banner asks the UMP SDK for consent; with no plugin that is a
-// MissingPluginException, which is not the PlatformException the SDK catches.
-// Answer "no ads" instead. Only the method name is read: the arguments use the
-// SDK's own codec
+// The banner asks UMP for consent; with no plugin that is a MissingPluginException, which
+// the SDK does not catch. Answer "no ads" instead; only the method name is read
 const umpChannel = "plugins.flutter.io/google_mobile_ads/ump";
 void mockUmp(WidgetTester tester) {
   tester.binding.defaultBinaryMessenger.setMockMessageHandler(umpChannel, (message) async {
@@ -56,9 +52,8 @@ Future<void> pumpButtons(WidgetTester tester) async {
       home: const ButtonsPage(),
     ),
   ));
-  // Sign-in answers at once (test/flutter_test_config.dart), but the button images
-  // decode in real time; their continuations only run on a pump, so the two alternate.
-  // One frame first: initState starts after the first frame
+  // Sign-in answers at once, but the button images decode in real time and their
+  // continuations only run on a pump. One frame first: initState starts after it
   await tester.pump();
   for (int i = 0; i < 5 || (i < 30 && find.byType(CircularProgressIndicator).evaluate().isNotEmpty); i++) {
     await letRealIoFinish(tester);

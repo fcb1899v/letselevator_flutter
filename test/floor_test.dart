@@ -1,6 +1,5 @@
-// Floor panel rules: the picker range, the save guard, and the stop toggles.
-// These are pure functions in constant.dart / extension.dart, so they are
-// checked exhaustively rather than through the widgets that call them.
+// Floor panel rules: the picker range, the save guard, and the stop toggles. Pure functions
+// in constant.dart / extension.dart, so they are checked exhaustively, not through widgets.
 
 import 'dart:io';
 
@@ -55,8 +54,8 @@ void main() {
   });
 
   test("a value meant for another button is refused", () {
-    // The picker reports an index, not a floor, so a stale selection used to
-    // reach the save and push the panel past max
+    // The picker reports an index, not a floor, so a stale selection can reach
+    // the save and push the panel past max unless the save refuses it
     final list = List<int>.from(initialFloorNumbers);
     for (final cell in selectableCells()) {
       final row = cell[0], col = cell[1];
@@ -348,9 +347,8 @@ void main() {
   });
 
   group("shimada assets", () {
-    // The 1000Mode folder holds one artwork per floor. initialFloorNumbers moved
-    // its basement to B1/B2/B4/B6, and B6 has no artwork, so the shimada panel
-    // has to be pinned to the files that exist
+    // The 1000Mode folder holds one artwork per floor, and B6 has none since
+    // initialFloorNumbers moved: the shimada panel is pinned to the files that exist
     test("every shimada button image is on disk", () {
       for (int row = 0; row < 4; row++) {
         for (int col = 0; col < 4; col++) {
@@ -414,9 +412,8 @@ void main() {
     });
 
     test("the documented ratios are what the constants actually produce", () {
-      // These two numbers are in 2026-09-12_lets_unlock_one_at_a_time.md. Pinned
-      // here because the tests below re-derive their expectations from the same
-      // constants, so a changed constant would otherwise move the goalposts
+      // Pinned here because the tests below re-derive their expectations from the
+      // same constants, so a changed constant would otherwise move the goalposts
       expect(1 / (lockPlatesPerRow * lockPlateHeightFactor),
         closeTo(2.319, 0.001), reason: "where the width cap starts");
       expect(1 / (lockPlatesPerRow

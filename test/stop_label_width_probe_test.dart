@@ -1,8 +1,5 @@
-// How wide the stop / bypass label may be before FittedBox starts shrinking it.
-// The cell is narrow, so a word that fits in one language can be drawn at half
-// size in another. Measuring beats guessing: the label is laid out with the
-// app's own font at the size the settings screen uses, and compared with the
-// cell it has to sit in.
+// How wide the stop / bypass label may be before FittedBox shrinks it: a word that fits
+// in one language can be halved in another. Laid out with the app's own font and measured.
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';

@@ -1,23 +1,13 @@
-// ===== PremiumPage: the full-screen purchase page =====
-// Replaces the CupertinoAlertDialog every entry point used to open. The button
-// is pressed by people asking "what is this?", and a three-line alert sells
-// them nothing (08_Designer/ui/2026-09-11_premium_purchase_page.md).
-//
-// The page never names an individual feature. It draws one icon per entry in
-// premiumTabList, which is the settings tabs that hold something the unlock
-// opens, so adding a feature inside a tab leaves this file and its six
-// translations untouched. The number tab joined the list when its floors
-// gained locks, so there are three icons.
+// PremiumPage: the full-screen purchase page every entry point opens.
+// It names no feature: one icon per premiumTabList entry, so a new feature needs no edit here.
 
 import 'package:flutter/material.dart';
 import 'common_widget.dart';
 import 'constant.dart';
 import 'extension.dart';
 
-// Every string here uses the platform font. context.font() hands Korean a
-// display face (bmDohyeon) that does not match the rest of the page, and the
-// owner asked for one plain font across all six. The PREMIUM board keeps
-// letsgo: that is the floor display's own alphabet, not body text.
+// Every string uses the platform font: context.font() gives Korean a display face
+// that breaks the one-plain-font rule. The PREMIUM board keeps letsgo, its own alphabet.
 class PremiumPage extends StatelessWidget {
   const PremiumPage({
     super.key,
@@ -58,7 +48,7 @@ class PremiumPage extends StatelessWidget {
               ),
             ),
             // Centred in what the close button leaves, and scaled down where it does not fit
-            // (iPad landscape): a scroll view hid Buy and Restore below the fold there
+            // (iPad landscape): a scroll view keeps Buy and Restore below the fold there
             Expanded(child: Center(
               child: FittedBox(fit: BoxFit.scaleDown,
                 child: SizedBox(width: context.width(),
@@ -116,10 +106,8 @@ class PremiumPage extends StatelessWidget {
           ]),
         ),
         ])),
-        // The ad goes on showing while the page is open: it is the thing the
-        // purchase removes, and it keeps earning until it does. The banner is
-        // always this tall, not admobHeight(): the latter covers the top of it
-        // on a short screen
+        // The ad keeps showing while the page is open: it is what the purchase removes.
+        // Always this tall, not admobHeight(), which clips the top on a short screen
         SizedBox(height: inlineBannerMaxHeight.toDouble()),
       ]),
     );

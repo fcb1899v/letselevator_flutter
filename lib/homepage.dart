@@ -65,7 +65,6 @@ class HomePage extends HookConsumerWidget {
       buttonShape: buttonShape
     );
 
-    // --- Initialization Functions ---
     // TTS init and the first sound's load, in the background once launch settles.
     // Nothing waits on them: a first use waits on the same shared work instead
     Future<void> warmUpSound() async {
@@ -73,7 +72,7 @@ class HomePage extends HookConsumerWidget {
       if (!context.mounted) return;
       "Launch: sound warm-up starts at ${launchClock.elapsedMilliseconds} ms".debugPrint();
       try {
-        // One after the other, the tap sound first; a load past the bound no longer holds TTS
+        // One after the other, the tap sound first; the bound keeps a slow load from holding TTS
         await audioManager.warmUp(selectSound).timeout(AudioManager.warmUpWait, onTimeout: () {});
         "Launch: audio warm-up done at ${launchClock.elapsedMilliseconds} ms".debugPrint();
         final isReady = await ttsManager.warmUp();
@@ -141,7 +140,6 @@ class HomePage extends HookConsumerWidget {
       return null;
     }, []);
 
-    // --- App Lifecycle Effect ---
     // Stop audio and TTS once the app is not visible; inactive (split screen, shade) keeps playing.
     // Called on the change itself: hidden and paused draw no frame, so an effect would not run
     useOnAppLifecycleStateChange((_, state) async {

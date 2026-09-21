@@ -1,6 +1,5 @@
-// constant.dart pins CupertinoSwitch's natural size, and the floor cell sizes
-// the switch from it. This checks the pin still matches Flutter; it does not
-// draw the panel, which floor_panel_layout_test.dart does.
+// constant.dart pins CupertinoSwitch's natural size and the floor cell sizes from it.
+// This checks the pin still matches Flutter; floor_panel_layout_test.dart draws the panel.
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_test/flutter_test.dart';

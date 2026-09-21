@@ -1,6 +1,5 @@
-// TTS init runs once, shared by the background warm-up and every speech: a speech waits
-// for an init in flight, a failed or overlong init skips that speech, and the launch
-// greeting is spoken once when the warm-up is ready, unless the app is in the background.
+// TTS init runs once, shared by the warm-up and every speech: a speech waits on an init in
+// flight, a failed one is skipped, and the launch greeting is spoken once, unless backgrounded.
 
 import 'dart:async';
 import 'package:flutter/material.dart';

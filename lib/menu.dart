@@ -210,12 +210,8 @@ class MenuPage extends HookConsumerWidget {
             ),
             // Main content container with menu buttons and links
             Column(children: [
-              // --- Menu Buttons Grid ---
-              // The fifth tile (purchase) made the grid taller than a 667 screen
-              // leaves. Scaled down to fit the space instead of overflowing it;
-              // on a screen with room to spare it stays at full size
-              // The width is pinned to the screen so spaceEvenly spreads the
-              // tiles exactly as before; only the height decides the scale
+              // The fifth tile (purchase) made the grid taller than a 667 screen leaves,
+              // so it scales down; the width is pinned so spaceEvenly spreads as before
               Expanded(child: FittedBox(fit: BoxFit.scaleDown,
                 child: SizedBox(width: context.width(),
                 child: Column(mainAxisSize: MainAxisSize.min, children: [
@@ -239,10 +235,8 @@ class MenuPage extends HookConsumerWidget {
               // --- Bottom Navigation Links ---
               // External links and social media navigation
               menu.menuBottomLinks(),
-              // Space for what HomePage draws over this page: the banner's fixed
-              // ceiling, or, once premium removes it, the round menu button plus
-              // the inset that button is lifted by. admobHeight() is not it: the
-              // banner is always inlineBannerMaxHeight tall
+              // Space for what HomePage draws over this page: the banner's fixed ceiling,
+              // or, once premium removes it, the round menu button plus its inset
               Container(
                 color: blackColor,
                 height: isPremium
@@ -289,16 +283,13 @@ class MenuWidget {
     ),
   );
 
-  // --- Bottom Navigation Component ---
-  // External links navigation with social media icons
   /// A plain Row, not a BottomNavigationBar: the bar added its own padding under
   /// the labels, which left a gap above the ad banner. There is always something
   /// reserved below this row, so it never takes the system inset itself
   Widget menuBottomLinks() => Container(
     color: blackColor,
-    // The top keeps what the bar gave it: menuLinksMargin, plus the half font
-    // size the bar added itself. The underside matches it; what the bar added
-    // beyond that is gone, which is the gap this replacement was for
+    // The top keeps what the bar gave it: menuLinksMargin plus half the font size.
+    // The underside matches; the rest the bar added is gone, which was the gap
     padding: EdgeInsets.symmetric(
       vertical: context.menuLinksMargin() + context.menuLinksTitleSize() / 2,
     ),

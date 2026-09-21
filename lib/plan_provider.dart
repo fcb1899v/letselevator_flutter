@@ -1,15 +1,5 @@
-// =============================
-// PlanProvider: premium entitlement state
-//
-// The premium entitlement removes the banner and unlocks every button shape,
-// button style and background at once, without watching a rewarded ad and
-// without reaching a Game Center best score of 100.
-//
-// This file holds state only. Everything that talks to the store lives in
-// purchase_manager.dart. The entitlement this starts with is the locally
-// cached value main.dart reads at startup, and it is replaced by whatever a
-// purchase or a restore returns.
-// =============================
+// PlanProvider: premium entitlement state only; the store lives in purchase_manager.dart.
+// It starts from the cache main.dart reads, replaced by what a purchase or restore returns.
 
 import 'package:flutter/foundation.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';

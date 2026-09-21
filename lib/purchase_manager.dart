@@ -1,24 +1,5 @@
-// =============================
-// PurchaseManager: the premium unlock, bought once
-//
-// The premium entitlement removes the banner and unlocks every button shape,
-// button style and background straight away. The rewarded ad and the Game
-// Center best score of 100 still unlock the same things for free: buying is a
-// shortcut, not the only road. Taking the free road away to sell the paid one
-// would make the app worse for everyone who does not pay.
-//
-// The store SDK is NOT started during launch. configure() runs behind a shared
-// future when the home screen prefetches the price, a few seconds after its
-// launch work is done, or earlier if a screen needs the store first. Same shape as
-// elevatorneo_flutter/lib/purchase_manager.dart, and for the same reason: the
-// startup path is kept empty on purpose.
-//
-// main() therefore reads the entitlement from the local cache (premiumKey) and
-// nothing else. That cache is written on every purchase and restore, so it is
-// right for the whole life of an install. It is wrong only after a reinstall
-// or on a second device, and the Restore button covers both. Both stores
-// require that button anyway, so it is not extra surface.
-// =============================
+// PurchaseManager: the one-off premium unlock, which a rewarded ad or a best score of 100
+// also earn free. The SDK never starts at launch: main() reads premiumKey, Restore fixes it.
 
 import 'dart:io';
 import 'package:flutter/foundation.dart';
@@ -96,6 +77,10 @@ class PurchaseManager {
     final prefs = await SharedPreferences.getInstance();
     premiumKey.setSharedPrefBool(prefs, isPremium);
   }
+
+  /// Whether the customer holds the active premium entitlement. Purchase and restore both read it
+  static bool isPremiumIn(CustomerInfo info) =>
+    info.entitlements.active[premiumEntitlementID]?.isActive ?? false;
 
   /// Fetches the localized price of the premium package for display
   ///
@@ -186,7 +171,7 @@ class PurchaseManager {
       throw const StoreUnavailableException("no package");
     }
     final purchaseResult = await Purchases.purchase(PurchaseParams.package(package));
-    final isPremium = purchaseResult.customerInfo.entitlements.active[premiumEntitlementID]?.isActive ?? false;
+    final isPremium = isPremiumIn(purchaseResult.customerInfo);
     "purchased isPremium: $isPremium".debugPrint();
     return isPremium;
   }
@@ -198,7 +183,7 @@ class PurchaseManager {
       throw const StoreUnavailableException("configure");
     }
     final restoredInfo = await Purchases.restorePurchases();
-    final isPremium = restoredInfo.entitlements.active[premiumEntitlementID]?.isActive ?? false;
+    final isPremium = isPremiumIn(restoredInfo);
     "restored isPremium: $isPremium".debugPrint();
     return isPremium;
   }
@@ -219,10 +204,8 @@ class PurchaseManager {
         isPremium = await _purchasePremium();
         if (isPremium) await AnalyticsManager.upgradePurchased(source);
       }
-      // Cache only an upgrade. A restore that finds nothing is not proof the
-      // user is not premium (wrong store account, for one), and a lifetime
-      // entitlement never expires, so nothing here may write false: the
-      // next launch reads this cache and would show ads to a paying user
+      // Cache only an upgrade. A restore that finds nothing is not proof of no premium
+      // (wrong store account), and the next launch reads this: false would show ads
       if (isPremium) await _cachePremium(true);
       _isPurchasing = false;
       return isPremium;

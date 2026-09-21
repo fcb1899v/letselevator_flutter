@@ -1,8 +1,5 @@
-// The purchase tile is drawn only from a real store price: none without one,
-// and it appears as soon as a price arrives, without reopening the menu.
-// The store lookup is replaced and agrees with the provider, so the menu's own fetch
-// gives the same answer whenever it finishes. pumpAndSettle is not used: the loading
-// spinner keeps animating while initState's connectivity check (real IO) is pending.
+// The purchase tile is drawn only from a real store price, and appears as soon as one
+// arrives. No pumpAndSettle: the spinner animates while initState's real IO is pending.
 
 import 'dart:async';
 import 'package:flutter/material.dart';

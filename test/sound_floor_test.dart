@@ -1,10 +1,5 @@
-// What the arrival announcement actually says, per language.
-//
-// es and fr used to skip floor() entirely and speak the bare ordinal, so a
-// third-floor arrival said "troisième" with no "étage" after it. Nothing on
-// screen shows this: the only way to catch it is to assert the spoken string.
-// Spanish makes the bug plain — "tercer" is the apocopated form that exists
-// only in front of a masculine noun, so on its own it is not Spanish at all.
+// What the arrival announcement actually says, per language. es and fr must not skip
+// floor(): without it they speak a bare ordinal, which nothing on screen would show.
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -42,7 +37,7 @@ void main() {
 
   testWidgets("the basement keeps its own noun, not the floor noun", (tester) async {
     // Sótano / Sous-sol already mean "basement floor"; adding piso / étage
-    // after them would be wrong, so the fix must not reach the basement branch
+    // after them would be wrong, so the floor noun must not reach the basement branch
     expect(await _spoken(tester, "es", -2), contains("ótano"));
     expect(await _spoken(tester, "es", -2), isNot(contains("piso")));
     expect(await _spoken(tester, "fr", -2), contains("ous-sol"));

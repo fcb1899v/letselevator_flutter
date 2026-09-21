@@ -1,7 +1,5 @@
-// The home screen's launch work: games sync and the price prefetch start after the first
-// frame without waiting on each other or on sound. TTS init is not launch work: it starts
-// in the background after its delay, or at once on a floor tap, and nothing is gated on it.
-// Platform channel replies need real async, so they are driven by _settle.
+// The home screen's launch work: games sync and price prefetch start after the first frame,
+// waiting on nothing. TTS init is not launch work; platform replies are driven by _settle.
 
 import 'dart:async';
 import 'package:flutter/gestures.dart';
