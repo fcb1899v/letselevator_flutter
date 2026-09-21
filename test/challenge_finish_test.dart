@@ -1,5 +1,5 @@
-// The 30 s challenge finish: a new best saves and shows the score achieved, not the one the
-// page was built with. No Game Center: what is checked is the value handed to the provider.
+// 30 s challenge finish: a new best saves and shows the score achieved, not the build-time one.
+// No Game Center: what is checked is the value handed to the provider.
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -12,8 +12,8 @@ import 'package:letselevator/games_manager.dart';
 import 'package:letselevator/l10n/app_localizations.dart';
 import 'package:letselevator/main.dart';
 
-// The banner asks UMP for consent; with no plugin that is a MissingPluginException, which
-// the SDK does not catch. Answer "no ads" instead; only the method name is read
+// The banner asks UMP for consent; with no plugin that is an uncaught MissingPluginException.
+// Answer "no ads" instead; only the method name is read.
 const umpChannel = "plugins.flutter.io/google_mobile_ads/ump";
 void mockUmp(WidgetTester tester) {
   tester.binding.defaultBinaryMessenger.setMockMessageHandler(umpChannel, (message) async {
@@ -25,8 +25,8 @@ void mockUmp(WidgetTester tester) {
   addTearDown(() => tester.binding.defaultBinaryMessenger.setMockMessageHandler(umpChannel, null));
 }
 
-// The result screen names its fonts. Under the test font, whose glyphs are a full em
-// wide, its BEST row overflows; with these it fits (challenge_start_label_test.dart)
+// The result screen names its fonts: under the test font (a full em per glyph) its BEST row overflows.
+// With these fonts it fits (challenge_start_label_test.dart).
 Future<void> loadFonts() async {
   const families = {
     "roboto": "assets/fonts/Roboto-Bold.ttf",
@@ -52,8 +52,8 @@ Future<void> pumpButtons(WidgetTester tester) async {
       home: const ButtonsPage(),
     ),
   ));
-  // Sign-in answers at once, but the button images decode in real time and their
-  // continuations only run on a pump. One frame first: initState starts after it
+  // Sign-in answers at once, but button images decode in real time and continue only on a pump.
+  // One frame first: initState starts after it.
   await tester.pump();
   for (int i = 0; i < 5 || (i < 30 && find.byType(CircularProgressIndicator).evaluate().isNotEmpty); i++) {
     await letRealIoFinish(tester);
@@ -71,8 +71,7 @@ Future<void> letRealIoFinish(WidgetTester tester) async {
 Finder panel1Button(int row, int col) =>
     find.image(AssetImage("${assetsReal1000Off}1/1_${row + 1}_${col + 1}.png"));
 
-// The buttons also take a double tap, so a single tap is delivered after the
-// double-tap window closes
+// The buttons also take a double tap, so a single tap is delivered after the double-tap window closes.
 Future<void> tapButton(WidgetTester tester, Finder finder) async {
   await tester.tap(finder);
   await tester.pump(const Duration(milliseconds: 400));
@@ -87,8 +86,8 @@ void main() {
   setUpAll(loadFonts);
 
   testWidgets("a new best saves the achieved score, not the stale best", (tester) async {
-    // The page is built with a best of 0 (the provider default) and then loads
-    // 1 from prefs; the stale closure value is 0, the current best is 1
+    // The page is built with a best of 0 (the provider default) and then loads 1 from prefs.
+    // The stale closure value is 0, the current best is 1.
     SharedPreferences.setMockInitialValues({'bestScore': 1});
     await pumpButtons(tester);
     final container = ProviderScope.containerOf(tester.element(find.byType(ButtonsPage)));

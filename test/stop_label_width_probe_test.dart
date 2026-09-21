@@ -1,5 +1,5 @@
-// How wide the stop / bypass label may be before FittedBox shrinks it: a word that fits
-// in one language can be halved in another. Laid out with the app's own font and measured.
+// How wide the stop / bypass label may be before FittedBox shrinks it.
+// A word that fits in one language can be halved in another; measured with the app's own font.
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -41,8 +41,8 @@ void main() {
   testWidgets("the stop / restricted labels fit the cell", (tester) async {
     final cell = floorCellWidth(_w, _h);
     final fontSize = _h * floorStopLabelFactor;
-    // The labels that actually ship, read from the arb files, so this stays
-    // true when a translation changes. FittedBox shrinks anything wider.
+    // The shipped labels, read from the arb files so a translation change cannot make this stale.
+    // FittedBox shrinks anything wider.
     const fonts = {"ja": "notoJP", "en": "roboto", "ko": "bmDohyeon",
                    "zh": "notoSC", "es": "roboto", "fr": "roboto"};
     for (final lang in ["ja", "en", "ko", "zh", "es", "fr"]) {

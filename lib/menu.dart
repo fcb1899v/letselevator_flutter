@@ -78,8 +78,8 @@ class MenuPage extends HookConsumerWidget {
       return null;
     }, []);
 
-    // Stop audio once the app is not visible (hidden/paused/detached), on the change itself:
-    // those states draw no frame, so an effect would not run
+    // Stop audio once the app is not visible (hidden/paused/detached), on the change itself.
+    // Those states draw no frame, so an effect would not run.
     useOnAppLifecycleStateChange((_, state) {
       if (context.mounted && notVisibleStates.contains(state)) audioManager.stopAudio();
     });
@@ -118,8 +118,8 @@ class MenuPage extends HookConsumerWidget {
         }
       } catch (e) {
         "Purchase error: $e".debugPrint();
-        // Nothing to sell is not a failed purchase. The reviewer sees this one
-        // while the product is still attached to the submission
+        // Nothing to sell is not a failed purchase.
+        // The reviewer sees this one while the product is still attached to the submission.
         if (context.mounted) {
           common.commonSnackBar((e is StoreUnavailableException)
             ? context.premiumUnavailable()
@@ -197,8 +197,8 @@ class MenuPage extends HookConsumerWidget {
     return Scaffold(
       backgroundColor: blackColor,
       appBar: menu.menuAppBar(),
-      // bottom is left out: the ad space this page reserves has to line up with
-      // the banner HomePage draws outside its own SafeArea
+      // bottom is left out: HomePage draws its banner outside its own SafeArea.
+      // The ad space this page reserves has to line up with it.
       body: SafeArea(
         bottom: false,
         child: Stack(alignment: Alignment.topCenter,
@@ -210,8 +210,8 @@ class MenuPage extends HookConsumerWidget {
             ),
             // Main content container with menu buttons and links
             Column(children: [
-              // The fifth tile (purchase) made the grid taller than a 667 screen leaves,
-              // so it scales down; the width is pinned so spaceEvenly spreads as before
+              // The fifth tile (purchase) made the grid taller than a 667 screen leaves, so it scales down.
+              // The width is pinned so spaceEvenly spreads as before.
               Expanded(child: FittedBox(fit: BoxFit.scaleDown,
                 child: SizedBox(width: context.width(),
                 child: Column(mainAxisSize: MainAxisSize.min, children: [
@@ -235,8 +235,8 @@ class MenuPage extends HookConsumerWidget {
               // --- Bottom Navigation Links ---
               // External links and social media navigation
               menu.menuBottomLinks(),
-              // Space for what HomePage draws over this page: the banner's fixed ceiling,
-              // or, once premium removes it, the round menu button plus its inset
+              // Space for what HomePage draws over this page.
+              // The banner's fixed ceiling, or the menu button plus its inset once premium removes the banner.
               Container(
                 color: blackColor,
                 height: isPremium
@@ -293,8 +293,7 @@ class MenuWidget {
     padding: EdgeInsets.symmetric(
       vertical: context.menuLinksMargin() + context.menuLinksTitleSize() / 2,
     ),
-    // The bar clamped text scaling and ellipsized; without both, a large system
-    // font setting overflows the row
+    // The bar clamped text scaling and ellipsized; without both, a large system font overflows the row.
     child: MediaQuery.withClampedTextScaling(
       maxScaleFactor: 1.0,
       child: Row(

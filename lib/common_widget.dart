@@ -53,16 +53,16 @@ class CommonWidget {
       padding: EdgeInsets.only(
         bottom: isPremium ? MediaQuery.viewPaddingOf(context).bottom : 0,
       ),
-    // The banner is taller than the button, so the row takes the banner height and
-    // start pins the button to the top of it
+    // The banner is taller than the button, so the row takes the banner height.
+    // start pins the button to the top of it.
     child: Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Expanded gives the banner the width left after the menu button, so the
-        // ad size is derived from the layout instead of a hardcoded inset
+        // Expanded gives the banner the width left after the menu button.
+        // So the ad size is derived from the layout, not a hardcoded inset.
         const Expanded(child: AdBannerWidget()),
-        // Menu button. Horizontal padding only, so it stays off the banner and the
-        // screen edge without undoing the top alignment above
+        // Menu button: horizontal padding only, so it stays off the banner and the screen edge.
+        // Vertical padding would undo the top alignment above.
         Padding(
           padding: EdgeInsets.symmetric(horizontal: context.operationButtonMargin()),
           child: GestureDetector(
@@ -94,8 +94,8 @@ class CommonWidget {
     child: Stack(alignment: Alignment.center,
       children: [
         Image.asset(image),
-        // Star, heart and cat have their visual centre off the geometric one. The
-        // margin sits on one side only, so centring halves it: double it to undo that
+        // Star, heart and cat have their visual centre off the geometric one.
+        // The margin sits on one side only, so centring halves it: double it to undo that.
         Container(
           margin: EdgeInsets.only(
             top: (numberOffset > 0) ? 2 * size * numberOffset : 0,
@@ -120,8 +120,8 @@ class CommonWidget {
   void commonSnackBar(String text) {
     "commonSnackBar: $text".debugPrint();
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      // Shrunk rather than wrapped: the text carries its own line breaks, and a
-      // language that overruns should keep them instead of folding a third line
+      // Shrunk rather than wrapped: the text carries its own line breaks.
+      // A language that overruns should keep them instead of folding a third line.
       content: FittedBox(fit: BoxFit.scaleDown,
         child: Text(text,
           style: TextStyle(

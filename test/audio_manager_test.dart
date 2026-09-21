@@ -1,5 +1,5 @@
-// AudioManager: stopAudio is safe before any player exists, the warm-up loads the first
-// sound once, and new sounds start only while visible (inactive counts). The player is fake.
+// AudioManager: stopAudio is safe before any player exists, and the warm-up loads the first sound once.
+// New sounds start only while visible (inactive counts); the player is fake.
 
 import 'dart:async';
 import 'package:flutter/widgets.dart';

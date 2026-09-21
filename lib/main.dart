@@ -160,11 +160,11 @@ Future<void> main() async {
   final savedButtonShape = "buttonShapeKey".getSharedPrefString(prefs, initialButtonShape);
   final savedButtonStyle = "buttonStyleKey".getSharedPrefInt(prefs, initialButtonStyle);
   final savedBackgroundStyle = "backgroundStyleKey".getSharedPrefString(prefs, initialBackgroundStyle);
-  // --- Premium Entitlement --- read from the local cache, not the store, so launch
-  // costs nothing; purchase_manager.dart writes the cache on every purchase and restore
+  // --- Premium Entitlement --- read from the local cache, not the store, so launch costs nothing.
+  // purchase_manager.dart writes the cache on every purchase and restore.
   final savedPremium = premiumKey.getSharedPrefBool(prefs, false);
-  // --- Games Services --- only the stored best here. Sign-in waits on Game Center and
-  // held the first frame, so it runs after it (homepage.dart)
+  // --- Games Services --- only the stored best here.
+  // Sign-in waits on Game Center and held the first frame, so it runs after it (homepage.dart).
   final savedBestScore = storedBestScore(prefs);
   // --- Firebase Configuration ---
   // Initialize Firebase with platform-specific options
@@ -193,8 +193,8 @@ Future<void> main() async {
   // --- Mobile Ads Initialization ---
   // Initialize Google Mobile Ads for monetization
   await MobileAds.instance.initialize();
-  // --- Privacy Configuration --- no ATT call here: on iOS the UMP form raises the
-  // system ATT prompt itself, so asking again showed a second explainer
+  // --- Privacy Configuration --- no ATT call here: on iOS the UMP form raises the system ATT prompt itself.
+  // Asking again showed a second explainer.
 }
 
 // --- Main Application Widget ---

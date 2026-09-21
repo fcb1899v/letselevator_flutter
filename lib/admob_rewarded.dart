@@ -30,12 +30,12 @@ class RewardedAdHandle {
 
 RewardedAdHandle useRewardedAd() {
   final rewardedAd = useState<RewardedAd?>(null);
-  // Refs, not state: callbacks can land after dispose, and retryAttempt as state
-  // re-ran the effect on every retry, cancelling and leaking the ad that arrived next
+  // Refs, not state: callbacks can land after dispose.
+  // retryAttempt as state re-ran the effect on every retry, cancelling and leaking the next ad.
   final retryAttempt = useRef(0);
   final isRequesting = useRef(false);
-  // One consent update per screen. The answer does not change on its own while
-  // the user stands here, and the round trip is slow
+  // One consent update per screen.
+  // The answer does not change while the user stands here, and the round trip is slow.
   final consentUpdated = useRef(false);
   // Completed by the load callbacks so prepare can report the outcome
   final pendingLoad = useRef<Completer<RewardedAd?>?>(null);
@@ -58,8 +58,8 @@ RewardedAdHandle useRewardedAd() {
   }
 
   void loadAd() {
-    // The retry re-enters here without the gate, so the claim lives in this
-    // function; otherwise a press during the backoff starts a second request
+    // The retry re-enters here without the gate, so the claim lives in this function.
+    // Otherwise a press during the backoff starts a second request.
     if (cancelToken.isCompleted || isRequesting.value || rewardedAd.value != null) return;
     isRequesting.value = true;
     RewardedAd.load(
@@ -86,8 +86,8 @@ RewardedAdHandle useRewardedAd() {
             finishPending(null);
             return;
           }
-          // Answer the waiting press now instead of holding it behind the
-          // backoff. The retry below keeps running for the next press
+          // Answer the waiting press now instead of holding it behind the backoff.
+          // The retry below keeps running for the next press.
           finishPending(null);
           retryAttempt.value += 1;
           if (retryAttempt.value > _maxRetryAttempt) return;
@@ -99,8 +99,8 @@ RewardedAdHandle useRewardedAd() {
     );
   }
 
-  // The single gate for the ad request. Nothing is asked for unless the SDK
-  // says this device may be asked
+  // The single gate for the ad request.
+  // Nothing is asked for unless the SDK says this device may be asked.
   Future<RewardedAd?> requestAdIfAllowed() async {
     final ready = rewardedAd.value;
     if (ready != null) return ready;
@@ -108,8 +108,8 @@ RewardedAdHandle useRewardedAd() {
     final joined = joinLoadInFlight();
     if (joined != null) return joined;
     if (!await ConsentInformation.instance.canRequestAds()) return null;
-    // Callers race across that await. The state can have moved while this one
-    // was suspended, so the checks run again
+    // Callers race across that await.
+    // The state can have moved while this one was suspended, so the checks run again.
     if (cancelToken.isCompleted) return null;
     if (rewardedAd.value != null) return rewardedAd.value;
     final rejoined = joinLoadInFlight();
@@ -117,14 +117,14 @@ RewardedAdHandle useRewardedAd() {
     final completer = Completer<RewardedAd?>();
     pendingLoad.value = completer;
     loadAd();
-    // loadAd returns without a callback when its own guard stops it, and then
-    // nothing would ever complete the completer
+    // loadAd returns without a callback when its own guard stops it.
+    // Then nothing would ever complete the completer.
     if (!isRequesting.value) finishPending(null);
     return completer.future;
   }
 
-  // Runs the consent info update and lets the SDK present a form if it wants
-  // one. This is the only path by which an undecided user reaches the form
+  // Runs the consent info update and lets the SDK present a form if it wants one.
+  // This is the only path by which an undecided user reaches the form.
   Future<void> updateConsent() {
     final completer = Completer<void>();
     void done() {
@@ -136,8 +136,8 @@ RewardedAdHandle useRewardedAd() {
       //   testIdentifiers: ['2793ca2a-5956-45a2-96c0-16fafddc1a15'],
       // ),
     ), () async {
-      // The SDK decides whether a form is required, loads and presents it; doing that
-      // by hand re-implements rules Google changes. No-op when no form is required
+      // The SDK decides whether a form is required, loads and presents it.
+      // Doing that by hand re-implements rules Google changes.
       await ConsentForm.loadAndShowConsentFormIfRequired((formError) {
         if (formError != null) {
           "formError: ${formError.errorCode}: ${formError.message}".debugPrint();
@@ -145,16 +145,16 @@ RewardedAdHandle useRewardedAd() {
         done();
       });
     }, (FormError error) {
-      // The update failed, but consent given in an earlier session still stands
-      // and canRequestAds can still say yes, so the request is worth trying
+      // The update failed, but consent from an earlier session can still let canRequestAds say yes.
+      // So the request is worth trying.
       "error: ${error.errorCode}: ${error.message}".debugPrint();
       done();
     });
     return completer.future.timeout(_consentTimeout, onTimeout: done);
   }
 
-  // The press path: what happens when the user asks for the reward and nothing
-  // is loaded. It must never end in silence
+  // The press path: what happens when the user asks for the reward and nothing is loaded.
+  // It must never end in silence.
   Future<RewardedAd?> prepare() async {
     final ready = rewardedAd.value;
     if (ready != null) return ready;
@@ -166,8 +166,8 @@ RewardedAdHandle useRewardedAd() {
     final requested = await requestAdIfAllowed();
     if (requested != null) return requested;
     if (cancelToken.isCompleted) return null;
-    // Still not allowed: canRequestAds is false only while the consent flow is
-    // incomplete (declining still permits NPA), so offer the privacy options form
+    // Still not allowed: canRequestAds is false only while consent is incomplete (declining permits NPA).
+    // So offer the privacy options form.
     if (!await ConsentInformation.instance.canRequestAds()) {
       final status =
         await ConsentInformation.instance.getPrivacyOptionsRequirementStatus();
@@ -185,8 +185,8 @@ RewardedAdHandle useRewardedAd() {
   }
 
   useEffect(() {
-    // Preload only when the SDK already says yes from an earlier session; the
-    // press path above runs the consent form for everyone else
+    // Preload only when the SDK already says yes from an earlier session.
+    // The press path above runs the consent form for everyone else.
     requestAdIfAllowed();
     return () {
       if (!cancelToken.isCompleted) {

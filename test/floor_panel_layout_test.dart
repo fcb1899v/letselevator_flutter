@@ -1,5 +1,5 @@
-// Draws the real floor panel at small screen sizes and fails on any overflow. floor_test.dart
-// only checks the arithmetic; this checks the widget, so Transform.scale would fail here.
+// Draws the real floor panel at small screen sizes and fails on any overflow.
+// floor_test.dart only checks the arithmetic; this checks the widget, so Transform.scale would fail here.
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';

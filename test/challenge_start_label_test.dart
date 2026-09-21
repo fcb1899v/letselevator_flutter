@@ -1,5 +1,5 @@
-// Measures the 1000 Buttons Start and countdown labels in their fixed box with the bundled
-// fonts, every locale on three screens. Fails on overflow or a wrap; test fonts cannot judge.
+// Measures the 1000 Buttons Start and countdown labels in their fixed box, every locale on three screens.
+// Uses the bundled fonts and fails on overflow or a wrap; test fonts cannot judge.
 
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';

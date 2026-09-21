@@ -1,5 +1,5 @@
-// Draws the real menu at small screen sizes and fails on any overflow. The purchase tile
-// made the grid taller than a 667 screen leaves; this keeps the grid scaling down to fit.
+// Draws the real menu at small screen sizes and fails on any overflow.
+// The purchase tile made the grid taller than a 667 screen leaves; this keeps it scaling down.
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -22,8 +22,8 @@ void main() {
       tester.view.devicePixelRatio = 1.0;
       addTearDown(tester.view.reset);
 
-      // The tile is drawn only with a store price, so give it one. The store lookup
-      // agrees, so the menu's own fetch cannot take the tile away during runAsync below
+      // The tile is drawn only with a store price, so give it one.
+      // The store lookup agrees, so the menu's own fetch cannot take the tile away during runAsync below.
       PurchaseManager.priceSource = () async => "¥500";
       addTearDown(PurchaseManager.resetPrice);
       await tester.pumpWidget(ProviderScope(
@@ -37,8 +37,8 @@ void main() {
           home: const MenuPage(isHome: true),
         ),
       ));
-      // Let the tile and link images decode: before that the link logos are
-      // zero high and the grid looks roomier than it is
+      // Let the tile and link images decode.
+      // Before that the link logos are zero high and the grid looks roomier than it is.
       await tester.runAsync(() async {
         for (final e in find.byType(Image).evaluate()) {
           final image = (e.widget as Image).image;

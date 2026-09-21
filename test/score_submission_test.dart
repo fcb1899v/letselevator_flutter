@@ -1,5 +1,5 @@
-// Leaderboard submission: only a valid finished run is sent, and a failure is resent after
-// launch or at the next finish. games_services is a mock channel; no Game Center or Play.
+// Leaderboard submission: only a valid run is sent, and a failure is resent after launch or next finish.
+// games_services is a mock channel; no Game Center or Play.
 
 import 'dart:async';
 import 'package:flutter/services.dart';

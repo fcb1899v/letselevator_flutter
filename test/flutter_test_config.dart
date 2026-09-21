@@ -1,5 +1,5 @@
-// Runs before every test file. There is no Game Center or Play Games in tests, so the
-// sign-in answers "signed out" at once instead of a real DNS lookup and plugin call.
+// Runs before every test file.
+// There is no Game Center or Play Games in tests, so sign-in answers "signed out" without DNS or a plugin.
 
 import 'dart:async';
 import 'package:letselevator/games_manager.dart';

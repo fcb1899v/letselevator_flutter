@@ -68,8 +68,8 @@ class ButtonsPage extends HookConsumerWidget {
       }
     }
 
-    // Stop audio once the app is not visible (hidden/paused/detached), on the change itself:
-    // those states draw no frame, so an effect would not run
+    // Stop audio once the app is not visible (hidden/paused/detached), on the change itself.
+    // Those states draw no frame, so an effect would not run.
     useOnAppLifecycleStateChange((_, state) {
       if (context.mounted && notVisibleStates.contains(state)) audioManager.stopAudio();
     });

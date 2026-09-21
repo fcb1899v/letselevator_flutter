@@ -1,5 +1,5 @@
-// What the arrival announcement actually says, per language. es and fr must not skip
-// floor(): without it they speak a bare ordinal, which nothing on screen would show.
+// What the arrival announcement actually says, per language.
+// es and fr must not skip floor(): without it they speak a bare ordinal nothing on screen shows.
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -36,8 +36,8 @@ void main() {
   });
 
   testWidgets("the basement keeps its own noun, not the floor noun", (tester) async {
-    // Sótano / Sous-sol already mean "basement floor"; adding piso / étage
-    // after them would be wrong, so the floor noun must not reach the basement branch
+    // Sótano / Sous-sol already mean "basement floor", so adding piso / étage after them would be wrong.
+    // The floor noun must not reach the basement branch.
     expect(await _spoken(tester, "es", -2), contains("ótano"));
     expect(await _spoken(tester, "es", -2), isNot(contains("piso")));
     expect(await _spoken(tester, "fr", -2), contains("ous-sol"));

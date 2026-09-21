@@ -1,5 +1,5 @@
-// The floor panel in all six languages, with the app's own fonts loaded: the default
-// test font draws every glyph a full em wide, so only the real fonts give device widths.
+// The floor panel in all six languages, with the app's own fonts loaded.
+// The default test font draws every glyph a full em wide, so only the real fonts give device widths.
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';

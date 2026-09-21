@@ -32,26 +32,26 @@ const int unlockAllBestScore = 100;
 
 // ===== ELEVATOR CONFIGURATION =====
 
-/// Elevator floor range configuration
-/// Defines the minimum and maximum floors available in the elevator system
+// Elevator floor range configuration
+// Defines the minimum and maximum floors available in the elevator system
 const int min = -6;  // Basement floors (B6)
 const int max = 163; // Maximum floor (163F)
 
-/// Elevator door operation timing constants
-/// Controls the timing of door opening, closing, and waiting periods
+// Elevator door operation timing constants
+// Controls the timing of door opening, closing, and waiting periods
 const int initialOpenTime = 10; // Door opening duration in seconds
 const int initialWaitTime = 2;  // Wait time after door opens in seconds
 const int flashTime = 500;      // Flash animation duration in milliseconds
 const int operationTime = 300;  // Operation button duration in milliseconds
 
-/// Haptic feedback configuration for user interaction
+// Haptic feedback configuration for user interaction
 const int vibTime = 200; // Vibration duration in milliseconds
 const int vibAmp = 128;  // Vibration amplitude (0-255)
 
 // ===== ELEVATOR STATE MANAGEMENT =====
 
-/// Door state boolean arrays for state management
-/// Each array represents a specific door state: [opened, closed, opening, closing]
+// Door state boolean arrays for state management
+// Each array represents a specific door state: [opened, closed, opening, closing]
 final List<bool> openedState = [true, false, false, false];
 final List<bool> closedState = [false, true, false, false];
 final List<bool> openingState = [false, false, true, false];
@@ -133,8 +133,8 @@ const List<List<int>> reversedButtonIndex = [
 
 // ===== 1000 BUTTON MODE CONFIGURATION =====
 
-/// 1000 button mode panel configuration
-/// Defines the layout and behavior for the 1000-button elevator simulation
+// 1000 button mode panel configuration
+// Defines the layout and behavior for the 1000-button elevator simulation
 const int panelMax = 9;    // Maximum number of panels
 const int rowMax = 11;     // Maximum number of rows per panel
 const int columnMax = 11;  // Maximum number of columns per panel
@@ -158,8 +158,8 @@ const String lBID30Sec = "bestscore.30sec";
 
 // ===== AUDIO CONFIGURATION =====
 
-/// Audio player configuration and sound file paths
-/// Defines all audio assets used throughout the application
+// Audio player configuration and sound file paths
+// Defines all audio assets used throughout the application
 const String openSound = "assets/audios/pingpong.mp3";
 const String closeSound = "assets/audios/ping.mp3";
 const String countdown = "assets/audios/pon.mp3";
@@ -172,15 +172,15 @@ const String callSound = "assets/audios/call.mp3";
 
 // ===== FONT CONFIGURATION =====
 
-/// Font family definitions for different UI elements
-/// Provides consistent typography across the application
+// Font family definitions for different UI elements
+// Provides consistent typography across the application
 const List<String> numberFont = ["lcd", "dseg", "dseg"];
 const List<String> alphabetFont = ["lcd", "letsgo", "letsgo"];
 
 // ===== ASSET PATH CONFIGURATION =====
 
-/// Asset folder paths for organized resource management
-/// Centralizes all image asset locations for easy maintenance
+// Asset folder paths for organized resource management
+// Centralizes all image asset locations for easy maintenance
 const String assetsCommon = "assets/images/common/";
 const String assetsMenu = "assets/images/menu/";
 const String assetsNormal = "assets/images/normalMode/";
@@ -194,7 +194,7 @@ const String assetsSettings = "assets/images/settings/";
 
 // ===== IMAGE ASSETS =====
 
-/// Common UI element images used across multiple screens
+// Common UI element images used across multiple screens
 const String silver = "${assetsCommon}metal.png";
 const String wood = "${assetsCommon}wood.png";
 const String matte = "${assetsCommon}marble.png";
@@ -204,7 +204,7 @@ const String shimadaImage = "${assetsCommon}shimada.png";
 const String transpImage = "${assetsCommon}transparent.png";
 const String realTitleImage = "${assetsCommon}title1000Buttons.png";
 
-/// 1000 button mode specific images
+// 1000 button mode specific images
 const String circleButton = "${assetsNormal}circle.png";
 const String shimadaOpen = "${assets1000}sOpen.png";
 const String pressedShimadaOpen = "${assets1000}sPressedOpen.png";
@@ -213,7 +213,7 @@ const String pressedShimadaClose = "${assets1000}sPressedClose.png";
 const String shimadaAlert = "${assets1000}sPhone.png";
 const String pressedShimadaAlert = "${assets1000}sPressedPhone.png";
 
-/// Menu and navigation related images
+// Menu and navigation related images
 const String appLogo = "${assetsCommon}appTitle.png";
 const String landingPageLogo = "${assetsMenu}web.png";
 const String shopPageLogo = "${assetsMenu}cart.png";
@@ -353,7 +353,7 @@ List<bool> initialFloorStops = List.generate(initialFloorNumbers.length, (i) => 
 const int floorButtonCount = 16;
 const int oneFloorIndex = 4;
 
-/// Default UI customization settings
+// Default UI customization settings
 const int initialButtonStyle = 0;
 String initialBackgroundStyle = backgroundStyleList[0];
 String initialButtonShape = buttonShapeList[1];
@@ -426,20 +426,20 @@ List<bool> initialBackgroundLock = List.generate(
 
 // ===== EXTERNAL LINKS AND WEB PAGES =====
 
-/// Landing page URLs for different languages
+// Landing page URLs for different languages
 const String landingPageJa = "https://nakajimamasao-appstudio.web.app/elevator/ja/";
 const String landingPageEn = "https://nakajimamasao-appstudio.web.app/elevator/";
 const String privacyPolicyJa = "https://nakajimamasao-appstudio.web.app/terms/ja/";
 const String privacyPolicyEn = "https://nakajimamasao-appstudio.web.app/terms/";
 
-/// Social media and content links
+// Social media and content links
 const String youtubeJa = "https://www.youtube.com/watch?v=CQuYL0wG47E";
 const String youtubeEn = "https://www.youtube.com/watch?v=oMhqBiNHAtA";
 const String shopLink = "https://letselevator.designstore.jp";
 const String twitterLink = "https://twitter.com/letselevator";
 const String instagramLink = "https://www.instagram.com/letselevator/";
 
-/// Shimada Electric related links in multiple languages
+// Shimada Electric related links in multiple languages
 const String shimadaJa = "https://www.shimada.cc/oseba/";
 const String shimadaZh = "https://www.gltjp.com/zh-hans/article/item/20908/";
 const String shimadaEn = "https://www.gltjp.com/en/article/item/20908/";
@@ -447,14 +447,14 @@ const String shimadaKo = "https://www.gltjp.com/ko/article/item/20908/";
 
 // ===== COLOR DEFINITIONS =====
 
-/// Primary colors
+// Primary colors
 const Color lampColor = Color.fromRGBO(247, 178, 73, 1); //#f7b249
 const Color transpLampColor = Color.fromRGBO(247, 178, 73, 0.7);
 const Color blackColor = Color.fromRGBO(56, 54, 53, 1);
 const Color whiteColor = Colors.white;
 const Color transpColor = Colors.transparent;
 
-/// Light colors for various UI elements
+// Light colors for various UI elements
 const Color lightBlueColor = Colors.lightBlue;
 const Color goldLightColor = Color.fromRGBO(212, 175, 55, 1);
 const Color pinkLightColor = Color.fromRGBO(255, 128, 192, 1);
@@ -464,22 +464,22 @@ const Color purpleLightColor = Color.fromRGBO(192, 128, 255, 1);
 const Color greenLightColor = Color.fromRGBO(64, 255, 64, 1);
 const Color lightGrayColor = Color.fromRGBO(192, 192, 192, 1);
 
-/// Standard colors
+// Standard colors
 const Color yellowColor = Color.fromRGBO(255, 234, 0, 1); //#ffea00
 const Color greenColor = Color.fromRGBO(105, 184, 0, 1); //#69b800
 const Color redColor = Color.fromRGBO(255, 0, 0, 1);
 const Color grayColor = Colors.grey;
 const Color darkBlackColor = Colors.black;
 
-/// Transparent colors
+// Transparent colors
 const Color transpBlackColor = Color.fromRGBO(0, 0, 0, 0.6);
 const Color transpDarkColor = Color.fromRGBO(0, 0, 0, 0.6);
 /// Every lock plate. 0.6 left the white floor buttons plainly readable, and a
 /// lock has to look shut. One value, so no plate looks lighter than its neighbour
 const Color transpLockColor = Color.fromRGBO(0, 0, 0, 0.85);
 
-/// Display color schemes
-/// Background and text colors for different display themes
+// Display color schemes
+// Background and text colors for different display themes
 const List<Color> displayBackgroundColor = [
   darkBlackColor, darkBlackColor, lightBlueColor
 ];
@@ -492,15 +492,14 @@ const List<Color> numberColorList = [
   yellowColor, pinkLightColor, goldLightColor,
 ];
 
-// Lamp colours. Shimada's F7B249 is R 247 / G 178 / B 73; from temperature at 3000 K the
-// same formula gives FFB16E (G = 99.47080*ln(30) - 161.11957, B = 138.51773*ln(20) - 305.04480)
+// Lamp colours: Shimada's F7B249; a 3000 K temperature formula would give FFB16E.
 
-// --- AdMob banner ceiling --- only the inline adaptive size takes one; anchored
-// sizes derive height from slot width. Trade screen space against ad area here
+// --- AdMob banner ceiling --- only the inline adaptive size takes one.
+// Anchored sizes derive height from slot width; trade screen space against ad area here.
 const int inlineBannerMaxHeight = 90;
 
-// --- AdMob demo ad units --- public constants published by Google, not secrets, so
-// a missing .env key cannot break a debug build. Adaptive banners need their own unit
+// --- AdMob demo ad units --- public constants published by Google, not secrets.
+// A missing .env key cannot break a debug build; adaptive banners need their own unit.
 const String androidBannerTestId = "ca-app-pub-3940256099942544/9214589741";
 const String iosBannerTestId = "ca-app-pub-3940256099942544/2435281174";
 const String androidRewardedTestId = "ca-app-pub-3940256099942544/5224354917";

@@ -1,5 +1,5 @@
-// PurchaseManager: the one-off premium unlock, which a rewarded ad or a best score of 100
-// also earn free. The SDK never starts at launch: main() reads premiumKey, Restore fixes it.
+// PurchaseManager: the one-off premium unlock, also earned free by a rewarded ad or a best score of 100.
+// The SDK never starts at launch: main() reads premiumKey, Restore fixes it.
 
 import 'dart:io';
 import 'package:flutter/foundation.dart';
@@ -54,8 +54,8 @@ class PurchaseManager {
       }
       return true;
     } catch (e) {
-      // Clear the shared future so a later attempt can try again: a failure
-      // here is usually the network, and the user may well tap the lock twice
+      // Clear the shared future so a later attempt can try again.
+      // A failure here is usually the network, and the user may well tap the lock twice.
       _configuring = null;
       "RevenueCat configure failed: $e".debugPrint();
       return false;
@@ -92,7 +92,6 @@ class PurchaseManager {
   /// still unapproved, or whose user is offline. A button drawn on that answer
   /// is a button that does nothing when pressed, which is what NEO's Android
   /// 1.5.25 shipped: 499 presses over nine days and not one purchase
-  /// (00_Corporate_Planning/decisions/active/DEC-20260906-neo-purchase-test-mode-release.md)
   ///
   /// Null hides every purchase entry point: the offer is drawn only from a real price.
   /// Always a network round-trip; the answer, null included, replaces the known price
@@ -155,8 +154,8 @@ class PurchaseManager {
     if (!await _ensureConfigured()) {
       throw const StoreUnavailableException("configure");
     }
-    // Only this call is wrapped. getOfferings throws when the dashboard has no
-    // product, which is "nothing to sell", not a purchase that failed
+    // Only this call is wrapped.
+    // getOfferings throws when the dashboard has no product: that is "nothing to sell", not a failed purchase.
     final Offerings offerings;
     try {
       offerings = await Purchases.getOfferings();
@@ -204,8 +203,8 @@ class PurchaseManager {
         isPremium = await _purchasePremium();
         if (isPremium) await AnalyticsManager.upgradePurchased(source);
       }
-      // Cache only an upgrade. A restore that finds nothing is not proof of no premium
-      // (wrong store account), and the next launch reads this: false would show ads
+      // Cache only an upgrade: finding nothing on restore is no proof of no premium (wrong store account).
+      // The next launch reads this, and false would show ads.
       if (isPremium) await _cachePremium(true);
       _isPurchasing = false;
       return isPremium;

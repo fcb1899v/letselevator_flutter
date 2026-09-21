@@ -1,5 +1,5 @@
-// The home screen's launch work: games sync and price prefetch start after the first frame,
-// waiting on nothing. TTS init is not launch work; platform replies are driven by _settle.
+// The home screen's launch work: games sync and price prefetch start after the first frame.
+// They wait on nothing; TTS init is not launch work, and platform replies are driven by _settle.
 
 import 'dart:async';
 import 'package:flutter/gestures.dart';
@@ -154,8 +154,8 @@ void main() {
     await _pumpHome(tester);
     await tester.pump();
     expect(ttsInits(), 0);
-    // A floor that stops (5 is the default restricted one) and not the current: no speech
-    // until the ride starts after its wait, so only the tap itself can start TTS init
+    // Tap a floor that stops (5 is the default restricted one) and is not the current one.
+    // No speech until the ride starts after its wait, so only the tap itself can start TTS init.
     await tester.tap(find.text("3"));
     // The button also takes double taps, so a single tap lands after that timeout
     await tester.pump(kDoubleTapTimeout + const Duration(milliseconds: 50));

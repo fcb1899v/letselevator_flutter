@@ -6,8 +6,8 @@ import 'common_widget.dart';
 import 'constant.dart';
 import 'extension.dart';
 
-// Every string uses the platform font: context.font() gives Korean a display face
-// that breaks the one-plain-font rule. The PREMIUM board keeps letsgo, its own alphabet.
+// Every string uses the platform font, since context.font() gives Korean a display face.
+// That breaks the one-plain-font rule; the PREMIUM board keeps letsgo, its own alphabet.
 class PremiumPage extends StatelessWidget {
   const PremiumPage({
     super.key,
@@ -28,8 +28,8 @@ class PremiumPage extends StatelessWidget {
       backgroundColor: transpColor,
       body: Column(children: [
         Expanded(child: Stack(children: [
-        // The settings screen's own metal, darkened: its centre highlight is
-        // the same luminance as the white body text and swallows it
+        // The settings screen's own metal, darkened.
+        // Its centre highlight is the same luminance as the white body text and swallows it.
         common.commonBackground(
           width: context.width(),
           image: backgroundStyleList[0].backGroundImage(),
@@ -47,8 +47,8 @@ class PremiumPage extends StatelessWidget {
                 ),
               ),
             ),
-            // Centred in what the close button leaves, and scaled down where it does not fit
-            // (iPad landscape): a scroll view keeps Buy and Restore below the fold there
+            // Centred in what the close button leaves, and scaled down where it does not fit (iPad landscape).
+            // A scroll view keeps Buy and Restore below the fold there.
             Expanded(child: Center(
               child: FittedBox(fit: BoxFit.scaleDown,
                 child: SizedBox(width: context.width(),

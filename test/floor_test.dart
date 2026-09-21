@@ -1,5 +1,5 @@
-// Floor panel rules: the picker range, the save guard, and the stop toggles. Pure functions
-// in constant.dart / extension.dart, so they are checked exhaustively, not through widgets.
+// Floor panel rules: the picker range, the save guard, and the stop toggles.
+// They are pure functions in constant.dart / extension.dart, checked exhaustively, not through widgets.
 
 import 'dart:io';
 
@@ -54,8 +54,8 @@ void main() {
   });
 
   test("a value meant for another button is refused", () {
-    // The picker reports an index, not a floor, so a stale selection can reach
-    // the save and push the panel past max unless the save refuses it
+    // The picker reports an index, not a floor, so a stale selection can reach the save.
+    // It would push the panel past max unless the save refuses it.
     final list = List<int>.from(initialFloorNumbers);
     for (final cell in selectableCells()) {
       final row = cell[0], col = cell[1];
@@ -347,8 +347,8 @@ void main() {
   });
 
   group("shimada assets", () {
-    // The 1000Mode folder holds one artwork per floor, and B6 has none since
-    // initialFloorNumbers moved: the shimada panel is pinned to the files that exist
+    // The 1000Mode folder holds one artwork per floor, and B6 has none since initialFloorNumbers moved.
+    // So the shimada panel is pinned to the files that exist.
     test("every shimada button image is on disk", () {
       for (int row = 0; row < 4; row++) {
         for (int col = 0; col < 4; col++) {
@@ -412,8 +412,8 @@ void main() {
     });
 
     test("the documented ratios are what the constants actually produce", () {
-      // Pinned here because the tests below re-derive their expectations from the
-      // same constants, so a changed constant would otherwise move the goalposts
+      // Pinned here because the tests below re-derive their expectations from the same constants.
+      // A changed constant would otherwise move the goalposts.
       expect(1 / (lockPlatesPerRow * lockPlateHeightFactor),
         closeTo(2.319, 0.001), reason: "where the width cap starts");
       expect(1 / (lockPlatesPerRow
@@ -422,8 +422,8 @@ void main() {
     });
 
     test("the cell still holds the floor button it is drawn around", () {
-      // settingsButtonSize() is height * 0.07. Above 21:9 no phone exists, so
-      // the shape only has to hold together up to there
+      // settingsButtonSize() is height * 0.07.
+      // Above 21:9 no phone exists, so the shape only has to hold together up to there.
       for (final s in screens) {
         final w = s[0], h = s[1];
         if (h / w > 2.5) continue;
@@ -436,8 +436,8 @@ void main() {
       for (final s in screens) {
         final w = s[0], h = s[1];
         final plate = floorLockPlateWidth(w, h);
-        // The cell inside is lockPillWidth too, so this is what stops the plate
-        // from being shrunk past the floor button it is supposed to hide
+        // The cell inside is lockPillWidth too.
+        // So this stops the plate from being shrunk past the floor button it is supposed to hide.
         expect(lockPillWidth(w, h) <= plate + 0.001, isTrue,
           reason: "the cell sticks out of the plate at ${w}x$h");
         expect(lockPillWidth(w, h) >= plate * 0.5, isTrue,
@@ -495,8 +495,8 @@ void main() {
     });
 
     test("the sum counts every part of the cell", () {
-      // Dropping a term makes the cell look roomier than it is, which is how
-      // the 6.3px overflow got in
+      // Dropping a term makes the cell look roomier than it is.
+      // That is how the 6.3px overflow got in.
       const h = 667.0;
       expect(floorCellContentHeight(h) > h * floorButtonFactor
         + cupertinoSwitchSize.height * h * floorStopSwitchScaleFactor, isTrue,

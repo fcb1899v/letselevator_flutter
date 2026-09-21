@@ -14,8 +14,8 @@ class FloorManager {
     required int newValue,
     required int newIndex,
   }) async {
-    // The picker only offers the gap between the neighbouring buttons, so the
-    // same gap is the only thing accepted here. Nothing else has to move
+    // The picker only offers the gap between the neighbouring buttons, so that gap is all that is accepted.
+    // Nothing else has to move.
     if (!isInFloorGap(currentList, newIndex, newValue)) return currentList;
     final newList = List<int>.from(currentList)..[newIndex] = newValue;
     final prefs = await SharedPreferences.getInstance();

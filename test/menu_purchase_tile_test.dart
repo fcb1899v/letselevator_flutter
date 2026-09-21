@@ -1,5 +1,5 @@
-// The purchase tile is drawn only from a real store price, and appears as soon as one
-// arrives. No pumpAndSettle: the spinner animates while initState's real IO is pending.
+// The purchase tile is drawn only from a real store price, and appears as soon as one arrives.
+// No pumpAndSettle: the spinner animates while initState's real IO is pending.
 
 import 'dart:async';
 import 'package:flutter/material.dart';

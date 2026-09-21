@@ -1,5 +1,5 @@
-// Draws the purchase surfaces at iPad Air 11-inch size, both orientations, failing on any
-// overflow: iPadOS ignores the portrait lock while multitasking. Bundled fonts are loaded.
+// Draws the purchase surfaces at iPad Air 11-inch size in both orientations, failing on any overflow.
+// iPadOS ignores the portrait lock while multitasking; bundled fonts are loaded.
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';

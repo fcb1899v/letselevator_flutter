@@ -109,8 +109,8 @@ class HomePage extends HookConsumerWidget {
       }
     }
 
-    // Price prefetch once the splash is gone, plus its delay; never in the launch path
-    // (iOS 1.5.24 launch-crash rejection). The menu then opens with it
+    // Price prefetch after the splash and a delay, never in the launch path (iOS 1.5.24 launch crash).
+    // The menu then opens with it.
     Future<void> prefetchPrice() async {
       if (!context.mounted || ref.read(planProvider).isPremium) return;
       "Launch: price prefetch scheduled at ${launchClock.elapsedMilliseconds} ms".debugPrint();

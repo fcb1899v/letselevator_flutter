@@ -180,8 +180,8 @@ extension ContextExt on BuildContext {
       (counter == max) ? rooftop():
       (counter == 0) ? ground():
       (lang() == "en") ? floor("${counter.enRankNumber()}${basement(counter)}"):
-      // es / fr put the ordinal before the noun. A basement already carries its
-      // own noun (Sotano / Sous-sol), so the floor noun is added above ground only
+      // es / fr put the ordinal before the noun.
+      // A basement carries its own noun (Sotano / Sous-sol), so the floor noun is added above ground only.
       (lang() == "es") ? (counter < 0) ? "${counter.esRankNumber()}${basement(counter)}": floor(counter.esRankNumber()):
       (lang() == "fr") ? (counter < 0) ? "${counter.frRankNumber()}${basement(counter)}": floor(counter.frRankNumber()):
       floor("${basement(counter)}${counter.abs()}");
@@ -216,8 +216,8 @@ extension ContextExt on BuildContext {
   String premiumNoAds() => AppLocalizations.of(this)!.premiumNoAds;
   String premiumUnlockAll() => AppLocalizations.of(this)!.premiumUnlockAll;
   String premiumOneTime() => AppLocalizations.of(this)!.premiumOneTime;
-  // The label carries the price when there is one. An empty price would read
-  // as "Unlock for " with nothing after it, so it falls back to the bare verb
+  // The label carries the price when there is one.
+  // An empty price would read as "Unlock for " with nothing after it, so it falls back to the bare verb.
   String premiumBuy(String price) => (price.isEmpty) ?
       AppLocalizations.of(this)!.premiumBuy:
       AppLocalizations.of(this)!.premiumPrice(price);
@@ -225,8 +225,8 @@ extension ContextExt on BuildContext {
   String premiumThanks() => AppLocalizations.of(this)!.premiumThanks;
   String premiumFailed() => AppLocalizations.of(this)!.premiumFailed;
   String premiumRestoreFailed() => AppLocalizations.of(this)!.premiumRestoreFailed;
-  // Shown when the offer cannot be made at all (no offering, unapproved product, no
-  // network). Distinct from premiumFailed(): nobody has tried to buy anything yet
+  // Shown when the offer cannot be made at all (no offering, unapproved product, no network).
+  // Distinct from premiumFailed(): nobody has tried to buy anything yet.
   String premiumUnavailable() => AppLocalizations.of(this)!.premiumUnavailable;
 
   // --- Menu and Navigation ---
@@ -1150,8 +1150,8 @@ extension ListInt on List<int> {
   /// The picker stops at the neighbouring buttons, so no other floor has to move
   int selectFirstFloor(int row, int col) {
     final i = reversedButtonIndex[row][col];
-    // this[i - 1] is never -1 unless i is 1F, which cannot be selected, so the
-    // result never lands on the floor 0 that does not exist
+    // this[i - 1] is never -1 unless i is 1F, which cannot be selected.
+    // So the result never lands on the floor 0 that does not exist.
     if (i == 0) return min;
     return this[i - 1] + 1;
   }
