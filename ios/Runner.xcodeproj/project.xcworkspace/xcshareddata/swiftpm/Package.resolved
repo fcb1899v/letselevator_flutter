@@ -23,8 +23,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/firebase/firebase-ios-sdk",
       "state" : {
-        "revision" : "27eaab3918e0bf78711cf1abf240577176326432",
-        "version" : "12.19.0"
+        "revision" : "346daa9f46316aa372b35b317e18224acc2e9063",
+        "version" : "12.18.0"
       }
     },
     {
@@ -32,8 +32,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/googleads/google-ads-on-device-conversion-ios-sdk",
       "state" : {
-        "revision" : "0208e2681ec81f8a9c81084696f60fcce26cb7ee",
-        "version" : "3.7.0"
+        "revision" : "dc39082d8881109d35b94b1c122164c0e8d08a55",
+        "version" : "3.6.1"
       }
     },
     {
@@ -41,8 +41,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/google/GoogleAppMeasurement.git",
       "state" : {
-        "revision" : "b8455dd2ff55cc269fda7a4f9eac6c1e3588c53f",
-        "version" : "12.19.2"
+        "revision" : "f04760d460296cc0fa430935a7be212e5bd67fc5",
+        "version" : "12.18.0"
       }
     },
     {
@@ -122,8 +122,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/RevenueCat/purchases-hybrid-common.git",
       "state" : {
-        "revision" : "884b9eeccb01b311cfaae670215323b7925b8fd0",
-        "version" : "18.37.0"
+        "revision" : "b3c41db7eb9da6b3bfee797fbe54b00a17f0df96",
+        "version" : "19.2.0"
       }
     },
     {
@@ -131,8 +131,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/RevenueCat/purchases-ios-spm",
       "state" : {
-        "revision" : "b5c4652249754d6d8ec415a6bc79a611ea38c839",
-        "version" : "5.88.0"
+        "revision" : "3555033df339c6ee36e8c5f4a75a41475de7b018",
+        "version" : "5.90.1"
       }
     },
     {
@@ -140,8 +140,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/googleads/swift-package-manager-google-mobile-ads",
       "state" : {
-        "revision" : "54efe6d39a7b41b84c1041f21c704a7e6a493d7a",
-        "version" : "13.9.0"
+        "revision" : "12b7af0f844723a86fd3c0089b02f64b1e495605",
+        "version" : "13.10.0"
       }
     },
     {
