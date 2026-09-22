@@ -182,8 +182,9 @@ extension ContextExt on BuildContext {
       (lang() == "en") ? floor("${counter.enRankNumber()}${basement(counter)}"):
       // es / fr put the ordinal before the noun.
       // A basement carries its own noun (Sotano / Sous-sol), so the floor noun is added above ground only.
-      (lang() == "es") ? (counter < 0) ? "${counter.esRankNumber()}${basement(counter)}": floor(counter.esRankNumber()):
-      (lang() == "fr") ? (counter < 0) ? "${counter.frRankNumber()}${basement(counter)}": floor(counter.frRankNumber()):
+      // The ordinal tables read a positive number only, so a basement passes its absolute value.
+      (lang() == "es") ? (counter < 0) ? "${counter.abs().esRankNumber()}${basement(counter)}": floor(counter.esRankNumber()):
+      (lang() == "fr") ? (counter < 0) ? "${counter.abs().frRankNumber()}${basement(counter)}": floor(counter.frRankNumber()):
       floor("${basement(counter)}${counter.abs()}");
   String openingSound(int counter, bool isShimada) =>
       "${soundFloor(counter)}${soundPlace(counter, isShimada)}${openDoor()}";

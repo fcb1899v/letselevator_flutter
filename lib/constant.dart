@@ -34,7 +34,7 @@ const int unlockAllBestScore = 100;
 
 // Elevator floor range configuration
 // Defines the minimum and maximum floors available in the elevator system
-const int min = -6;  // Basement floors (B6)
+const int min = -12; // Basement floors (B12)
 const int max = 163; // Maximum floor (163F)
 
 // Elevator door operation timing constants
@@ -59,8 +59,8 @@ final List<bool> closingState = [false, false, false, true];
 
 // ===== BUTTON LAYOUT AND INDEXING =====
 
-/// Button layout helper functions for 4x4 elevator panel
-/// Manages button positioning and indexing for different floor layouts
+// Button layout helper functions for 4x4 elevator panel
+// Manages button positioning and indexing for different floor layouts
 bool isBasement(int row, int col) => (row == 3);
 /// How far the two 1F controls are faded. They are dimmed rather than covered:
 /// a black plate over the cell hides the floor number itself
@@ -231,7 +231,7 @@ const String purchaseButton = "${assetsMenu}purchase.png";
 
 /// Initial floor configuration for elevator simulation
 const List<int> initialFloorNumbers = [
-  -6, -4, -2, -1, 1, 2, 3, 4, 5, 6, 7, 8, 14, 100, 154, max,
+  -12, -7, -2, -1, 1, 2, 3, 4, 5, 6, 7, 8, 14, 100, 154, max,
 ];
 
 /// The floor buttons that start locked, each list in the order it opens.
@@ -240,7 +240,7 @@ const List<int> initialFloorNumbers = [
 /// from the first launch
 const List<List<int>> floorUnlockOrders = [
   [11, 12, 13, 14, 15],  // 8F and up
-  [2, 1, 0],             // B2, B4, B6
+  [2, 1, 0],             // B2, B7, B12
 ];
 
 /// Saved under its own name, beside the shape and background locks
@@ -321,7 +321,7 @@ const List<int> preLockFloorNumbers = [
 
 /// Shimada mode draws one artwork per floor from assets/images/1000Mode/, so its
 /// panel is pinned to the files that exist there. It does not follow
-/// initialFloorNumbers, whose basement moved to B1/B2/B4/B6
+/// initialFloorNumbers, whose basement moved to B1/B2/B7/B12
 const List<int> shimadaFloorNumbers = [
   -4, -3, -2, -1, 1, 2, 3, 4, 5, 6, 7, 8, 14, 100, 154, max,
 ];

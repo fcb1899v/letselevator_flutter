@@ -35,6 +35,11 @@ void main() {
     expectValidPanel(initialFloorNumbers, "initial");
   });
 
+  test("the panel starts with B12, B7, B2 and B1 below 1F", () {
+    expect(initialFloorNumbers.sublist(0, oneFloorIndex), [-12, -7, -2, -1]);
+    expect(min, -12);
+  });
+
   test("every offered floor is accepted and keeps the panel valid", () {
     for (final cell in selectableCells()) {
       final row = cell[0], col = cell[1];

@@ -167,13 +167,13 @@ packages/
 - 1000 Buttons Challenge: 30-second speed challenge on a large button grid
 - Shimada Mode: special configuration
 - Every button except 1F can be renumbered.
-  The picker offers only the gap between the neighbouring buttons, inside B6..163F, so the panel always reads bottom to top.
+  The picker offers only the gap between the neighbouring buttons, inside B12..163F, so the panel always reads bottom to top.
   With sixteen buttons the top therefore stops at 12F and the bottom at B4
 - Each button can be set to stop or to bypass, except 1F.
   At least one floor above 1F and one below it must stop, so the last remaining switch on a side is disabled
 - Backgrounds unlock one at a time: the first two are free, each of the rest costs its own rewarded video
 - Floors unlock one at a time as well.
-  Above ground and below it are two independent orders (8F, 14F, 100F, 154F, R / B2, B4, B6), and each side offers its button only on the next one in its own order.
+  Above ground and below it are two independent orders (8F, 14F, 100F, 154F, R / B2, B7, B12), and each side offers its button only on the next one in its own order.
   One unlock covers both the floor number and the stop switch of that button
 - Shimada mode keeps its own panel (`shimadaFloorNumbers`).
   It draws one artwork per floor from `assets/images/1000Mode/`, so it must not follow `initialFloorNumbers`.
