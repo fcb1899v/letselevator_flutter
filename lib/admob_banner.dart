@@ -1,3 +1,4 @@
+import 'dart:math' as math;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -19,7 +20,7 @@ class AdBannerWidget extends HookConsumerWidget {
     // A conditional early return above a hook changes the hook order.
     final isPremium = ref.watch(planProvider).isPremium;
     final adLoaded = useState(false);
-    final adFailedLoading = useState(false);
+    final retryAttempt = useRef(0);
     final bannerAd = useState<BannerAd?>(null);
     // Inline adaptive: Google picks a height under inlineBannerMaxHeight; the slot keeps the ceiling.
     // Ref, not state: callbacks can land after dispose.
@@ -52,14 +53,22 @@ class AdBannerWidget extends HookConsumerWidget {
             if (!context.mounted) return;
             adLoaded.value = true;
           },
+          /// Retries with exponential backoff, capped attempts.
           onAdFailedToLoad: (ad, error) {
-            ad.dispose();
             'Ad: $ad failed to load: $error'.debugPrint();
-            adFailedLoading.value = true;
-            // Dead as written: adFailedLoading was just set true, so the guard below never passes.
-            // Left as is; enabling it changes how often the app requests ads.
-            Future.delayed(const Duration(seconds: 30), () {
-              if (!adLoaded.value && !adFailedLoading.value) loadAdBanner(slotWidth);
+            if (adLoaded.value) return;
+            ad.dispose();
+            retryAttempt.value += 1;
+            if (retryAttempt.value > bannerMaxRetry) return;
+            final backoffSec = math.min(
+              bannerRetryBaseSec * (1 << (retryAttempt.value - 1)),
+              bannerRetryMaxSec,
+            );
+            Future.delayed(Duration(seconds: backoffSec), () {
+              // Premium can flip true during the wait; the retry path bypasses requestAdIfAllowed's guard.
+              if (adLoaded.value || !context.mounted) return;
+              if (ref.read(planProvider).isPremium) return;
+              loadAdBanner(slotWidth);
             });
           },
         ),

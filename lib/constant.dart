@@ -505,6 +505,11 @@ const String iosBannerTestId = "ca-app-pub-3940256099942544/2435281174";
 const String androidRewardedTestId = "ca-app-pub-3940256099942544/5224354917";
 const String iosRewardedTestId = "ca-app-pub-3940256099942544/1712485313";
 
+// Banner retry: capped attempts with exponential backoff.
+const int bannerMaxRetry = 5;
+const int bannerRetryBaseSec = 30;
+const int bannerRetryMaxSec = 300;
+
 // No interstitial demo units: admob_interstitial.dart is commented out in full.
 // Put them back alongside the code if interstitials ever return
 
