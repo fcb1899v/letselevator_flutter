@@ -37,7 +37,7 @@ android {
     // (FlutterExtension.kt) and referencing it would move this app back a level.
     compileSdkVersion 37
     ndkVersion flutter.ndkVersion   // 28.2.13676358 in Flutter 3.47.2
-    namespace "nakajimamasao.appstudio.letselevator"
+    namespace "com.nakajimamasaoappstudio.letselevator"
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_17
