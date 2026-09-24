@@ -122,7 +122,9 @@ lib/
 ├── admob_rewarded.dart      # Rewarded advertisements
 ├── common_widget.dart       # Common widgets
 ├── constant.dart            # Constant definitions
-├── extension.dart           # Extension functions
+├── extension.dart           # Extension functions (UI, navigation, layout)
+├── l10n_extension.dart      # Localization helpers, `part of extension.dart`
+├── size_extension.dart      # Responsive layout size helpers, `part of extension.dart`
 └── l10n/                    # Localization
     ├── app_en.arb
     ├── app_es.arb
@@ -200,6 +202,7 @@ The app checks the entitlement `letselevator_premium` (`premiumEntitlementID` in
 
 - ARB files live in `lib/l10n/` (en, es, fr, ja, ko, zh)
 - Configuration is managed by `l10n.yaml`
+- UI code reads strings through `context.xxx()`, defined in `lib/l10n_extension.dart` (a `part of` `lib/extension.dart`), instead of calling `AppLocalizations.of(context)!` directly
 - Supported languages: English, Spanish, French, Japanese, Korean, Chinese
 - To add a language:
   1. Create `app_xx.arb`
