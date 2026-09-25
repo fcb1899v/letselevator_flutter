@@ -93,6 +93,8 @@ flutter_native_splash:
   web: false
 
 flutter:
+  config:
+    enable-swift-package-manager: true
   generate: true
   uses-material-design: true
   assets:
