@@ -173,7 +173,7 @@ class HomePage extends HookConsumerWidget {
                   if (counter.value < nextFloor.value && nextFloor.value < max + 1) counter.value = counter.value + 1;
                   if (counter.value == 0) counter.value = 1;
                   if (counter.value == nextFloor.value || counter.value == max) {
-                    if (context.mounted) ttsManager.speakText(context.openingSound(counter.value, isShimada), true);
+                    if (context.mounted) ttsManager.speakText(context.openingSound(counter.value, isShimada, counter.value == floorNumbers.last), true);
                     counter.value.clearLowerFloor(isAboveSelectedList.value, isUnderSelectedList.value);
                     nextFloor.value = counter.value.upNextFloor(up: isAboveSelectedList.value, down: isUnderSelectedList.value);
                     currentFloor.value = counter.value;
@@ -209,7 +209,7 @@ class HomePage extends HookConsumerWidget {
                   if (min - 1 < nextFloor.value && nextFloor.value < counter.value) counter.value = counter.value - 1;
                   if (counter.value == 0) counter.value = -1;
                   if (counter.value == nextFloor.value || counter.value == min) {
-                    if (context.mounted) ttsManager.speakText(context.openingSound(counter.value, isShimada), true);
+                    if (context.mounted) ttsManager.speakText(context.openingSound(counter.value, isShimada, counter.value == floorNumbers.last), true);
                     counter.value.clearUpperFloor(isAboveSelectedList.value, isUnderSelectedList.value);
                     nextFloor.value = counter.value.downNextFloor(up: isAboveSelectedList.value, down: isUnderSelectedList.value);
                     currentFloor.value = counter.value;
@@ -485,7 +485,7 @@ class HomePage extends HookConsumerWidget {
                             shape: buttonShape,
                           ),
                           size: context.floorButtonSize(),
-                          number: isShimada ? "": col.value.buttonNumber(),
+                          number: isShimada ? "": col.value.buttonNumber(col.value == floorNumbers.last),
                           fontSize: context.buttonNumberFontSize(),
                           color: col.value.floorButtonNumberColor(
                             up: isAboveSelectedList.value,
@@ -561,7 +561,7 @@ class HomeWidget {
       right: context.displayMargin()
     ),
     child: useMemoized(() => HookBuilder(
-      builder: (context) =>(buttonStyle == 0) ? Text(counter.displayNumber(),
+      builder: (context) =>(buttonStyle == 0) ? Text(counter.displayNumber(counter == floorNumbers.last),
         style: TextStyle(
           color: displayNumberColor[buttonStyle],
           fontSize: context.displayNumberFontSize(),
@@ -571,7 +571,7 @@ class HomeWidget {
       ): Text.rich(textAlign: TextAlign.right,
         TextSpan(children: [
           TextSpan(
-            text: counter.displayNumberHeader(),
+            text: counter.displayNumberHeader(counter == floorNumbers.last),
             style: TextStyle(
               color: displayNumberColor[buttonStyle],
               fontSize: context.displayNumberHeaderFontSize(),

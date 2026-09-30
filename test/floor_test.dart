@@ -526,4 +526,20 @@ void main() {
       }
     });
   });
+
+  group("the top button always shows R, whatever floor it is set to", () {
+    // The top button can be renumbered below the structural 163F.
+    // "R" must key off isTop, not this floor's own number.
+    test("a top floor below 163 still shows R", () {
+      expect(120.displayNumberHeader(true), "R");
+      expect(120.buttonNumber(true), "R");
+      expect(120.displayNumber(true), "R");
+    });
+
+    test("the same floor number away from the top shows its number", () {
+      expect(120.displayNumberHeader(false), " ");
+      expect(120.buttonNumber(false), "120");
+      expect(120.displayNumber(false), "120");
+    });
+  });
 }

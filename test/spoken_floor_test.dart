@@ -18,7 +18,7 @@ Future<String> _spoken(WidgetTester tester, String lang, int floor) async {
     }),
   ));
   await tester.pump();
-  return captured.soundFloor(floor);
+  return captured.soundFloor(floor, false);
 }
 
 void main() {

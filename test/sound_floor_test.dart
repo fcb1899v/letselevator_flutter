@@ -7,14 +7,14 @@ import 'package:letselevator/extension.dart';
 import 'package:letselevator/l10n/app_localizations.dart';
 
 /// The announcement for [floor] as the app would speak it in [lang]
-Future<String> _spoken(WidgetTester tester, String lang, int floor) async {
+Future<String> _spoken(WidgetTester tester, String lang, int floor, {bool isTop = false}) async {
   late String said;
   await tester.pumpWidget(MaterialApp(
     localizationsDelegates: AppLocalizations.localizationsDelegates,
     supportedLocales: AppLocalizations.supportedLocales,
     locale: Locale(lang),
     home: Builder(builder: (context) {
-      said = context.soundFloor(floor);
+      said = context.soundFloor(floor, isTop);
       return const SizedBox.shrink();
     }),
   ));
@@ -48,5 +48,12 @@ void main() {
     // France and Spain count the floor above the ground one as the first
     expect(await _spoken(tester, "fr", 0), contains("Rez-de-chaussée"));
     expect(await _spoken(tester, "es", 0), contains("Planta baja"));
+  });
+
+  testWidgets("a top floor below 163 is still named as the rooftop", (tester) async {
+    // The top button can be renumbered below the structural 163F, so the
+    // rooftop announcement must key off isTop, not the floor number itself.
+    expect(await _spoken(tester, "en", 120, isTop: true), contains("top floor"));
+    expect(await _spoken(tester, "en", 120, isTop: false), isNot(contains("top floor")));
   });
 }

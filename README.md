@@ -171,6 +171,8 @@ packages/
 - Every button except 1F can be renumbered.
   The picker offers only the gap between the neighbouring buttons, inside B12..163F, so the panel always reads bottom to top.
   With sixteen buttons the top therefore stops at 12F and the bottom at B4
+- The top button always displays as R, whatever floor number it is set to
+- Arriving at the top floor speaks the rooftop announcement, not a floor number, for the same reason
 - Each button can be set to stop or to bypass, except 1F.
   At least one floor above 1F and one below it must stop, so the last remaining switch on a side is disabled
 - Backgrounds unlock one at a time: the first two are free, each of the rest costs its own rewarded video

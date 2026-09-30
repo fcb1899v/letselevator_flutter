@@ -870,7 +870,7 @@ class SettingsWidget {
                       child: CommonWidget(context: context).floorButtonImage(
                         image: isButtonOn[row.key][col.key].numberBackground(1, "normal"),
                         size: context.settingsButtonSize(),
-                        number: col.value.buttonNumber(),
+                        number: col.value.buttonNumber(col.value == floorNumbers.last),
                         fontSize: context.settingsNumberButtonFontSize(),
                         color: blackColor,
                         numberOffset: 0.0

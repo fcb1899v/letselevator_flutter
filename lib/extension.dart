@@ -242,14 +242,14 @@ extension IntExt on int {
 
   // --- Display Logic ---
   // Current floor counter display with special symbols
-  String displayNumber() =>
-      (this == max) ? "R":
+  String displayNumber(bool isTop) =>
+      isTop ? "R":
       (this == 0) ? "G":
       (this < 0) ? "B${abs()}":
       "$this";
   // Floor number header display for elevator display panel
-  String displayNumberHeader() =>
-      (this == max) ? "R":
+  String displayNumberHeader(bool isTop) =>
+      isTop ? "R":
       (this == 0) ? "G":
       (this < 0) ? "B":
       " ";
@@ -271,8 +271,8 @@ extension IntExt on int {
 
   // --- Button State Management ---
   // Floor button number display with special symbols
-  String buttonNumber() =>
-      (this == max) ? "R":
+  String buttonNumber(bool isTop) =>
+      isTop ? "R":
       (this == 0) ? "G":
       (this < 0) ? "B${abs()}":
       "$this";
@@ -704,7 +704,7 @@ extension BoolExt on bool {
   Color floorButtonNumberColor(String buttonShape) => numberColor(buttonShape.buttonShapeIndex());
   // Shimada button image selection for 1000 button challenge
   String shimadaButtonImage(int row, int col) =>
-      '$assets1000${this ? "p": ""}${shimadaFloorNumbers.toReversedMatrix(4)[row][col].buttonNumber()}.png';
+      '$assets1000${this ? "p": ""}${shimadaFloorNumbers.toReversedMatrix(4)[row][col].buttonNumber(shimadaFloorNumbers.toReversedMatrix(4)[row][col] == max)}.png';
 
   // --- Menu Navigation ---
   // Mode change button selection based on current Shimada state

@@ -40,8 +40,8 @@ extension L10nContextExt on BuildContext {
       (counter == -2) ? parking():
       (counter == max) ? paradise():
       "";
-  String soundFloor(int counter) =>
-      (counter == max) ? rooftop():
+  String soundFloor(int counter, bool isTop) =>
+      isTop ? rooftop():
       (counter == 0) ? ground():
       (lang() == "en") ? floor("${counter.enRankNumber()}${basement(counter)}"):
       // es / fr put the ordinal before the noun.
@@ -50,8 +50,8 @@ extension L10nContextExt on BuildContext {
       (lang() == "es") ? (counter < 0) ? "${counter.abs().esRankNumber()}${basement(counter)}": floor(counter.esRankNumber()):
       (lang() == "fr") ? (counter < 0) ? "${counter.abs().frRankNumber()}${basement(counter)}": floor(counter.frRankNumber()):
       floor("${basement(counter)}${counter.abs()}");
-  String openingSound(int counter, bool isShimada) =>
-      "${soundFloor(counter)}${soundPlace(counter, isShimada)}${openDoor()}";
+  String openingSound(int counter, bool isShimada, bool isTop) =>
+      "${soundFloor(counter, isTop)}${soundPlace(counter, isShimada)}${openDoor()}";
 
   // --- 1000 Button Mode and Settings ---
   // Text localization for 1000-button challenge mode and settings interface
